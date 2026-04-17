@@ -116,6 +116,21 @@ a {
     transform: scale(0.98);
   }
 
+  .favorite-button {
+    transition:
+      transform 180ms ease,
+      box-shadow 220ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .favorite-button-animate {
+    transform: scale(1.04);
+    box-shadow:
+      0 12px 28px rgba(79, 2, 2, 0.1),
+      0 0 0 6px rgba(255, 208, 148, 0.16);
+  }
+
   .editorial-line {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--color-border-medium), transparent);

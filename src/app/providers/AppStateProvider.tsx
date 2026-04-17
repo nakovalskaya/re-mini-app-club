@@ -4,39 +4,80 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode
 } from "react";
-
-const FAVORITES_KEY = "club-mini-app:favorites:v1";
+import { cloudStorage } from "@/storage/cloud-storage/cloudStorage";
+import { STORAGE_KEYS } from "@/storage/user-state/keys";
 
 type AppStateContextValue = {
   favoriteIds: string[];
   isFavorite: (materialId: string) => boolean;
   toggleFavorite: (materialId: string) => void;
+  favoritesHydrated: boolean;
 };
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [favoritesHydrated, setFavoritesHydrated] = useState(false);
+  const hasLoadedFavorites = useRef(false);
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(FAVORITES_KEY);
-    if (!stored) {
-      return;
+  const normalizeFavoriteIds = useCallback((value: unknown) => {
+    if (!Array.isArray(value)) {
+      return [];
     }
 
-    try {
-      const parsed = JSON.parse(stored) as string[];
-      setFavoriteIds(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      setFavoriteIds([]);
-    }
+    return [...new Set(value.filter((item): item is string => typeof item === "string"))];
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
+    let cancelled = false;
+
+    async function loadFavorites() {
+      try {
+        const stored = await cloudStorage.getItem(STORAGE_KEYS.favorites);
+        if (cancelled) {
+          return;
+        }
+
+        if (!stored) {
+          setFavoriteIds([]);
+          return;
+        }
+
+        const parsed = JSON.parse(stored) as unknown;
+        setFavoriteIds(normalizeFavoriteIds(parsed));
+      } catch {
+        if (!cancelled) {
+          setFavoriteIds([]);
+        }
+      } finally {
+        if (!cancelled) {
+          hasLoadedFavorites.current = true;
+          setFavoritesHydrated(true);
+        }
+      }
+    }
+
+    void loadFavorites();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [normalizeFavoriteIds]);
+
+  useEffect(() => {
+    if (!hasLoadedFavorites.current) {
+      return;
+    }
+
+    const uniqueFavorites = [...new Set(favoriteIds)];
+    const serialized = JSON.stringify(uniqueFavorites);
+
+    void cloudStorage.setItem(STORAGE_KEYS.favorites, serialized);
   }, [favoriteIds]);
 
   const isFavorite = useCallback(
@@ -56,9 +97,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => ({
       favoriteIds,
       isFavorite,
-      toggleFavorite
+      toggleFavorite,
+      favoritesHydrated
     }),
-    [favoriteIds, isFavorite, toggleFavorite]
+    [favoriteIds, isFavorite, toggleFavorite, favoritesHydrated]
   );
 
   return (

@@ -5,8 +5,10 @@ import { useAppState } from "@/app/providers/AppStateProvider";
 import { materials } from "@/data/materials";
 
 export function FavoritesScreen() {
-  const { favoriteIds } = useAppState();
-  const favoriteMaterials = materials.filter((material) => favoriteIds.includes(material.id));
+  const { favoriteIds, favoritesHydrated } = useAppState();
+  const favoriteMaterials = favoriteIds
+    .map((favoriteId) => materials.find((material) => material.id === favoriteId))
+    .filter((material): material is (typeof materials)[number] => Boolean(material));
 
   return (
     <section className="screen-stack">
@@ -15,7 +17,12 @@ export function FavoritesScreen() {
         eyebrow="Личное"
         description="Сохраняй важные материалы звездой и возвращайся к ним в один тап."
       />
-      {favoriteMaterials.length === 0 ? (
+      {!favoritesHydrated ? (
+        <EmptyState
+          title="Загружаем избранное"
+          description="Подтягиваем сохранённые материалы."
+        />
+      ) : favoriteMaterials.length === 0 ? (
         <EmptyState
           title="Пока ничего не сохранено"
           description="Нажми на звезду в карточке материала, и он появится здесь."
