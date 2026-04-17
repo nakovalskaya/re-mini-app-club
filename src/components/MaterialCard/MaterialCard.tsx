@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
-import { openTelegramLink } from "@/features/telegram/telegram";
 import type { Material } from "@/shared/types/content";
 
 type MaterialCardProps = {
@@ -13,9 +12,19 @@ export function MaterialCard({
   material,
   featured = false
 }: MaterialCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <Link
-      to={`/materials/${material.id}`}
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/materials/${material.id}`)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          navigate(`/materials/${material.id}`);
+        }
+      }}
       className="surface-card pressable block overflow-hidden"
     >
       <div className="relative">
@@ -52,12 +61,12 @@ export function MaterialCard({
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            openTelegramLink(material.telegramUrl);
+            navigate(`/materials/${material.id}`);
           }}
         >
           Смотреть
         </Button>
       </div>
-    </Link>
+    </article>
   );
 }

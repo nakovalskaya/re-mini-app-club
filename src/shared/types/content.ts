@@ -52,6 +52,7 @@ export type Challenge = {
   title: string;
   description: string;
   durationDays: number;
+  difficulty: 1 | 2 | 3 | 4 | 5;
   status: "active" | "archived";
   topicIds: string[];
   days: ChallengeDay[];

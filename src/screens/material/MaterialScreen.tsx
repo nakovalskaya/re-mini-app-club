@@ -1,6 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
+import { IconButton } from "@/components/IconButton/IconButton";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
 import { openTelegramLink } from "@/features/telegram/telegram";
 import { getMaterialById } from "@/features/materials/selectors";
@@ -9,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 
 export function MaterialScreen() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const material = id ? getMaterialById(id) : null;
 
   if (!material) {
@@ -23,9 +26,32 @@ export function MaterialScreen() {
   }
 
   const materialTopics = topics.filter((topic) => material.topicIds.includes(topic.id));
+  const hasTelegramUrl = Boolean(material.telegramUrl);
+  const openLabel = hasTelegramUrl ? "Смотреть" : "Контент скоро появится";
+  const typeLabel = useMemo(() => {
+    const labels: Record<string, string> = {
+      lesson: "lesson",
+      live: "live",
+      podcast: "podcast"
+    };
+
+    return labels[material.type] ?? material.type;
+  }, [material.type]);
 
   return (
-    <section className="screen-stack">
+    <section className="screen-stack pb-10">
+      <div className="flex items-center justify-between">
+        <IconButton
+          icon={<span className="text-lg leading-none">←</span>}
+          onClick={() => navigate(-1)}
+          aria-label="Назад"
+        />
+        <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
+          Материал
+        </p>
+        <div className="w-11" />
+      </div>
+
       <div className="surface-card overflow-hidden">
         <div className="relative">
           <img
@@ -38,7 +64,7 @@ export function MaterialScreen() {
         <div className="space-y-5 p-card">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
-              {material.type} · {material.duration}
+              {typeLabel} · {material.duration}
             </p>
             <h1 className="font-serif text-[2.2rem] leading-none text-text-primary">
               {material.title}
@@ -52,7 +78,21 @@ export function MaterialScreen() {
               <TopicPill key={topic.id} label={topic.title} to={`/topic/${topic.slug}`} />
             ))}
           </div>
-          <Button onClick={() => openTelegramLink(material.telegramUrl)}>Смотреть</Button>
+        </div>
+      </div>
+
+      <div className="sticky bottom-24 z-20 mt-auto">
+        <div className="rounded-[24px] border border-border-soft bg-[rgba(255,248,247,0.94)] p-3 shadow-floating backdrop-blur">
+          <Button
+            disabled={!hasTelegramUrl}
+            onClick={() => {
+              if (hasTelegramUrl) {
+                openTelegramLink(material.telegramUrl);
+              }
+            }}
+          >
+            {openLabel}
+          </Button>
         </div>
       </div>
     </section>
