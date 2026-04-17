@@ -1,0 +1,36 @@
+import type { Category } from "@/shared/types/content";
+
+export const categories: Category[] = [
+  {
+    id: "cat-lives",
+    slug: "lives",
+    title: "Эфиры",
+    description: "Живые разборы и включения",
+    order: 1,
+    isVisible: true
+  },
+  {
+    id: "cat-lessons",
+    slug: "lessons",
+    title: "Уроки",
+    description: "Системные обучающие блоки",
+    order: 2,
+    isVisible: true
+  },
+  {
+    id: "cat-podcasts",
+    slug: "podcasts",
+    title: "Подкасты",
+    description: "Аудио для спокойного погружения",
+    order: 3,
+    isVisible: true
+  },
+  {
+    id: "cat-marathon",
+    slug: "marathon",
+    title: "Марафон",
+    description: "Челленджи и практика по дням",
+    order: 4,
+    isVisible: true
+  }
+];

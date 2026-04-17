@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg-base: #faf4f4;
+  --color-bg-surface: #fff8f7;
+  --color-bg-soft: #f6eceb;
+  --color-text-primary: #4f0202;
+  --color-text-secondary: rgba(79, 2, 2, 0.68);
+  --color-accent-deep: #5d0906;
+  --color-accent-gold: #ffd094;
+  --color-border-soft: rgba(93, 9, 6, 0.1);
+  --color-border-medium: rgba(93, 9, 6, 0.16);
+  --color-state-success-soft: #f6ead8;
+  --color-state-disabled-bg: #eadfdd;
+  --color-state-disabled-text: rgba(79, 2, 2, 0.38);
+
+  --radius-surface-xl: 32px;
+  --radius-surface-l: 28px;
+  --radius-card-main: 24px;
+  --radius-card-compact: 20px;
+  --radius-button: 18px;
+  --radius-icon-button: 14px;
+
+  --spacing-screen-x: 24px;
+  --spacing-section-y: 32px;
+  --spacing-block-gap: 16px;
+  --spacing-card-padding: 20px;
+  --spacing-card-padding-compact: 16px;
+
+  --shadow-card-soft: 0 12px 30px rgba(79, 2, 2, 0.06);
+  --shadow-card-elevated:
+    0 16px 40px rgba(79, 2, 2, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-floating: 0 18px 48px rgba(79, 2, 2, 0.12);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top right, rgba(255, 208, 148, 0.2), transparent 28%),
+    linear-gradient(180deg, #fffafa 0%, #faf4f4 100%);
+  color: var(--color-text-primary);
+  font-family: Manrope, Inter, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+@layer components {
+  .safe-top {
+    padding-top: calc(env(safe-area-inset-top) + 16px);
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+  }
+
+  .screen-shell {
+    @apply mx-auto flex min-h-screen w-full max-w-md flex-col bg-bg-base;
+  }
+
+  .screen-content {
+    @apply flex-1 px-screen pb-32;
+  }
+
+  .surface-card {
+    @apply rounded-card border border-border-soft bg-bg-surface shadow-soft;
+  }
+
+  .surface-card-elevated {
+    @apply rounded-card border border-border-soft bg-bg-surface shadow-elevated;
+  }
+
+  .pressable {
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .pressable:active {
+    transform: scale(0.98);
+  }
+}
