@@ -1,45 +1,64 @@
+import { CalendarCard } from "@/components/CalendarCard/CalendarCard";
+import { CategoryCard } from "@/components/CategoryCard/CategoryCard";
+import { HeroPanel } from "@/components/HeroPanel/HeroPanel";
+import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
-import { categories } from "@/data/categories";
-import { challenges } from "@/data/challenges";
-import { materials } from "@/data/materials";
-import { topics } from "@/data/topics";
+import { TopicPill } from "@/components/TopicPill/TopicPill";
+import {
+  buildCalendarDays,
+  getRecommendedMaterials,
+  getVisibleCategories,
+  getVisibleTopics
+} from "@/features/materials/selectors";
 
 export function HomeScreen() {
+  const categories = getVisibleCategories();
+  const topics = getVisibleTopics();
+  const recommended = getRecommendedMaterials();
+  const featured = recommended[0];
+  const restRecommended = recommended.slice(1, 5);
+
   return (
-    <section className="flex flex-col gap-section">
-      <div className="surface-card-elevated overflow-hidden bg-accent-deep px-card py-8 text-bg-base">
-        <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-accent-gold">
-          Закрытый клуб
-        </p>
-        <h1 className="font-serif text-4xl leading-none">MetaMarketing</h1>
-        <p className="mt-4 max-w-[28ch] text-sm leading-6 text-[#f7e7e4]">
-          Фундамент MVP уже поднят: дальше на этот каркас будем собирать
-          брендовый интерфейс экрана за экраном.
-        </p>
-      </div>
+    <section className="screen-stack">
+      <HeroPanel
+        eyebrow="Авторская программа"
+        title="MetaMarketing"
+        subtitle="Личный кабинет клуба, где материалы не теряются: их легко находить, сохранять и проходить в своём ритме."
+      />
 
       <div className="grid grid-cols-2 gap-3">
         {categories.map((category) => (
-          <div key={category.id} className="surface-card p-4">
-            <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">
-              {category.description}
-            </p>
-            <p className="mt-3 text-lg font-semibold text-text-primary">
-              {category.title}
-            </p>
-          </div>
+          <CategoryCard key={category.id} category={category} />
         ))}
       </div>
 
       <div className="space-y-4">
+        <SectionTitle title="Темы клуба" eyebrow="Навигация" />
+        <div className="-mx-screen overflow-x-auto px-screen">
+          <div className="flex w-max gap-2 pb-1">
+            {topics.map((topic) => (
+              <TopicPill key={topic.id} label={topic.title} to={`/topic/${topic.slug}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <SectionTitle title="Календарь" eyebrow="По времени" />
+        <CalendarCard monthLabel="Март 2026" days={buildCalendarDays()} />
+      </div>
+
+      <div className="space-y-4">
         <SectionTitle
-          title="Стартовые данные"
-          description="На этом шаге мы уже подключили mock-контент и маршруты для всех экранов MVP."
+          title="Рекомендуемое"
+          eyebrow="Подборка"
+          description="Автоматическая витрина материалов, отмеченных как recommended."
         />
-        <div className="surface-card space-y-3 p-card text-sm text-text-secondary">
-          <p>Тем: {topics.length}</p>
-          <p>Материалов: {materials.length}</p>
-          <p>Челленджей: {challenges.length}</p>
+        {featured ? <MaterialCard material={featured} featured /> : null}
+        <div className="space-y-4">
+          {restRecommended.map((material) => (
+            <MaterialCard key={material.id} material={material} />
+          ))}
         </div>
       </div>
     </section>

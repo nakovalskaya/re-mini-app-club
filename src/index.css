@@ -92,6 +92,10 @@ a {
     @apply flex-1 px-screen pb-32;
   }
 
+  .screen-stack {
+    @apply flex flex-col gap-section;
+  }
+
   .surface-card {
     @apply rounded-card border border-border-soft bg-bg-surface shadow-soft;
   }
@@ -110,5 +114,14 @@ a {
 
   .pressable:active {
     transform: scale(0.98);
+  }
+
+  .editorial-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border-medium), transparent);
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 }

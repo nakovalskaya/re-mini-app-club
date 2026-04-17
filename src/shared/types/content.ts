@@ -25,6 +25,7 @@ export type Material = {
   topicIds: string[];
   title: string;
   shortDescription: string;
+  longDescription?: string;
   telegramUrl: string;
   coverImage: string;
   duration: string;

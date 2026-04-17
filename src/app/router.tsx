@@ -7,6 +7,7 @@ import { ChallengesScreen } from "@/screens/challenges/ChallengesScreen";
 import { ClubScreen } from "@/screens/club/ClubScreen";
 import { FavoritesScreen } from "@/screens/favorites/FavoritesScreen";
 import { HomeScreen } from "@/screens/home/HomeScreen";
+import { MaterialScreen } from "@/screens/material/MaterialScreen";
 import { TopicScreen } from "@/screens/topic/TopicScreen";
 import {
   ROUTE_CALENDAR_DAY,
@@ -16,6 +17,7 @@ import {
   ROUTE_CLUB,
   ROUTE_FAVORITES,
   ROUTE_HOME,
+  ROUTE_MATERIAL,
   ROUTE_TOPIC
 } from "@/shared/constants/routes";
 
@@ -27,6 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomeScreen /> },
       { path: ROUTE_CATEGORY, element: <CategoryScreen /> },
       { path: ROUTE_TOPIC, element: <TopicScreen /> },
+      { path: ROUTE_MATERIAL, element: <MaterialScreen /> },
       { path: ROUTE_CHALLENGES, element: <ChallengesScreen /> },
       { path: ROUTE_CHALLENGE_DETAILS, element: <ChallengeDetailsScreen /> },
       { path: ROUTE_FAVORITES, element: <FavoritesScreen /> },

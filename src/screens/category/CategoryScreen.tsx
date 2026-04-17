@@ -1,17 +1,44 @@
 import { useParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
+import { getCategoryBySlug, getMaterialsByCategorySlug } from "@/features/materials/selectors";
 
 export function CategoryScreen() {
   const { slug } = useParams();
+  const category = slug ? getCategoryBySlug(slug) : null;
+  const categoryMaterials = slug ? getMaterialsByCategorySlug(slug) : [];
+
+  if (!category) {
+    return (
+      <section className="screen-stack">
+        <EmptyState
+          title="Категория не найдена"
+          description="Похоже, такой категории пока нет в mock data."
+        />
+      </section>
+    );
+  }
 
   return (
-    <section className="space-y-6">
-      <SectionTitle title={`Категория: ${slug ?? "—"}`} />
-      <EmptyState
-        title="Экран категории подключен"
-        description="На следующем шаге сюда сядут карточки материалов, фильтр тем и связка с mock data."
+    <section className="screen-stack">
+      <SectionTitle
+        title={category.title}
+        eyebrow="Категория"
+        description={category.description}
       />
+      {categoryMaterials.length === 0 ? (
+        <EmptyState
+          title="Пока пусто"
+          description="Для этой категории еще не добавлены материалы."
+        />
+      ) : (
+        <div className="space-y-4">
+          {categoryMaterials.map((material) => (
+            <MaterialCard key={material.id} material={material} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

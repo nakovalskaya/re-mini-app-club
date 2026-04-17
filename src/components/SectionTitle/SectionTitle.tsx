@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
 import { cn } from "@/shared/utils/cn";
 
 type SectionTitleProps = {
   title: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
   serif?: boolean;
+  eyebrow?: string;
   className?: string;
 };
 
@@ -13,11 +15,17 @@ export function SectionTitle({
   description,
   action,
   serif = true,
+  eyebrow,
   className
 }: SectionTitleProps) {
   return (
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="space-y-2">
+        {eyebrow ? (
+          <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
+            {eyebrow}
+          </p>
+        ) : null}
         <h2
           className={cn(
             "text-text-primary",
