@@ -42,6 +42,7 @@ declare global {
 const MAX_DEBUG_EVENTS = 20;
 const TELEGRAM_CLOUD_STORAGE_WAIT_MS = 1_500;
 const TELEGRAM_CLOUD_STORAGE_POLL_MS = 50;
+const TELEGRAM_CLOUD_STORAGE_OPERATION_TIMEOUT_MS = 10_000;
 
 function getStorageMode(): {
   mode: StorageMode;
@@ -122,11 +123,75 @@ function createOperationTimeoutError(operation: string, key?: string) {
   );
 }
 
+function isPromiseLike<T>(value: unknown): value is Promise<T> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "then" in value &&
+    typeof (value as { then?: unknown }).then === "function"
+  );
+}
+
+function normalizeTelegramItemsResult(
+  keys: string[],
+  values: Record<string, string> | string[] | null | undefined
+) {
+  if (Array.isArray(values)) {
+    return keys.reduce<Record<string, string | null>>((acc, key, index) => {
+      acc[key] = values[index] ?? null;
+      return acc;
+    }, {});
+  }
+
+  return keys.reduce<Record<string, string | null>>((acc, key) => {
+    acc[key] = values?.[key] ?? null;
+    return acc;
+  }, {});
+}
+
+async function invokeCloudStorageWithFallback<T>({
+  operation,
+  key,
+  invokePromise,
+  invokeCallback,
+  normalize
+}: {
+  operation: "getItem" | "getItems" | "setItem" | "removeItem";
+  key?: string;
+  invokePromise: () => unknown;
+  invokeCallback: () => Promise<T>;
+  normalize?: (value: unknown) => T;
+}) {
+  try {
+    const result = invokePromise();
+
+    if (isPromiseLike<unknown>(result)) {
+      const resolved = await withOperationTimeout(
+        operation,
+        Promise.resolve(result),
+        key,
+        TELEGRAM_CLOUD_STORAGE_OPERATION_TIMEOUT_MS
+      );
+
+      return normalize ? normalize(resolved) : (resolved as T);
+    }
+  } catch {
+    // Fall back to the callback transport used by older Telegram clients.
+  }
+
+  return withOperationTimeout(
+    operation,
+    invokeCallback(),
+    key,
+    TELEGRAM_CLOUD_STORAGE_OPERATION_TIMEOUT_MS
+  );
+}
+
 async function withOperationTimeout<T>(
   operation: string,
   promise: Promise<T>,
   key?: string,
-  timeoutMs = 2000
+  timeoutMs = TELEGRAM_CLOUD_STORAGE_OPERATION_TIMEOUT_MS
 ) {
   return new Promise<T>((resolve, reject) => {
     const timeoutId = window.setTimeout(() => {
@@ -228,36 +293,36 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return withOperationTimeout<string | null>(
-      "getItem",
-      new Promise<string | null>((resolve, reject) => {
-        cloudStorage.getItem(key, (error, value) => {
-          if (error) {
-            debugStorage({
-              timestamp: new Date().toISOString(),
-              op: "getItem",
-              key,
-              mode: "telegram",
-              ok: false,
-              error: String(error)
-            });
-            reject(error);
-            return;
-          }
+    return invokeCloudStorageWithFallback<string | null>({
+      operation: "getItem",
+      key,
+      invokePromise: () => cloudStorage.getItem(key),
+      invokeCallback: () =>
+        new Promise<string | null>((resolve, reject) => {
+          cloudStorage.getItem(key, (error, value) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          debugStorage({
-            timestamp: new Date().toISOString(),
-            op: "getItem",
-            key,
-            mode: "telegram",
-            ok: true,
-            value: value ?? null
+            resolve(value ?? null);
           });
-          resolve(value ?? null);
+        }),
+      normalize: (value) => (typeof value === "string" ? value : value == null ? null : String(value))
+    })
+      .then((value) => {
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "getItem",
+          key,
+          mode: "telegram",
+          ok: true,
+          value
         });
-      }),
-      key
-    ).catch((error) => {
+
+        return value;
+      })
+      .catch((error) => {
       debugStorage({
         timestamp: new Date().toISOString(),
         op: "getItem",
@@ -285,41 +350,40 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return withOperationTimeout<Record<string, string | null>>(
-      "getItems",
-      new Promise<Record<string, string | null>>((resolve, reject) => {
-        cloudStorage.getItems(keys, (error, values) => {
-          if (error) {
-            debugStorage({
-              timestamp: new Date().toISOString(),
-              op: "getItems",
-              keys,
-              mode: "telegram",
-              ok: false,
-              error: String(error)
-            });
-            reject(error);
-            return;
-          }
+    return invokeCloudStorageWithFallback<Record<string, string | null>>({
+      operation: "getItems",
+      key: keys.join(","),
+      invokePromise: () => cloudStorage.getItems(keys),
+      invokeCallback: () =>
+        new Promise<Record<string, string | null>>((resolve, reject) => {
+          cloudStorage.getItems(keys, (error, values) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          const normalized = keys.reduce<Record<string, string | null>>((acc, key) => {
-            acc[key] = values?.[key] ?? null;
-            return acc;
-          }, {});
-
-          debugStorage({
-            timestamp: new Date().toISOString(),
-            op: "getItems",
-            keys,
-            mode: "telegram",
-            ok: true,
-            values: normalized
+            resolve(normalizeTelegramItemsResult(keys, values));
           });
-          resolve(normalized);
+        }),
+      normalize: (value) =>
+        normalizeTelegramItemsResult(
+          keys,
+          (value ?? null) as Record<string, string> | string[] | null
+        )
+    })
+      .then((values) => {
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "getItems",
+          keys,
+          mode: "telegram",
+          ok: true,
+          values
         });
-      }),
-      keys.join(",")
-    ).catch((error) => {
+
+        return values;
+      })
+      .catch((error) => {
       debugStorage({
         timestamp: new Date().toISOString(),
         op: "getItems",
@@ -348,37 +412,33 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return withOperationTimeout(
-      "setItem",
-      new Promise<void>((resolve, reject) => {
-        cloudStorage.setItem(key, value, (error) => {
-          if (error) {
-            debugStorage({
-              timestamp: new Date().toISOString(),
-              op: "setItem",
-              key,
-              mode: "telegram",
-              ok: false,
-              value,
-              error: String(error)
-            });
-            reject(error);
-            return;
-          }
+    return invokeCloudStorageWithFallback<void>({
+      operation: "setItem",
+      key,
+      invokePromise: () => cloudStorage.setItem(key, value),
+      invokeCallback: () =>
+        new Promise<void>((resolve, reject) => {
+          cloudStorage.setItem(key, value, (error) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          debugStorage({
-            timestamp: new Date().toISOString(),
-            op: "setItem",
-            key,
-            mode: "telegram",
-            ok: true,
-            value
+            resolve();
           });
-          resolve();
+        })
+    })
+      .then(() => {
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "setItem",
+          key,
+          mode: "telegram",
+          ok: true,
+          value
         });
-      }),
-      key
-    ).catch((error) => {
+      })
+      .catch((error) => {
       debugStorage({
         timestamp: new Date().toISOString(),
         op: "setItem",
@@ -407,35 +467,32 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return withOperationTimeout(
-      "removeItem",
-      new Promise<void>((resolve, reject) => {
-        cloudStorage.removeItem(key, (error) => {
-          if (error) {
-            debugStorage({
-              timestamp: new Date().toISOString(),
-              op: "removeItem",
-              key,
-              mode: "telegram",
-              ok: false,
-              error: String(error)
-            });
-            reject(error);
-            return;
-          }
+    return invokeCloudStorageWithFallback<void>({
+      operation: "removeItem",
+      key,
+      invokePromise: () => cloudStorage.removeItem(key),
+      invokeCallback: () =>
+        new Promise<void>((resolve, reject) => {
+          cloudStorage.removeItem(key, (error) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          debugStorage({
-            timestamp: new Date().toISOString(),
-            op: "removeItem",
-            key,
-            mode: "telegram",
-            ok: true
+            resolve();
           });
-          resolve();
+        })
+    })
+      .then(() => {
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "removeItem",
+          key,
+          mode: "telegram",
+          ok: true
         });
-      }),
-      key
-    ).catch((error) => {
+      })
+      .catch((error) => {
       debugStorage({
         timestamp: new Date().toISOString(),
         op: "removeItem",
