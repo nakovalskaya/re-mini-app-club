@@ -228,5 +228,81 @@ export const materials: Material[] = [
     tags: [],
     orderWeight: 2,
     calendarColorKey: "podcast"
+  },
+  {
+    id: "mat-013",
+    type: "lesson",
+    categoryId: "cat-lessons",
+    topicIds: ["topic-ai", "topic-brand"],
+    title: "AI-структура для дорогой упаковки продукта",
+    shortDescription: "Как собрать продающую структуру с помощью нейросетей без шаблонности.",
+    longDescription:
+      "Практический урок про то, как использовать AI для ускорения упаковки продукта, сохраняя премиальную подачу и ясную структуру.",
+    telegramUrl: "https://t.me/example_lesson_5",
+    coverImage: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80",
+    duration: "27 мин",
+    status: "published",
+    publishedAt: "2026-04-04",
+    scheduledAt: "2026-04-04",
+    tags: ["recommended"],
+    orderWeight: 9.5,
+    calendarColorKey: "lesson"
+  },
+  {
+    id: "mat-014",
+    type: "live",
+    categoryId: "cat-lives",
+    topicIds: ["topic-content", "topic-trends"],
+    title: "Эфир: контент-сезоны и спокойный ритм клуба",
+    shortDescription: "Как выстроить публикации по месяцам без хаоса и перегруза.",
+    longDescription:
+      "Эфир о том, как планировать клубный контент по сезонам и месяцам так, чтобы навигация и ритм ощущались предсказуемо и спокойно.",
+    telegramUrl: "https://t.me/example_live_5",
+    coverImage: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+    duration: "51 мин",
+    status: "published",
+    publishedAt: "2026-04-11",
+    scheduledAt: "2026-04-11",
+    tags: [],
+    orderWeight: 7.8,
+    calendarColorKey: "live"
+  },
+  {
+    id: "mat-015",
+    type: "podcast",
+    categoryId: "cat-podcasts",
+    topicIds: ["topic-mindset", "topic-brand"],
+    title: "Подкаст о дорогом темпе без гонки",
+    shortDescription: "Разговор о том, как держать ритм и не терять качество продукта.",
+    longDescription:
+      "Аудио-выпуск про внутренний темп, устойчивость и ощущение дорогого ритма в проекте без постоянной спешки.",
+    telegramUrl: "https://t.me/example_podcast_5",
+    coverImage: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1200&q=80",
+    duration: "18 мин",
+    status: "published",
+    publishedAt: "2026-04-17",
+    scheduledAt: "2026-04-17",
+    tags: ["new"],
+    orderWeight: 5.4,
+    calendarColorKey: "podcast"
+  },
+  {
+    id: "mat-016",
+    type: "lesson",
+    categoryId: "cat-lessons",
+    topicIds: ["topic-sales", "topic-funnels"],
+    title: "Продажная логика личного кабинета без перегруза",
+    shortDescription: "Как связать материалы, навигацию и оффер в одну понятную систему.",
+    longDescription:
+      "Урок о структуре личного кабинета, которая не просто хранит материалы, а помогает человеку проходить маршрут и видеть ценность каждого шага.",
+    telegramUrl: "https://t.me/example_lesson_6",
+    coverImage: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+    duration: "33 мин",
+    status: "published",
+    publishedAt: "2026-04-24",
+    scheduledAt: "2026-04-24",
+    tags: ["recommended"],
+    orderWeight: 10.5,
+    calendarColorKey: "lesson"
   }
 ];

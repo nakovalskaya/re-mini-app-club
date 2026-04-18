@@ -2,6 +2,13 @@ import { categories } from "@/data/categories";
 import { materials } from "@/data/materials";
 import { topics } from "@/data/topics";
 
+export type CalendarDayCell = {
+  date: string;
+  label: number;
+  eventTypes: string[];
+  isCurrentMonth: boolean;
+};
+
 export function getVisibleCategories() {
   return [...categories].sort((a, b) => a.order - b.order).filter((item) => item.isVisible);
 }
@@ -48,16 +55,41 @@ export function getMaterialsByDate(date: string) {
     .sort((a, b) => b.orderWeight - a.orderWeight);
 }
 
-export function buildCalendarDays(month = "2026-03") {
-  return Array.from({ length: 31 }, (_, index) => {
-    const day = String(index + 1).padStart(2, "0");
-    const date = `${month}-${day}`;
+function formatDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function getCalendarMonthStart(baseDate = new Date()) {
+  return new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+}
+
+export function shiftCalendarMonth(baseDate: Date, diff: number) {
+  return new Date(baseDate.getFullYear(), baseDate.getMonth() + diff, 1);
+}
+
+export function buildCalendarMonth(monthDate: Date): CalendarDayCell[] {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+  const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+
+  return Array.from({ length: totalCells }, (_, index) => {
+    const dayOffset = index - firstWeekday;
+    const cellDate = new Date(year, month, dayOffset + 1);
+    const date = formatDateKey(cellDate);
     const eventTypes = getMaterialsByDate(date).map((material) => material.calendarColorKey);
 
     return {
       date,
-      label: index + 1,
-      eventTypes
+      label: cellDate.getDate(),
+      eventTypes,
+      isCurrentMonth: cellDate.getMonth() === month
     };
   });
 }

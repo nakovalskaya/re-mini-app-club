@@ -5,7 +5,6 @@ import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
 import {
-  buildCalendarDays,
   getRecommendedMaterials,
   getVisibleCategories,
   getVisibleTopics
@@ -44,8 +43,8 @@ export function HomeScreen() {
       </div>
 
       <div className="space-y-4">
-        <SectionTitle title="Календарь" eyebrow="По времени" />
-        <CalendarCard monthLabel="Март 2026" days={buildCalendarDays()} />
+        <SectionTitle title="График материалов" />
+        <CalendarCard />
       </div>
 
       <div className="space-y-4">
