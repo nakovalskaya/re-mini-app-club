@@ -76,12 +76,10 @@ declare global {
 }
 
 const TELEGRAM_HYDRATION_RETRY_DELAYS_MS = [0, 400, 1_200];
+const FOREGROUND_REHYDRATE_COOLDOWN_MS = 1_500;
 
 function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STATE_DEBUG__"]>>) {
-  if (
-    typeof window === "undefined" ||
-    !(typeof import.meta !== "undefined" && import.meta.env?.DEV)
-  ) {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -91,7 +89,9 @@ function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STAT
     ...update
   };
 
-  console.info("[mini-app-user-state]", window.__MINI_APP_USER_STATE_DEBUG__);
+  if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+    console.info("[mini-app-user-state]", window.__MINI_APP_USER_STATE_DEBUG__);
+  }
 }
 
 function canUseLocalStorageMode() {
@@ -302,6 +302,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const hasUserMutatedState = useRef(false);
   const hydrationInFlight = useRef(false);
   const storageReadyRef = useRef(canUseLocalStorageMode());
+  const optimisticStateRef = useRef<PersistedUserState | null>(null);
+  const lastForegroundRehydrateAtRef = useRef(0);
 
   const hydrateFromStorage = useCallback(async () => {
     hydrationInFlight.current = true;
@@ -309,7 +311,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await loadUserStateFromStorageWithRetry();
-      setUserState(result.state);
+      const optimisticState = optimisticStateRef.current;
+      const nextState = optimisticState ?? result.state;
+
+      setUserState(nextState);
       storageReadyRef.current = true;
       debugUserState({
         hydrationAttempts: result.attempts,
@@ -317,7 +322,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         storageReady: true
       });
 
-      if (result.source === "legacy" && hasPersistedData(result.state)) {
+      if (optimisticState) {
+        optimisticStateRef.current = null;
+        await persistUserStateToStorage(nextState);
+      } else if (result.source === "legacy" && hasPersistedData(result.state)) {
         await persistUserStateToStorage(result.state);
       }
     } catch (error) {
@@ -364,6 +372,43 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [hydrateFromStorage]);
 
   useEffect(() => {
+    function rehydrateOnForeground() {
+      if (getCloudStorageMode().mode !== "telegram") {
+        return;
+      }
+
+      if (hydrationInFlight.current) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastForegroundRehydrateAtRef.current < FOREGROUND_REHYDRATE_COOLDOWN_MS) {
+        return;
+      }
+
+      lastForegroundRehydrateAtRef.current = now;
+      hasUserMutatedState.current = false;
+      void hydrateFromStorage();
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        rehydrateOnForeground();
+      }
+    }
+
+    window.addEventListener("focus", rehydrateOnForeground);
+    window.addEventListener("pageshow", rehydrateOnForeground);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", rehydrateOnForeground);
+      window.removeEventListener("pageshow", rehydrateOnForeground);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hydrateFromStorage]);
+
+  useEffect(() => {
     if (
       !hasLoadedState.current ||
       !hasUserMutatedState.current ||
@@ -398,17 +443,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return storageReadyRef.current;
   }, []);
 
-  const ensureHydratedForMutation = useCallback(() => {
-    if (canMutatePersistedState()) {
-      return true;
-    }
+  const applyUserStateMutation = useCallback(
+    (mutate: (current: PersistedUserState) => PersistedUserState) => {
+      hasUserMutatedState.current = true;
 
-    if (!hydrationInFlight.current && !storageReadyRef.current && !canUseLocalStorageMode()) {
-      void hydrateFromStorage();
-    }
+      setUserState((current) => {
+        const next = mutate(current);
 
-    return false;
-  }, [canMutatePersistedState, hydrateFromStorage]);
+        if (!storageReadyRef.current) {
+          optimisticStateRef.current = next;
+        }
+
+        return next;
+      });
+
+      if (!canMutatePersistedState() && !hydrationInFlight.current && !canUseLocalStorageMode()) {
+        void hydrateFromStorage();
+      }
+    },
+    [canMutatePersistedState, hydrateFromStorage]
+  );
 
   const isFavorite = useCallback(
     (materialId: string) => userState.favorites.includes(materialId),
@@ -416,26 +470,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleFavorite = useCallback((materialId: string) => {
-    if (!ensureHydratedForMutation()) {
-      return;
-    }
-
-    hasUserMutatedState.current = true;
-    setUserState((current) => ({
+    applyUserStateMutation((current) => ({
       ...current,
       favorites: current.favorites.includes(materialId)
         ? current.favorites.filter((id) => id !== materialId)
         : [...current.favorites, materialId]
     }));
-  }, [ensureHydratedForMutation]);
+  }, [applyUserStateMutation]);
 
   const takeChallenge = useCallback((challengeId: string) => {
-    if (!ensureHydratedForMutation()) {
-      return;
-    }
-
-    hasUserMutatedState.current = true;
-    setUserState((current) => {
+    applyUserStateMutation((current) => {
       const shouldSwitch =
         current.activeChallengeId &&
         current.activeChallengeId !== challengeId &&
@@ -467,15 +511,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       };
     });
-  }, [ensureHydratedForMutation]);
+  }, [applyUserStateMutation]);
 
   const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
-    if (!ensureHydratedForMutation()) {
-      return;
-    }
-
-    hasUserMutatedState.current = true;
-    setUserState((current) => {
+    applyUserStateMutation((current) => {
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
       if (completed.includes(dayId)) {
         return current;
@@ -492,7 +531,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       };
     });
-  }, [ensureHydratedForMutation]);
+  }, [applyUserStateMutation]);
 
   const getCompletedCount = useCallback(
     (challengeId: string) =>

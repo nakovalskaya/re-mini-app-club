@@ -16,6 +16,10 @@ export function initTelegramWebApp() {
   }
 
   const webApp = getTelegramObject();
+  if (!webApp) {
+    return;
+  }
+
   webApp?.ready();
   webApp?.expand?.();
   isInitialized = true;

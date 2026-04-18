@@ -14,7 +14,7 @@ export function AppShell() {
         <main className="screen-content">
           <Outlet />
         </main>
-        {import.meta.env.DEV ? <DevDebugPanel /> : null}
+        <DevDebugPanel />
         <TabBar items={tabBarItems} />
       </div>
     </AppStateProvider>

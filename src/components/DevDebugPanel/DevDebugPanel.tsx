@@ -20,6 +20,14 @@ const LOCAL_RESET_KEYS = [
   STORAGE_KEYS.userMeta
 ];
 
+function formatStorageMode(mode: ReturnType<typeof getCloudStorageMode>["mode"]) {
+  if (mode === "unavailable") {
+    return "none";
+  }
+
+  return mode;
+}
+
 function formatTimestamp(value?: string) {
   if (!value) {
     return "—";
@@ -73,10 +81,10 @@ export function DevDebugPanel() {
         >
           <div>
             <p className="text-[11px] uppercase tracking-[0.22em] text-text-secondary">
-              dev debug
+              storage debug
             </p>
             <p className="mt-1 text-sm font-semibold text-text-primary">
-              Storage: {storageMode.mode}
+              Storage: {formatStorageMode(storageMode.mode)}
             </p>
           </div>
           <span className="text-sm font-semibold text-accent-deep">
@@ -118,7 +126,7 @@ export function DevDebugPanel() {
             <div className="grid gap-2 rounded-[20px] bg-bg-soft p-4">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary">Active storage</span>
-                <strong>{storageMode.mode}</strong>
+                <strong>{formatStorageMode(storageMode.mode)}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary">Last read</span>

@@ -68,7 +68,7 @@ function isDev() {
 }
 
 function debugStorage(event: CloudStorageDebugEvent) {
-  if (!isDev() || typeof window === "undefined") {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -104,8 +104,10 @@ function debugStorage(event: CloudStorageDebugEvent) {
 
   window.__MINI_APP_STORAGE_DEBUG__ = next;
 
-  const method = event.ok ? "info" : "error";
-  console[method]("[mini-app-storage]", event);
+  if (isDev()) {
+    const method = event.ok ? "info" : "error";
+    console[method]("[mini-app-storage]", event);
+  }
 }
 
 function createUnavailableError() {
