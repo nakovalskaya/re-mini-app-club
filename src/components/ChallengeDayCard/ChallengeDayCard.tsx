@@ -10,13 +10,17 @@ type ChallengeDayCardProps = {
   status: ChallengeDayStatus;
   onComplete: (dayId: string) => void;
   onSkip?: (dayId: string) => void;
+  readOnly?: boolean;
+  readOnlyLabel?: string | null;
 };
 
 export function ChallengeDayCard({
   day,
   status,
   onComplete,
-  onSkip
+  onSkip,
+  readOnly = false,
+  readOnlyLabel = null
 }: ChallengeDayCardProps) {
   const isLocked = status === "locked";
   const isCompleted = status === "completed";
@@ -67,6 +71,10 @@ export function ChallengeDayCard({
             <span className="rounded-full border border-border-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary">
               закрыт
             </span>
+          ) : readOnly && readOnlyLabel ? (
+            <span className="rounded-full border border-border-medium bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary whitespace-nowrap">
+              {readOnlyLabel}
+            </span>
           ) : isCompleted ? (
             <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-accent-deep whitespace-nowrap">
               пройден
@@ -102,13 +110,13 @@ export function ChallengeDayCard({
           {onSkip && (
             <button
               onClick={() => onSkip(day.id)}
-              disabled={isLocked || isPreview}
+              disabled={isLocked || isPreview || readOnly}
               className={cn(
                 "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
                 isSkipped 
                   ? "bg-[#ebdcd5] border-[#ebdcd5] text-[#8c7b74]" 
                   : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
-                (isLocked || isPreview) && "opacity-40 cursor-not-allowed"
+                (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
               )}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -116,13 +124,13 @@ export function ChallengeDayCard({
           )}
           <button
             onClick={() => onComplete(day.id)}
-            disabled={isLocked || isPreview}
+            disabled={isLocked || isPreview || readOnly}
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
               isCompleted 
                 ? "bg-[#66b37a] border-[#66b37a] text-white" 
                 : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
-              (isLocked || isPreview) && "opacity-40 cursor-not-allowed"
+              (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
             )}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>

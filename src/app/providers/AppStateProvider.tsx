@@ -17,6 +17,8 @@ type PersistedUserState = {
   takenChallengeIds: string[];
   completedDayIdsByChallenge: Record<string, string[]>;
   skippedDayIdsByChallenge: Record<string, string[]>;
+  completedChallengeIds: string[];
+  finishedChallengeIds: string[];
 };
 
 type AppStateContextValue = {
@@ -34,14 +36,17 @@ type AppStateContextValue = {
   toggleChallengeDay: (challengeId: string, dayId: string) => void;
   toggleSkipChallengeDay: (challengeId: string, dayId: string) => void;
   finishActiveChallenge: () => void;
+  completeChallenge: (challengeId: string) => void;
   getCompletedCount: (challengeId: string) => number;
   isChallengeActive: (challengeId: string) => boolean;
   isChallengeTaken: (challengeId: string) => boolean;
-  isChallengeCompleted: (challengeId: string, totalDays: number) => boolean;
+  isChallengeCompleted: (challengeId: string, totalDays?: number) => boolean;
+  isChallengeFinishedEarly: (challengeId: string) => boolean;
   getAggregateChallengeProgress: (challengeDayCounts: Record<string, number>) => {
     completed: number;
     total: number;
   };
+  resetAllChallenges: () => void;
   forceRehydrateFromStorage: () => Promise<void>;
   forceWriteUserStateToStorage: () => Promise<void>;
 };
@@ -51,7 +56,9 @@ const EMPTY_USER_STATE: PersistedUserState = {
   activeChallengeId: null,
   takenChallengeIds: [],
   completedDayIdsByChallenge: {},
-  skippedDayIdsByChallenge: {}
+  skippedDayIdsByChallenge: {},
+  completedChallengeIds: [],
+  finishedChallengeIds: []
 };
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
@@ -105,6 +112,8 @@ function hasPersistedData(state: PersistedUserState) {
     state.favorites.length > 0 ||
     state.takenChallengeIds.length > 0 ||
     state.activeChallengeId !== null ||
+    state.completedChallengeIds.length > 0 ||
+    state.finishedChallengeIds.length > 0 ||
     Object.keys(state.completedDayIdsByChallenge).length > 0 ||
     Object.keys(state.skippedDayIdsByChallenge).length > 0
   );
@@ -145,7 +154,9 @@ function normalizeUserState(value: unknown): PersistedUserState {
       typeof source.activeChallengeId === "string" ? source.activeChallengeId : null,
     takenChallengeIds: normalizeIdList(source.takenChallengeIds),
     completedDayIdsByChallenge: normalizeMap(source.completedDayIdsByChallenge),
-    skippedDayIdsByChallenge: normalizeMap(source.skippedDayIdsByChallenge)
+    skippedDayIdsByChallenge: normalizeMap(source.skippedDayIdsByChallenge),
+    completedChallengeIds: normalizeIdList(source.completedChallengeIds),
+    finishedChallengeIds: normalizeIdList(source.finishedChallengeIds)
   };
 }
 
@@ -173,7 +184,9 @@ async function loadLegacyState(): Promise<PersistedUserState> {
     activeChallengeId,
     takenChallengeIds,
     completedDayIdsByChallenge,
-    skippedDayIdsByChallenge: {}
+    skippedDayIdsByChallenge: {},
+    completedChallengeIds: [],
+    finishedChallengeIds: []
   };
 }
 
@@ -488,31 +501,101 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const takeChallenge = useCallback((challengeId: string) => {
     applyUserStateMutation((current) => {
+      const isRestartingClosedChallenge =
+        current.completedChallengeIds.includes(challengeId) ||
+        current.finishedChallengeIds.includes(challengeId);
+
       if (current.activeChallengeId && current.activeChallengeId !== challengeId) {
         if (!window.confirm("Чтобы начать новый челлендж, нужно завершить текущий. Прогресс сохранится.")) {
           return current;
         }
       }
 
+      const previousActiveChallengeId =
+        current.activeChallengeId && current.activeChallengeId !== challengeId
+          ? current.activeChallengeId
+          : null;
+
       return {
         ...current,
         activeChallengeId: challengeId,
         takenChallengeIds: current.takenChallengeIds.includes(challengeId)
           ? current.takenChallengeIds
-          : [...current.takenChallengeIds, challengeId]
+          : [...current.takenChallengeIds, challengeId],
+        completedDayIdsByChallenge: isRestartingClosedChallenge
+          ? {
+              ...current.completedDayIdsByChallenge,
+              [challengeId]: []
+            }
+          : current.completedDayIdsByChallenge,
+        skippedDayIdsByChallenge: isRestartingClosedChallenge
+          ? {
+              ...current.skippedDayIdsByChallenge,
+              [challengeId]: []
+            }
+          : current.skippedDayIdsByChallenge,
+        completedChallengeIds: current.completedChallengeIds.filter((id) => id !== challengeId),
+        finishedChallengeIds: [
+          ...new Set(
+            [
+              ...current.finishedChallengeIds.filter((id) => id !== challengeId),
+              ...(previousActiveChallengeId &&
+              !current.completedChallengeIds.includes(previousActiveChallengeId)
+                ? [previousActiveChallengeId]
+                : [])
+            ]
+          )
+        ]
       };
     });
   }, [applyUserStateMutation]);
 
   const finishActiveChallenge = useCallback(() => {
+    applyUserStateMutation((current) => {
+      if (!current.activeChallengeId) {
+        return current;
+      }
+
+      if (current.completedChallengeIds.includes(current.activeChallengeId)) {
+        return {
+          ...current,
+          activeChallengeId: null
+        };
+      }
+
+      return {
+        ...current,
+        activeChallengeId: null,
+        finishedChallengeIds: current.finishedChallengeIds.includes(current.activeChallengeId)
+          ? current.finishedChallengeIds
+          : [...current.finishedChallengeIds, current.activeChallengeId]
+      };
+    });
+  }, [applyUserStateMutation]);
+
+  const completeChallenge = useCallback((challengeId: string) => {
     applyUserStateMutation((current) => ({
       ...current,
-      activeChallengeId: null
+      activeChallengeId: current.activeChallengeId === challengeId ? null : current.activeChallengeId,
+      completedChallengeIds: current.completedChallengeIds.includes(challengeId)
+        ? current.completedChallengeIds
+        : [...current.completedChallengeIds, challengeId],
+      finishedChallengeIds: current.finishedChallengeIds.filter((id) => id !== challengeId),
+      takenChallengeIds: current.takenChallengeIds.includes(challengeId)
+        ? current.takenChallengeIds
+        : [...current.takenChallengeIds, challengeId]
     }));
   }, [applyUserStateMutation]);
 
   const toggleChallengeDay = useCallback((challengeId: string, dayId: string) => {
     applyUserStateMutation((current) => {
+      if (
+        current.completedChallengeIds.includes(challengeId) ||
+        current.finishedChallengeIds.includes(challengeId)
+      ) {
+        return current;
+      }
+
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
       const skipped = current.skippedDayIdsByChallenge[challengeId] ?? [];
       const isCompleted = completed.includes(dayId);
@@ -540,6 +623,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const toggleSkipChallengeDay = useCallback((challengeId: string, dayId: string) => {
     applyUserStateMutation((current) => {
+      if (
+        current.completedChallengeIds.includes(challengeId) ||
+        current.finishedChallengeIds.includes(challengeId)
+      ) {
+        return current;
+      }
+
       const skipped = current.skippedDayIdsByChallenge[challengeId] ?? [];
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
       const isSkipped = skipped.includes(dayId);
@@ -582,9 +672,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const isChallengeCompleted = useCallback(
-    (challengeId: string, totalDays: number) =>
-      (userState.completedDayIdsByChallenge[challengeId]?.length ?? 0) >= totalDays,
-    [userState.completedDayIdsByChallenge]
+    (challengeId: string) => userState.completedChallengeIds.includes(challengeId),
+    [userState.completedChallengeIds]
+  );
+
+  const isChallengeFinishedEarly = useCallback(
+    (challengeId: string) => userState.finishedChallengeIds.includes(challengeId),
+    [userState.finishedChallengeIds]
   );
 
   const getAggregateChallengeProgress = useCallback(
@@ -600,6 +694,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     },
     [userState.completedDayIdsByChallenge, userState.takenChallengeIds]
   );
+
+  const resetAllChallenges = useCallback(() => {
+    applyUserStateMutation((current) => ({
+      ...current,
+      activeChallengeId: null,
+      takenChallengeIds: [],
+      completedDayIdsByChallenge: {},
+      skippedDayIdsByChallenge: {},
+      completedChallengeIds: [],
+      finishedChallengeIds: []
+    }));
+  }, [applyUserStateMutation]);
 
   const value = useMemo(
     () => ({
@@ -617,10 +723,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleChallengeDay,
       toggleSkipChallengeDay,
       finishActiveChallenge,
+      completeChallenge,
+      resetAllChallenges,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,
       isChallengeCompleted,
+      isChallengeFinishedEarly,
       getAggregateChallengeProgress,
       forceRehydrateFromStorage: async () => {
         hasUserMutatedState.current = false;
@@ -646,10 +755,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleChallengeDay,
       toggleSkipChallengeDay,
       finishActiveChallenge,
+      completeChallenge,
+      resetAllChallenges,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,
       isChallengeCompleted,
+      isChallengeFinishedEarly,
       getAggregateChallengeProgress,
       hydrateFromStorage
     ]

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Button } from "@/components/Button/Button";
 import { ChallengeCard } from "@/components/ChallengeCard/ChallengeCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
@@ -15,6 +16,8 @@ export function ChallengesScreen() {
     getCompletedCount,
     isChallengeActive,
     isChallengeCompleted,
+    isChallengeFinishedEarly,
+    resetAllChallenges,
     takeChallenge,
     takenChallengeIds
   } = useAppState();
@@ -47,6 +50,26 @@ export function ChallengesScreen() {
         eyebrow="Личное"
         description="Здесь живут только взятые и уже пройденные челленджи с общим прогрессом."
       />
+
+      {import.meta.env.DEV ? (
+        <div className="surface-card flex items-center justify-between gap-4 p-4">
+          <div className="space-y-1">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-text-secondary">
+              dev tools
+            </p>
+            <p className="text-sm text-text-secondary">
+              Сбросить состояние челленджей для повторного тестирования маршрутов.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            className="w-auto shrink-0 px-4"
+            onClick={resetAllChallenges}
+          >
+            Сбросить прогресс челленджей
+          </Button>
+        </div>
+      ) : null}
 
       {!challengesHydrated ? (
         <EmptyState
@@ -111,9 +134,11 @@ export function ChallengesScreen() {
                 status={
                   isChallengeActive(challenge!.id)
                     ? "active"
-                    : isChallengeCompleted(challenge!.id, challenge!.durationDays)
+                    : isChallengeCompleted(challenge!.id)
                       ? "completed"
-                      : "taken"
+                      : isChallengeFinishedEarly(challenge!.id)
+                        ? "taken"
+                        : "default"
                 }
                 onTakeChallenge={takeChallenge}
               />

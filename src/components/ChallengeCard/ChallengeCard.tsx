@@ -17,12 +17,19 @@ export function ChallengeCard({
   status = "default",
   onTakeChallenge
 }: ChallengeCardProps) {
-  // logic based strictly on requirements
   const isActive = status === "active";
-  const badgeLabel = 
+  const badgeLabel =
     status === "completed" ? "пройден" :
     status === "taken" ? "завершен" :
     status === "active" ? "активен" : null;
+  const badgeClassName =
+    status === "completed"
+      ? "bg-[#fff2dc] text-accent-deep"
+      : status === "taken"
+        ? "bg-[#f4e4e1] text-[#9a5d56]"
+        : status === "active"
+          ? "bg-[#e8f3ed] text-[#2c6e49]"
+          : "";
 
   return (
     <div className="surface-card flex flex-col gap-5 p-card">
@@ -37,7 +44,9 @@ export function ChallengeCard({
             </h3>
           </div>
           {badgeLabel ? (
-            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-deep">
+            <span
+              className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${badgeClassName}`}
+            >
               {badgeLabel}
             </span>
           ) : null}
@@ -72,7 +81,7 @@ export function ChallengeCard({
             Посмотреть
           </Link>
           <Button onClick={() => onTakeChallenge(challenge.id)}>
-            Начать
+            {status === "taken" || status === "completed" ? "Начать заново" : "Начать"}
           </Button>
         </div>
       ) : (

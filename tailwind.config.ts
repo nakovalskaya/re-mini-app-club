@@ -30,7 +30,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Manrope", "Inter", "system-ui", "sans-serif"],
-        serif: ["Cormorant Garamond", "Georgia", "serif"]
+        serif: ["Cormorant Garamond", "Georgia", "serif"],
+        montserrat: ["Montserrat", "Inter", "system-ui", "sans-serif"]
       },
       borderRadius: {
         xl2: "var(--radius-surface-xl)",

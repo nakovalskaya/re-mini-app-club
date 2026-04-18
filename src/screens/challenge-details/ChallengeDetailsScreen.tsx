@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
-import { getChallengeById, getChallenges } from "@/features/challenges/selectors";
+import { getChallengeById } from "@/features/challenges/selectors";
 
 export function ChallengeDetailsScreen() {
   const { id } = useParams();
@@ -17,13 +17,17 @@ export function ChallengeDetailsScreen() {
     completedDayIdsByChallenge,
     isChallengeTaken,
     isChallengeCompleted,
+    isChallengeFinishedEarly,
     takeChallenge,
     toggleSkipChallengeDay,
     finishActiveChallenge,
+    completeChallenge,
     skippedDayIdsByChallenge
   } = useAppState();
   const challenge = id ? getChallengeById(id) : null;
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
+  const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
+  const [showFinishOverlay, setShowFinishOverlay] = useState(false);
 
   useEffect(() => {
     if (challenge?.days[0]) {
@@ -35,15 +39,18 @@ export function ChallengeDetailsScreen() {
   const completedDayIds = challenge ? completedDayIdsByChallenge[challenge.id] ?? [] : [];
   const skippedDayIds = challenge ? skippedDayIdsByChallenge[challenge.id] ?? [] : [];
   const completedCount = challenge ? getCompletedCount(challenge.id) : 0;
+  const closedDayIds = useMemo(
+    () => new Set([...completedDayIds, ...skippedDayIds]),
+    [completedDayIds, skippedDayIds]
+  );
+  const isChallengeDone = challenge ? isChallengeCompleted(challenge.id) : false;
+  const isChallengeFinished = challenge ? isChallengeFinishedEarly(challenge.id) : false;
+  const isReadOnly = isChallengeDone || isChallengeFinished;
 
   const selectedDay = useMemo(
     () => challenge?.days.find((day) => day.id === selectedDayId) ?? challenge?.days[0] ?? null,
     [challenge, selectedDayId]
   );
-
-  const challenges = getChallenges();
-  const activeChallengeObj = activeChallengeId ? challenges.find((c) => c.id === activeChallengeId) : null;
-  const isAnyActive = activeChallengeObj != null && !isChallengeCompleted(activeChallengeObj.id, activeChallengeObj.durationDays);
 
   if (!challenge) {
     return (
@@ -67,21 +74,32 @@ export function ChallengeDetailsScreen() {
     if (!isTaken) {
       return dayNumber <= 3 ? ("preview" as const) : ("locked" as const);
     }
+    if (isReadOnly) {
+      return "available" as const;
+    }
 
-    // Now current is specifically based on how many are completed/skipped.
-    // Actually, "следующий доступный" might just be `completedDayIds.length + skippedDayIds.length + 1`!
-    // But safely: nextAvailable = completedDayIds.length + skippedDayIds.length + 1.
-    // Wait, what if they skipped day 1, completed day 2? If length is 2, next is 3. That works!
-    // But it's safer to just check if it's the first unwrapped day.
-    
-    const isPast = dayNumber < (completedDayIds.length + skippedDayIds.length + 1);
-    const isCurrent = dayNumber === (completedDayIds.length + skippedDayIds.length + 1);
+    const firstOpenDay = challenge.days.find((day) => !closedDayIds.has(day.id));
+    if (firstOpenDay?.id === dayId) {
+      return "current" as const;
+    }
 
-    if (isCurrent) return "current" as const;
-    return isPast ? ("locked" as const) : ("locked" as const); 
+    return "locked" as const;
   };
 
-  const isChallengeDone = completedCount >= challenge.durationDays;
+  const handleCloseFinalOpenDay = (dayId: string) => {
+    if (isReadOnly || closedDayIds.has(dayId)) {
+      return;
+    }
+
+    const nextClosedCount = closedDayIds.size + 1;
+    if (nextClosedCount < challenge.durationDays) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      setShowCompletionOverlay(true);
+    }, 50);
+  };
 
   return (
     <section className="screen-stack">
@@ -98,29 +116,21 @@ export function ChallengeDetailsScreen() {
               {challenge.durationDays} дней · сложность {challenge.difficulty}/5
             </p>
             <ProgressBar value={completedCount} max={challenge.durationDays} />
-            {isChallengeDone && (
-              <p className="text-sm font-semibold text-[#66b37a]">
-                Поздравляем! Челлендж полностью пройден.
-              </p>
-            )}
           </div>
-          {!isTaken && (
-            <div className="flex flex-col items-end gap-2">
-              <Button
-                className="w-auto px-5"
-                onClick={() => takeChallenge(challenge.id)}
-                disabled={isAnyActive}
-              >
-                Начать
-              </Button>
-              {isAnyActive && (
-                <p className="text-[11px] uppercase tracking-[0.08em] text-text-secondary text-right max-w-[120px]">
-                  Сначала завершите текущий
-                </p>
-              )}
-            </div>
-          )}
+          {!isTaken ? (
+            <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
+              Начать
+            </Button>
+          ) : null}
         </div>
+
+        {isReadOnly ? (
+          <div className="rounded-[24px] border border-border-medium bg-bg-soft px-4 py-3 text-sm leading-6 text-text-secondary">
+            {isChallengeDone
+              ? "Маршрут пройден целиком. Дни и статусы сохранены, но редактирование уже закрыто."
+              : "Челлендж завершён. Если хочешь пройти новый маршрут, вернись в раздел челленджей."}
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-5 gap-3 sm:grid-cols-6">
           {challenge.days.map((day) => {
@@ -132,7 +142,7 @@ export function ChallengeDetailsScreen() {
                 key={day.id}
                 type="button"
                 onClick={() => {
-                  if (status !== "locked") {
+                  if (status !== "locked" || isReadOnly) {
                     setSelectedDayId(day.id);
                   }
                 }}
@@ -147,7 +157,7 @@ export function ChallengeDetailsScreen() {
                           ? "border-border-medium bg-bg-soft text-text-primary"
                           : "border-border-soft bg-bg-surface text-text-secondary"
                 } ${isSelected ? "ring-2 ring-accent-gold/50" : ""}`}
-                disabled={status === "locked"}
+                disabled={status === "locked" && !isReadOnly}
               >
                 {status === "locked" ? "·" : day.dayNumber}
               </button>
@@ -160,8 +170,16 @@ export function ChallengeDetailsScreen() {
         <ChallengeDayCard
           day={selectedDay}
           status={getDayStatus(selectedDay.dayNumber, selectedDay.id)}
-          onComplete={(dayId) => toggleChallengeDay(challenge.id, dayId)}
-          onSkip={(dayId) => toggleSkipChallengeDay(challenge.id, dayId)}
+          readOnly={isReadOnly}
+          readOnlyLabel={isChallengeDone ? "маршрут закрыт" : isChallengeFinished ? "завершен" : null}
+          onComplete={(dayId) => {
+            toggleChallengeDay(challenge.id, dayId);
+            handleCloseFinalOpenDay(dayId);
+          }}
+          onSkip={(dayId) => {
+            toggleSkipChallengeDay(challenge.id, dayId);
+            handleCloseFinalOpenDay(dayId);
+          }}
         />
       ) : (
         <EmptyState
@@ -171,19 +189,84 @@ export function ChallengeDetailsScreen() {
       )}
 
       {activeChallengeId === challenge.id && (
-        <div className="mt-8 pt-4 border-t border-border-soft">
-          <Button 
-            variant="secondary" 
-            onClick={() => {
-              if (window.confirm("Ты точно хочешь закончить челлендж? Прогресс сохранится.")) {
-                finishActiveChallenge();
-              }
-            }}
-          >
+        <div className="mt-8 border-t border-border-soft pt-4">
+          <Button variant="secondary" onClick={() => setShowFinishOverlay(true)}>
             Завершить челлендж
           </Button>
         </div>
       )}
+
+      {showCompletionOverlay ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(40,24,20,0.38)] px-4 py-6">
+          <div className="surface-card w-full max-w-[21.5rem] space-y-4 rounded-[22px] p-5 font-montserrat shadow-floating">
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-secondary">
+                Челлендж завершён
+              </p>
+              <h3 className="font-montserrat text-[1.5rem] font-semibold leading-[1.02] text-text-primary">
+                Поздравляю, ты прошёл челлендж
+              </h3>
+              <p className="text-[13px] leading-5 text-text-secondary">
+                Отдохни и приступай к следующему 😻
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="secondary"
+                className="min-h-11 font-montserrat text-[13px]"
+                onClick={() => setShowCompletionOverlay(false)}
+              >
+                Назад
+              </Button>
+              <Button
+                className="min-h-11 font-montserrat text-[13px]"
+                onClick={() => {
+                  completeChallenge(challenge.id);
+                  setShowCompletionOverlay(false);
+                }}
+              >
+                Хорошо
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showFinishOverlay ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(40,24,20,0.38)] px-4 py-6">
+          <div className="surface-card w-full max-w-[21.5rem] space-y-4 rounded-[22px] p-5 font-montserrat shadow-floating">
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-secondary">
+                Подтверждение
+              </p>
+              <h3 className="font-montserrat text-[1.5rem] font-semibold leading-[1.02] text-text-primary">
+                Завершить челлендж досрочно?
+              </h3>
+              <p className="text-[13px] leading-5 text-text-secondary">
+                Челлендж завершён. Если хочешь пройти новый маршрут, вернись в раздел челленджей.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="secondary"
+                className="min-h-11 font-montserrat text-[13px]"
+                onClick={() => setShowFinishOverlay(false)}
+              >
+                Назад
+              </Button>
+              <Button
+                className="min-h-11 font-montserrat text-[13px]"
+                onClick={() => {
+                  finishActiveChallenge();
+                  setShowFinishOverlay(false);
+                }}
+              >
+                Хорошо
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
