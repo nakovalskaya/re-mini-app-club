@@ -1,10 +1,11 @@
-import { Outlet, ScrollRestoration } from "react-router-dom";
+import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
 import { initTelegramWebApp } from "@/features/telegram/telegram";
 import { AppStateProvider, useAppState } from "@/app/providers/AppStateProvider";
 import { tabBarItems } from "@/shared/constants/routes";
+import { cn } from "@/shared/utils/cn";
 
 initTelegramWebApp();
 
@@ -21,22 +22,24 @@ export function AppShell() {
 }
 
 function ShellContent() {
+  const location = useLocation();
   const {
     challengeConfirmationDialog,
     confirmChallengeDialog,
     dismissChallengeDialog
   } = useAppState();
+  const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
 
   return (
     <div className="screen-shell safe-top">
-      <main className="screen-content">
+      <main className={cn("screen-content", !shouldShowTabBar && "pb-8")}>
         <Outlet />
       </main>
       <ScrollRestoration
         getKey={(location) => `${location.pathname}${location.search}`}
       />
       {isDebug ? <DevDebugPanel /> : null}
-      <TabBar items={tabBarItems} />
+      {shouldShowTabBar ? <TabBar items={tabBarItems} /> : null}
 
       {challengeConfirmationDialog ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(40,24,20,0.38)] px-4 py-6">

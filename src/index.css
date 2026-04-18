@@ -165,16 +165,16 @@ a {
 
   .tabbar-glass {
     isolation: isolate;
-    border: 1px solid rgba(255, 255, 255, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.32);
     background:
-      linear-gradient(180deg, rgba(113, 48, 41, 0.14), rgba(255, 248, 247, 0.16)),
-      rgba(255, 244, 242, 0.44);
+      linear-gradient(180deg, rgba(113, 48, 41, 0.09), rgba(255, 248, 247, 0.12)),
+      rgba(255, 244, 242, 0.34);
     box-shadow:
-      0 14px 34px rgba(79, 2, 2, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.46),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(18px) saturate(145%);
-    -webkit-backdrop-filter: blur(18px) saturate(145%);
+      0 12px 28px rgba(79, 2, 2, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px) saturate(138%);
+    -webkit-backdrop-filter: blur(12px) saturate(138%);
   }
 
   .tabbar-glass::before {
@@ -185,10 +185,10 @@ a {
     pointer-events: none;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 255, 255, 0.04)
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.035)
     );
-    opacity: 0.9;
+    opacity: 0.82;
   }
 
   .tabbar-glass::after {
@@ -198,14 +198,14 @@ a {
     z-index: 0;
     border-radius: inherit;
     pointer-events: none;
-    opacity: 0.42;
+    opacity: 0.26;
     background:
-      radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.34), transparent 26%),
-      radial-gradient(circle at 76% 30%, rgba(255, 208, 148, 0.18), transparent 24%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02));
+      radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.24), transparent 24%),
+      radial-gradient(circle at 76% 30%, rgba(255, 208, 148, 0.12), transparent 22%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.015));
     filter: url(#tabbar-liquid-distortion);
     mix-blend-mode: screen;
-    transform: scale(1.06);
+    transform: scale(1.04);
   }
 
   .tabbar-item {
@@ -225,13 +225,14 @@ a {
   }
 
   .tabbar-item-active {
-    text-shadow: 0 0 16px rgba(255, 208, 148, 0.16);
+    color: rgba(93, 9, 6, 0.92);
+    text-shadow: 0 0 10px rgba(255, 208, 148, 0.1);
   }
 
   .tabbar-item-active .tabbar-icon {
     filter:
-      drop-shadow(0 0 10px rgba(255, 208, 148, 0.22))
-      drop-shadow(0 0 4px rgba(255, 255, 255, 0.18));
-    transform: translateY(-0.5px);
+      drop-shadow(0 0 7px rgba(255, 208, 148, 0.16))
+      drop-shadow(0 0 2px rgba(255, 255, 255, 0.12));
+    transform: translateY(-0.25px);
   }
 }
