@@ -22,6 +22,8 @@ export interface TelegramWebApp {
   ready(): void;
   expand?: () => void;
   openTelegramLink?: (url: string) => void;
+  version?: string;
+  platform?: string;
   CloudStorage?: TelegramWebAppCloudStorage;
 }
 

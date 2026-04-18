@@ -363,6 +363,28 @@ export function getCloudStorageMode() {
   return getStorageMode();
 }
 
+export function getCloudStorageDebugState() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.__MINI_APP_STORAGE_DEBUG__ ?? null;
+}
+
+export async function resetLocalFallbackStorage(keys: string[]) {
+  keys.forEach((key) => {
+    window.localStorage.removeItem(key);
+  });
+
+  debugStorage({
+    timestamp: new Date().toISOString(),
+    op: "removeItem",
+    keys,
+    mode: "local",
+    ok: true
+  });
+}
+
 export const cloudStorage: CloudStorageAdapter = {
   async getItem(key) {
     const { mode } = getStorageMode();

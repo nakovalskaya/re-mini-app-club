@@ -20,6 +20,7 @@ type PersistedUserState = {
 };
 
 type AppStateContextValue = {
+  userState: PersistedUserState;
   favoriteIds: string[];
   favoritesHydrated: boolean;
   activeChallengeId: string | null;
@@ -39,6 +40,8 @@ type AppStateContextValue = {
     completed: number;
     total: number;
   };
+  forceRehydrateFromStorage: () => Promise<void>;
+  forceWriteUserStateToStorage: () => Promise<void>;
 };
 
 const EMPTY_USER_STATE: PersistedUserState = {
@@ -58,7 +61,11 @@ declare global {
       readSource?: "user_state:v2" | "legacy" | "empty";
       lastReadRaw?: string | null;
       lastPersistedRaw?: string;
+      lastReadAt?: string;
+      lastWriteAt?: string;
+      lastReadOk?: boolean;
       lastWriteOk?: boolean;
+      lastOperation?: "read" | "write";
       lastError?: string;
       lastHydratedState?: PersistedUserState;
     };
@@ -159,79 +166,126 @@ async function loadLegacyState(): Promise<PersistedUserState> {
   };
 }
 
+async function loadUserStateFromStorage() {
+  const persisted = await cloudStorage.getItem(STORAGE_KEYS.userState);
+
+  if (persisted) {
+    try {
+      const normalized = normalizeUserState(JSON.parse(persisted));
+      debugUserState({
+        hydrated: false,
+        readSource: "user_state:v2",
+        lastReadRaw: persisted,
+        lastHydratedState: normalized,
+        lastReadAt: new Date().toISOString(),
+        lastReadOk: true,
+        lastOperation: "read",
+        lastError: undefined
+      });
+
+      return {
+        state: normalized,
+        source: "user_state:v2" as const,
+        raw: persisted
+      };
+    } catch {
+      const legacyState = await loadLegacyState();
+      debugUserState({
+        hydrated: false,
+        readSource: "legacy",
+        lastReadRaw: persisted,
+        lastHydratedState: legacyState,
+        lastReadAt: new Date().toISOString(),
+        lastReadOk: true,
+        lastOperation: "read",
+        lastError: undefined
+      });
+
+      return {
+        state: legacyState,
+        source: "legacy" as const,
+        raw: persisted
+      };
+    }
+  }
+
+  const legacyState = await loadLegacyState();
+  const source = hasPersistedData(legacyState) ? ("legacy" as const) : ("empty" as const);
+
+  debugUserState({
+    hydrated: false,
+    readSource: source,
+    lastReadRaw: persisted,
+    lastHydratedState: legacyState,
+    lastReadAt: new Date().toISOString(),
+    lastReadOk: true,
+    lastOperation: "read",
+    lastError: undefined
+  });
+
+  return {
+    state: legacyState,
+    source,
+    raw: persisted
+  };
+}
+
+async function persistUserStateToStorage(userState: PersistedUserState) {
+  const serializedState = JSON.stringify(userState);
+  await cloudStorage.setItem(STORAGE_KEYS.userState, serializedState);
+  debugUserState({
+    lastPersistedRaw: serializedState,
+    lastWriteAt: new Date().toISOString(),
+    lastWriteOk: true,
+    lastOperation: "write",
+    lastError: undefined
+  });
+}
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [userState, setUserState] = useState<PersistedUserState>(EMPTY_USER_STATE);
   const [hydrated, setHydrated] = useState(false);
   const hasLoadedState = useRef(false);
   const hasUserMutatedState = useRef(false);
+  const hydrationInFlight = useRef(false);
+
+  const hydrateFromStorage = useCallback(async () => {
+    hydrationInFlight.current = true;
+
+    try {
+      const result = await loadUserStateFromStorage();
+      setUserState(result.state);
+
+      if (result.source === "legacy" && hasPersistedData(result.state)) {
+        await persistUserStateToStorage(result.state);
+      }
+    } catch (error) {
+      setUserState(EMPTY_USER_STATE);
+      debugUserState({
+        hydrated: false,
+        readSource: "empty",
+        lastReadAt: new Date().toISOString(),
+        lastReadOk: false,
+        lastOperation: "read",
+        lastError: error instanceof Error ? error.message : String(error),
+        lastHydratedState: EMPTY_USER_STATE
+      });
+    } finally {
+      hydrationInFlight.current = false;
+      hasLoadedState.current = true;
+      setHydrated(true);
+      debugUserState({ hydrated: true });
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadState() {
-      try {
-        const persisted = await cloudStorage.getItem(STORAGE_KEYS.userState);
+      await hydrateFromStorage();
 
-        if (cancelled) {
-          return;
-        }
-
-        if (persisted) {
-          try {
-            const normalized = normalizeUserState(JSON.parse(persisted));
-            setUserState(normalized);
-            debugUserState({
-              hydrated: false,
-              readSource: "user_state:v2",
-              lastReadRaw: persisted,
-              lastHydratedState: normalized
-            });
-          } catch {
-            const legacyState = await loadLegacyState();
-            if (!cancelled) {
-              setUserState(legacyState);
-              debugUserState({
-                hydrated: false,
-                readSource: "legacy",
-                lastReadRaw: persisted,
-                lastHydratedState: legacyState
-              });
-              if (hasPersistedData(legacyState)) {
-                await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
-              }
-            }
-          }
-        } else {
-          const legacyState = await loadLegacyState();
-          if (!cancelled) {
-            setUserState(legacyState);
-            debugUserState({
-              hydrated: false,
-              readSource: hasPersistedData(legacyState) ? "legacy" : "empty",
-              lastReadRaw: persisted,
-              lastHydratedState: legacyState
-            });
-            if (hasPersistedData(legacyState)) {
-              await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
-            }
-          }
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setUserState(EMPTY_USER_STATE);
-          debugUserState({
-            hydrated: false,
-            readSource: "empty",
-            lastError: error instanceof Error ? error.message : String(error),
-            lastHydratedState: EMPTY_USER_STATE
-          });
-        }
-      } finally {
-        if (!cancelled) {
-          hasLoadedState.current = true;
-          setHydrated(true);
-          debugUserState({ hydrated: true });
-        }
+      if (cancelled) {
+        return;
       }
     }
 
@@ -240,30 +294,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hydrateFromStorage]);
 
   useEffect(() => {
-    if (!hasLoadedState.current || !hasUserMutatedState.current) {
+    if (
+      !hasLoadedState.current ||
+      !hasUserMutatedState.current ||
+      hydrationInFlight.current
+    ) {
       return;
     }
 
-    const serializedState = JSON.stringify(userState);
-
-    void cloudStorage
-      .setItem(STORAGE_KEYS.userState, serializedState)
-      .then(() => {
-        debugUserState({
-          lastPersistedRaw: serializedState,
-          lastWriteOk: true
-        });
-      })
-      .catch((error) => {
-        debugUserState({
-          lastPersistedRaw: serializedState,
-          lastWriteOk: false,
-          lastError: error instanceof Error ? error.message : String(error)
-        });
+    void persistUserStateToStorage(userState).catch((error) => {
+      debugUserState({
+        lastPersistedRaw: JSON.stringify(userState),
+        lastWriteAt: new Date().toISOString(),
+        lastWriteOk: false,
+        lastOperation: "write",
+        lastError: error instanceof Error ? error.message : String(error)
       });
+    });
   }, [userState]);
 
   const isFavorite = useCallback(
@@ -272,6 +322,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleFavorite = useCallback((materialId: string) => {
+    if (!hasLoadedState.current || hydrationInFlight.current) {
+      return;
+    }
+
     hasUserMutatedState.current = true;
     setUserState((current) => ({
       ...current,
@@ -282,6 +336,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const takeChallenge = useCallback((challengeId: string) => {
+    if (!hasLoadedState.current || hydrationInFlight.current) {
+      return;
+    }
+
     hasUserMutatedState.current = true;
     setUserState((current) => {
       const shouldSwitch =
@@ -318,6 +376,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
+    if (!hasLoadedState.current || hydrationInFlight.current) {
+      return;
+    }
+
     hasUserMutatedState.current = true;
     setUserState((current) => {
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
@@ -376,6 +438,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      userState,
       favoriteIds: userState.favorites,
       favoritesHydrated: hydrated,
       activeChallengeId: userState.activeChallengeId,
@@ -391,9 +454,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isChallengeActive,
       isChallengeTaken,
       isChallengeCompleted,
-      getAggregateChallengeProgress
+      getAggregateChallengeProgress,
+      forceRehydrateFromStorage: async () => {
+        hasUserMutatedState.current = false;
+        setHydrated(false);
+        await hydrateFromStorage();
+      },
+      forceWriteUserStateToStorage: async () => {
+        await persistUserStateToStorage(userState);
+      }
     }),
     [
+      userState,
       userState.favorites,
       userState.activeChallengeId,
       userState.takenChallengeIds,
@@ -408,7 +480,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isChallengeActive,
       isChallengeTaken,
       isChallengeCompleted,
-      getAggregateChallengeProgress
+      getAggregateChallengeProgress,
+      hydrateFromStorage
     ]
   );
 

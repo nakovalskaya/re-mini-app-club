@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
 import { initTelegramWebApp } from "@/features/telegram/telegram";
 import { AppStateProvider } from "@/app/providers/AppStateProvider";
@@ -13,6 +14,7 @@ export function AppShell() {
         <main className="screen-content">
           <Outlet />
         </main>
+        {import.meta.env.DEV ? <DevDebugPanel /> : null}
         <TabBar items={tabBarItems} />
       </div>
     </AppStateProvider>

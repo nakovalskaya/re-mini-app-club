@@ -25,6 +25,17 @@ export function getTelegramWebApp() {
   return getTelegramObject();
 }
 
+export function getTelegramRuntimeInfo() {
+  const webApp = getTelegramObject();
+
+  return {
+    isAvailable: Boolean(webApp),
+    version: webApp?.version ?? null,
+    platform: webApp?.platform ?? null,
+    hasCloudStorage: Boolean(webApp?.CloudStorage)
+  };
+}
+
 export function openTelegramLink(url: string) {
   const webApp = getTelegramObject();
 
