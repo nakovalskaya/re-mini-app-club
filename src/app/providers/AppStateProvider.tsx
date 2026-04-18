@@ -58,6 +58,9 @@ declare global {
   interface Window {
     __MINI_APP_USER_STATE_DEBUG__?: {
       hydrated: boolean;
+      storageMode?: "telegram" | "local" | "unavailable";
+      storageReady?: boolean;
+      hydrationAttempts?: number;
       readSource?: "user_state:v2" | "legacy" | "empty";
       lastReadRaw?: string | null;
       lastPersistedRaw?: string;
@@ -71,6 +74,8 @@ declare global {
     };
   }
 }
+
+const TELEGRAM_HYDRATION_RETRY_DELAYS_MS = [0, 400, 1_200];
 
 function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STATE_DEBUG__"]>>) {
   if (
@@ -89,8 +94,8 @@ function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STAT
   console.info("[mini-app-user-state]", window.__MINI_APP_USER_STATE_DEBUG__);
 }
 
-function canMutateBeforeHydration() {
-  return getCloudStorageMode().mode !== "telegram";
+function canUseLocalStorageMode() {
+  return getCloudStorageMode().mode === "local";
 }
 
 function hasPersistedData(state: PersistedUserState) {
@@ -234,10 +239,54 @@ async function loadUserStateFromStorage() {
   };
 }
 
+async function loadUserStateFromStorageWithRetry() {
+  const delays = canUseLocalStorageMode() ? [0] : TELEGRAM_HYDRATION_RETRY_DELAYS_MS;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < delays.length; attempt += 1) {
+    const delay = delays[attempt];
+
+    if (delay > 0) {
+      await new Promise((resolve) => window.setTimeout(resolve, delay));
+    }
+
+    debugUserState({
+      hydrationAttempts: attempt + 1,
+      storageMode: getCloudStorageMode().mode,
+      storageReady: false
+    });
+
+    try {
+      const result = await loadUserStateFromStorage();
+
+      return {
+        ...result,
+        attempts: attempt + 1
+      };
+    } catch (error) {
+      lastError = error;
+
+      debugUserState({
+        hydrationAttempts: attempt + 1,
+        storageMode: getCloudStorageMode().mode,
+        storageReady: false,
+        lastReadAt: new Date().toISOString(),
+        lastReadOk: false,
+        lastOperation: "read",
+        lastError: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  throw lastError;
+}
+
 async function persistUserStateToStorage(userState: PersistedUserState) {
   const serializedState = JSON.stringify(userState);
   await cloudStorage.setItem(STORAGE_KEYS.userState, serializedState);
   debugUserState({
+    storageMode: getCloudStorageMode().mode,
+    storageReady: true,
     lastPersistedRaw: serializedState,
     lastWriteAt: new Date().toISOString(),
     lastWriteOk: true,
@@ -252,22 +301,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const hasLoadedState = useRef(false);
   const hasUserMutatedState = useRef(false);
   const hydrationInFlight = useRef(false);
+  const storageReadyRef = useRef(canUseLocalStorageMode());
 
   const hydrateFromStorage = useCallback(async () => {
     hydrationInFlight.current = true;
+    storageReadyRef.current = canUseLocalStorageMode();
 
     try {
-      const result = await loadUserStateFromStorage();
+      const result = await loadUserStateFromStorageWithRetry();
       setUserState(result.state);
+      storageReadyRef.current = true;
+      debugUserState({
+        hydrationAttempts: result.attempts,
+        storageMode: getCloudStorageMode().mode,
+        storageReady: true
+      });
 
       if (result.source === "legacy" && hasPersistedData(result.state)) {
         await persistUserStateToStorage(result.state);
       }
     } catch (error) {
-      setUserState(EMPTY_USER_STATE);
+      storageReadyRef.current = canUseLocalStorageMode();
       debugUserState({
         hydrated: false,
         readSource: "empty",
+        storageMode: getCloudStorageMode().mode,
+        storageReady: storageReadyRef.current,
         lastReadAt: new Date().toISOString(),
         lastReadOk: false,
         lastOperation: "read",
@@ -278,7 +337,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       hydrationInFlight.current = false;
       hasLoadedState.current = true;
       setHydrated(true);
-      debugUserState({ hydrated: true });
+      debugUserState({
+        hydrated: true,
+        storageMode: getCloudStorageMode().mode,
+        storageReady: storageReadyRef.current
+      });
     }
   }, []);
 
@@ -304,7 +367,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (
       !hasLoadedState.current ||
       !hasUserMutatedState.current ||
-      hydrationInFlight.current
+      hydrationInFlight.current ||
+      !storageReadyRef.current
     ) {
       return;
     }
@@ -312,6 +376,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     void persistUserStateToStorage(userState).catch((error) => {
       debugUserState({
         lastPersistedRaw: JSON.stringify(userState),
+        storageMode: getCloudStorageMode().mode,
+        storageReady: storageReadyRef.current,
         lastWriteAt: new Date().toISOString(),
         lastWriteOk: false,
         lastOperation: "write",
@@ -320,16 +386,37 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     });
   }, [userState]);
 
+  const canMutatePersistedState = useCallback(() => {
+    if (hydrationInFlight.current) {
+      return false;
+    }
+
+    if (!hasLoadedState.current) {
+      return canUseLocalStorageMode();
+    }
+
+    return storageReadyRef.current;
+  }, []);
+
+  const ensureHydratedForMutation = useCallback(() => {
+    if (canMutatePersistedState()) {
+      return true;
+    }
+
+    if (!hydrationInFlight.current && !storageReadyRef.current && !canUseLocalStorageMode()) {
+      void hydrateFromStorage();
+    }
+
+    return false;
+  }, [canMutatePersistedState, hydrateFromStorage]);
+
   const isFavorite = useCallback(
     (materialId: string) => userState.favorites.includes(materialId),
     [userState.favorites]
   );
 
   const toggleFavorite = useCallback((materialId: string) => {
-    if (
-      (!hasLoadedState.current || hydrationInFlight.current) &&
-      !canMutateBeforeHydration()
-    ) {
+    if (!ensureHydratedForMutation()) {
       return;
     }
 
@@ -340,13 +427,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         ? current.favorites.filter((id) => id !== materialId)
         : [...current.favorites, materialId]
     }));
-  }, []);
+  }, [ensureHydratedForMutation]);
 
   const takeChallenge = useCallback((challengeId: string) => {
-    if (
-      (!hasLoadedState.current || hydrationInFlight.current) &&
-      !canMutateBeforeHydration()
-    ) {
+    if (!ensureHydratedForMutation()) {
       return;
     }
 
@@ -383,13 +467,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       };
     });
-  }, []);
+  }, [ensureHydratedForMutation]);
 
   const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
-    if (
-      (!hasLoadedState.current || hydrationInFlight.current) &&
-      !canMutateBeforeHydration()
-    ) {
+    if (!ensureHydratedForMutation()) {
       return;
     }
 
@@ -411,7 +492,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       };
     });
-  }, []);
+  }, [ensureHydratedForMutation]);
 
   const getCompletedCount = useCallback(
     (challengeId: string) =>
@@ -470,6 +551,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       getAggregateChallengeProgress,
       forceRehydrateFromStorage: async () => {
         hasUserMutatedState.current = false;
+        storageReadyRef.current = canUseLocalStorageMode();
         setHydrated(false);
         await hydrateFromStorage();
       },

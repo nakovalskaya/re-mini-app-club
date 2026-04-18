@@ -40,6 +40,8 @@ declare global {
 }
 
 const MAX_DEBUG_EVENTS = 20;
+const TELEGRAM_CLOUD_STORAGE_WAIT_MS = 1_500;
+const TELEGRAM_CLOUD_STORAGE_POLL_MS = 50;
 
 function getStorageMode(): {
   mode: StorageMode;
@@ -141,7 +143,7 @@ async function withOperationTimeout<T>(
   });
 }
 
-async function waitForTelegramCloudStorage(timeoutMs = 350) {
+async function waitForTelegramCloudStorage(timeoutMs = TELEGRAM_CLOUD_STORAGE_WAIT_MS) {
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < timeoutMs) {
@@ -150,7 +152,7 @@ async function waitForTelegramCloudStorage(timeoutMs = 350) {
       return cloudStorage;
     }
 
-    await new Promise((resolve) => window.setTimeout(resolve, 50));
+    await new Promise((resolve) => window.setTimeout(resolve, TELEGRAM_CLOUD_STORAGE_POLL_MS));
   }
 
   return null;

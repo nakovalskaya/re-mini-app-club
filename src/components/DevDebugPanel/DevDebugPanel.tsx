@@ -28,6 +28,18 @@ function formatTimestamp(value?: string) {
   return new Date(value).toLocaleString("ru-RU");
 }
 
+function formatResultStatus(value?: boolean) {
+  if (value === true) {
+    return "success";
+  }
+
+  if (value === false) {
+    return "error";
+  }
+
+  return "—";
+}
+
 export function DevDebugPanel() {
   const { userState, forceRehydrateFromStorage, forceWriteUserStateToStorage } = useAppState();
   const [expanded, setExpanded] = useState(false);
@@ -118,11 +130,29 @@ export function DevDebugPanel() {
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary">Last read result</span>
-                <strong>{userStateDebug?.lastReadOk === false ? "error" : "success"}</strong>
+                <strong>{formatResultStatus(userStateDebug?.lastReadOk)}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary">Last write result</span>
-                <strong>{userStateDebug?.lastWriteOk === false ? "error" : "success"}</strong>
+                <strong>{formatResultStatus(userStateDebug?.lastWriteOk)}</strong>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-text-secondary">Storage ready</span>
+                <strong>
+                  {typeof userStateDebug?.storageReady === "boolean"
+                    ? userStateDebug.storageReady
+                      ? "yes"
+                      : "no"
+                    : "—"}
+                </strong>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-text-secondary">Hydration attempts</span>
+                <strong>{userStateDebug?.hydrationAttempts ?? "—"}</strong>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-text-secondary">Last source</span>
+                <strong>{userStateDebug?.readSource ?? "—"}</strong>
               </div>
               <div className="flex items-start justify-between gap-4">
                 <span className="text-text-secondary">Last error</span>
@@ -146,7 +176,7 @@ export function DevDebugPanel() {
                   }
                 }}
               >
-                Read user_state from Cloud
+                Read user_state from storage
               </Button>
               <Button
                 variant="secondary"
@@ -158,7 +188,7 @@ export function DevDebugPanel() {
                   }
                 }}
               >
-                Write current user_state to Cloud
+                Write current user_state to storage
               </Button>
               <Button
                 variant="secondary"
@@ -175,7 +205,7 @@ export function DevDebugPanel() {
                   await forceRehydrateFromStorage();
                 }}
               >
-                Force rehydrate from Cloud
+                Force rehydrate from storage
               </Button>
             </div>
 
@@ -199,7 +229,7 @@ export function DevDebugPanel() {
 
             <div className="grid gap-2 rounded-[20px] bg-bg-soft p-4">
               <p className="text-[11px] uppercase tracking-[0.18em] text-text-secondary">
-                Last hydrated cloud payload
+                Last hydrated payload
               </p>
               <pre className="overflow-x-auto whitespace-pre-wrap break-words text-xs leading-5 text-text-primary">
                 {userStateDebug?.lastReadRaw ?? "—"}
