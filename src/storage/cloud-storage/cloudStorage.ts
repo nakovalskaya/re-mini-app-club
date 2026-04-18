@@ -112,6 +112,35 @@ function createUnavailableError() {
   );
 }
 
+function createOperationTimeoutError(operation: string, key?: string) {
+  return new Error(
+    `Telegram CloudStorage ${operation} timed out${key ? ` for key "${key}"` : ""}.`
+  );
+}
+
+async function withOperationTimeout<T>(
+  operation: string,
+  promise: Promise<T>,
+  key?: string,
+  timeoutMs = 2000
+) {
+  return new Promise<T>((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => {
+      reject(createOperationTimeoutError(operation, key));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        window.clearTimeout(timeoutId);
+        resolve(value);
+      })
+      .catch((error) => {
+        window.clearTimeout(timeoutId);
+        reject(error);
+      });
+  });
+}
+
 async function waitForTelegramCloudStorage(timeoutMs = 350) {
   const startedAt = Date.now();
 
@@ -195,31 +224,45 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return new Promise((resolve, reject) => {
-      cloudStorage.getItem(key, (error, value) => {
-        if (error) {
+    return withOperationTimeout<string | null>(
+      "getItem",
+      new Promise<string | null>((resolve, reject) => {
+        cloudStorage.getItem(key, (error, value) => {
+          if (error) {
+            debugStorage({
+              timestamp: new Date().toISOString(),
+              op: "getItem",
+              key,
+              mode: "telegram",
+              ok: false,
+              error: String(error)
+            });
+            reject(error);
+            return;
+          }
+
           debugStorage({
             timestamp: new Date().toISOString(),
             op: "getItem",
             key,
             mode: "telegram",
-            ok: false,
-            error: String(error)
+            ok: true,
+            value: value ?? null
           });
-          reject(error);
-          return;
-        }
-
-        debugStorage({
-          timestamp: new Date().toISOString(),
-          op: "getItem",
-          key,
-          mode: "telegram",
-          ok: true,
-          value: value ?? null
+          resolve(value ?? null);
         });
-        resolve(value ?? null);
+      }),
+      key
+    ).catch((error) => {
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "getItem",
+        key,
+        mode: "telegram",
+        ok: false,
+        error: error instanceof Error ? error.message : String(error)
       });
+      throw error;
     });
   },
   async getItems(keys) {
@@ -238,36 +281,50 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return new Promise((resolve, reject) => {
-      cloudStorage.getItems(keys, (error, values) => {
-        if (error) {
+    return withOperationTimeout<Record<string, string | null>>(
+      "getItems",
+      new Promise<Record<string, string | null>>((resolve, reject) => {
+        cloudStorage.getItems(keys, (error, values) => {
+          if (error) {
+            debugStorage({
+              timestamp: new Date().toISOString(),
+              op: "getItems",
+              keys,
+              mode: "telegram",
+              ok: false,
+              error: String(error)
+            });
+            reject(error);
+            return;
+          }
+
+          const normalized = keys.reduce<Record<string, string | null>>((acc, key) => {
+            acc[key] = values?.[key] ?? null;
+            return acc;
+          }, {});
+
           debugStorage({
             timestamp: new Date().toISOString(),
             op: "getItems",
             keys,
             mode: "telegram",
-            ok: false,
-            error: String(error)
+            ok: true,
+            values: normalized
           });
-          reject(error);
-          return;
-        }
-
-        const normalized = keys.reduce<Record<string, string | null>>((acc, key) => {
-          acc[key] = values?.[key] ?? null;
-          return acc;
-        }, {});
-
-        debugStorage({
-          timestamp: new Date().toISOString(),
-          op: "getItems",
-          keys,
-          mode: "telegram",
-          ok: true,
-          values: normalized
+          resolve(normalized);
         });
-        resolve(normalized);
+      }),
+      keys.join(",")
+    ).catch((error) => {
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "getItems",
+        keys,
+        mode: "telegram",
+        ok: false,
+        error: error instanceof Error ? error.message : String(error)
       });
+      throw error;
     });
   },
   async setItem(key, value) {
@@ -287,32 +344,47 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return new Promise((resolve, reject) => {
-      cloudStorage.setItem(key, value, (error) => {
-        if (error) {
+    return withOperationTimeout(
+      "setItem",
+      new Promise<void>((resolve, reject) => {
+        cloudStorage.setItem(key, value, (error) => {
+          if (error) {
+            debugStorage({
+              timestamp: new Date().toISOString(),
+              op: "setItem",
+              key,
+              mode: "telegram",
+              ok: false,
+              value,
+              error: String(error)
+            });
+            reject(error);
+            return;
+          }
+
           debugStorage({
             timestamp: new Date().toISOString(),
             op: "setItem",
             key,
             mode: "telegram",
-            ok: false,
-            value,
-            error: String(error)
+            ok: true,
+            value
           });
-          reject(error);
-          return;
-        }
-
-        debugStorage({
-          timestamp: new Date().toISOString(),
-          op: "setItem",
-          key,
-          mode: "telegram",
-          ok: true,
-          value
+          resolve();
         });
-        resolve();
+      }),
+      key
+    ).catch((error) => {
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "setItem",
+        key,
+        mode: "telegram",
+        ok: false,
+        value,
+        error: error instanceof Error ? error.message : String(error)
       });
+      throw error;
     });
   },
   async removeItem(key) {
@@ -331,30 +403,44 @@ const telegramStorageAdapter: CloudStorageAdapter = {
       throw error;
     }
 
-    return new Promise((resolve, reject) => {
-      cloudStorage.removeItem(key, (error) => {
-        if (error) {
+    return withOperationTimeout(
+      "removeItem",
+      new Promise<void>((resolve, reject) => {
+        cloudStorage.removeItem(key, (error) => {
+          if (error) {
+            debugStorage({
+              timestamp: new Date().toISOString(),
+              op: "removeItem",
+              key,
+              mode: "telegram",
+              ok: false,
+              error: String(error)
+            });
+            reject(error);
+            return;
+          }
+
           debugStorage({
             timestamp: new Date().toISOString(),
             op: "removeItem",
             key,
             mode: "telegram",
-            ok: false,
-            error: String(error)
+            ok: true
           });
-          reject(error);
-          return;
-        }
-
-        debugStorage({
-          timestamp: new Date().toISOString(),
-          op: "removeItem",
-          key,
-          mode: "telegram",
-          ok: true
+          resolve();
         });
-        resolve();
+      }),
+      key
+    ).catch((error) => {
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "removeItem",
+        key,
+        mode: "telegram",
+        ok: false,
+        error: error instanceof Error ? error.message : String(error)
       });
+      throw error;
     });
   }
 };
