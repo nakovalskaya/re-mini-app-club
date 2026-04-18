@@ -17,7 +17,10 @@ export function ChallengeDetailsScreen() {
     completedDayIdsByChallenge,
     isChallengeTaken,
     isChallengeCompleted,
-    takeChallenge
+    takeChallenge,
+    toggleSkipChallengeDay,
+    finishActiveChallenge,
+    skippedDayIdsByChallenge
   } = useAppState();
   const challenge = id ? getChallengeById(id) : null;
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
@@ -30,6 +33,7 @@ export function ChallengeDetailsScreen() {
 
   const isTaken = challenge ? isChallengeTaken(challenge.id) : false;
   const completedDayIds = challenge ? completedDayIdsByChallenge[challenge.id] ?? [] : [];
+  const skippedDayIds = challenge ? skippedDayIdsByChallenge[challenge.id] ?? [] : [];
   const completedCount = challenge ? getCompletedCount(challenge.id) : 0;
 
   const selectedDay = useMemo(
@@ -56,19 +60,25 @@ export function ChallengeDetailsScreen() {
     if (completedDayIds.includes(dayId)) {
       return "completed" as const;
     }
+    if (skippedDayIds.includes(dayId)) {
+      return "skipped" as const;
+    }
 
     if (!isTaken) {
       return dayNumber <= 3 ? ("preview" as const) : ("locked" as const);
     }
 
-    const nextAvailable = completedCount + 1;
-    if (dayNumber === nextAvailable) {
-      return "current" as const;
-    }
-    if (dayNumber < nextAvailable) {
-      return "skipped" as const;
-    }
-    return "locked" as const;
+    // Now current is specifically based on how many are completed/skipped.
+    // Actually, "следующий доступный" might just be `completedDayIds.length + skippedDayIds.length + 1`!
+    // But safely: nextAvailable = completedDayIds.length + skippedDayIds.length + 1.
+    // Wait, what if they skipped day 1, completed day 2? If length is 2, next is 3. That works!
+    // But it's safer to just check if it's the first unwrapped day.
+    
+    const isPast = dayNumber < (completedDayIds.length + skippedDayIds.length + 1);
+    const isCurrent = dayNumber === (completedDayIds.length + skippedDayIds.length + 1);
+
+    if (isCurrent) return "current" as const;
+    return isPast ? ("locked" as const) : ("locked" as const); 
   };
 
   const isChallengeDone = completedCount >= challenge.durationDays;
@@ -151,12 +161,28 @@ export function ChallengeDetailsScreen() {
           day={selectedDay}
           status={getDayStatus(selectedDay.dayNumber, selectedDay.id)}
           onComplete={(dayId) => toggleChallengeDay(challenge.id, dayId)}
+          onSkip={(dayId) => toggleSkipChallengeDay(challenge.id, dayId)}
         />
       ) : (
         <EmptyState
           title="День пока не выбран"
           description="Выбери день из верхней сетки, чтобы посмотреть задание."
         />
+      )}
+
+      {activeChallengeId === challenge.id && (
+        <div className="mt-8 pt-4 border-t border-border-soft">
+          <Button 
+            variant="secondary" 
+            onClick={() => {
+              if (window.confirm("Ты точно хочешь закончить челлендж? Прогресс сохранится.")) {
+                finishActiveChallenge();
+              }
+            }}
+          >
+            Завершить челлендж
+          </Button>
+        </div>
       )}
     </section>
   );

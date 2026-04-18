@@ -32,6 +32,8 @@ type AppStateContextValue = {
   toggleFavorite: (materialId: string) => void;
   takeChallenge: (challengeId: string) => void;
   toggleChallengeDay: (challengeId: string, dayId: string) => void;
+  toggleSkipChallengeDay: (challengeId: string, dayId: string) => void;
+  finishActiveChallenge: () => void;
   getCompletedCount: (challengeId: string) => number;
   isChallengeActive: (challengeId: string) => boolean;
   isChallengeTaken: (challengeId: string) => boolean;
@@ -486,6 +488,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const takeChallenge = useCallback((challengeId: string) => {
     applyUserStateMutation((current) => {
+      if (current.activeChallengeId && current.activeChallengeId !== challengeId) {
+        if (!window.confirm("Чтобы начать новый челлендж, нужно завершить текущий. Прогресс сохранится.")) {
+          return current;
+        }
+      }
+
       return {
         ...current,
         activeChallengeId: challengeId,
@@ -496,9 +504,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     });
   }, [applyUserStateMutation]);
 
+  const finishActiveChallenge = useCallback(() => {
+    applyUserStateMutation((current) => ({
+      ...current,
+      activeChallengeId: null
+    }));
+  }, [applyUserStateMutation]);
+
   const toggleChallengeDay = useCallback((challengeId: string, dayId: string) => {
     applyUserStateMutation((current) => {
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
+      const skipped = current.skippedDayIdsByChallenge[challengeId] ?? [];
       const isCompleted = completed.includes(dayId);
 
       return {
@@ -511,6 +527,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           [challengeId]: isCompleted
             ? completed.filter((id) => id !== dayId)
             : [...completed, dayId]
+        },
+        skippedDayIdsByChallenge: {
+          ...current.skippedDayIdsByChallenge,
+          [challengeId]: skipped.includes(dayId) && !isCompleted
+            ? skipped.filter((id) => id !== dayId) // un-skip if we are completing it
+            : skipped
+        }
+      };
+    });
+  }, [applyUserStateMutation]);
+
+  const toggleSkipChallengeDay = useCallback((challengeId: string, dayId: string) => {
+    applyUserStateMutation((current) => {
+      const skipped = current.skippedDayIdsByChallenge[challengeId] ?? [];
+      const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
+      const isSkipped = skipped.includes(dayId);
+
+      return {
+        ...current,
+        takenChallengeIds: current.takenChallengeIds.includes(challengeId)
+          ? current.takenChallengeIds
+          : [...current.takenChallengeIds, challengeId],
+        skippedDayIdsByChallenge: {
+          ...current.skippedDayIdsByChallenge,
+          [challengeId]: isSkipped
+            ? skipped.filter((id) => id !== dayId)
+            : [...skipped, dayId]
+        },
+        completedDayIdsByChallenge: {
+          ...current.completedDayIdsByChallenge,
+          [challengeId]: completed.includes(dayId) && !isSkipped
+            ? completed.filter((id) => id !== dayId) // un-complete if we are skipping it
+            : completed
         }
       };
     });
@@ -566,6 +615,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleFavorite,
       takeChallenge,
       toggleChallengeDay,
+      toggleSkipChallengeDay,
+      finishActiveChallenge,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,
@@ -593,6 +644,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleFavorite,
       takeChallenge,
       toggleChallengeDay,
+      toggleSkipChallengeDay,
+      finishActiveChallenge,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,

@@ -8,19 +8,21 @@ type ChallengeCardProps = {
   completedDays: number;
   status?: "default" | "taken" | "completed" | "active";
   onTakeChallenge: (challengeId: string) => void;
-  canTakeNewChallenge?: boolean;
+  canTakeNewChallenge?: boolean; // Can be kept for safety, but we want to allow clicking to trigger the prompt
 };
 
 export function ChallengeCard({
   challenge,
   completedDays,
   status = "default",
-  onTakeChallenge,
-  canTakeNewChallenge = true
+  onTakeChallenge
 }: ChallengeCardProps) {
-  const isTaken = status === "taken" || status === "active" || status === "completed";
-  const isCompleted = status === "completed";
-  const badgeLabel = isCompleted ? "пройден" : isTaken ? "взят" : null;
+  // logic based strictly on requirements
+  const isActive = status === "active";
+  const badgeLabel = 
+    status === "completed" ? "пройден" :
+    status === "taken" ? "завершен" :
+    status === "active" ? "активен" : null;
 
   return (
     <div className="surface-card flex flex-col gap-5 p-card">
@@ -35,7 +37,7 @@ export function ChallengeCard({
             </h3>
           </div>
           {badgeLabel ? (
-            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-deep">
+            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-deep">
               {badgeLabel}
             </span>
           ) : null}
@@ -61,24 +63,17 @@ export function ChallengeCard({
         <ProgressBar value={completedDays} max={challenge.durationDays} />
       </div>
 
-      {!isTaken ? (
-        <div className="grid gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              to={`/challenges/${challenge.id}`}
-              className="pressable inline-flex min-h-12 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-5 py-3 text-sm font-semibold text-text-primary"
-            >
-              Посмотреть
-            </Link>
-            <Button disabled={!canTakeNewChallenge} onClick={() => onTakeChallenge(challenge.id)}>
-              Начать
-            </Button>
-          </div>
-          {!canTakeNewChallenge && (
-            <p className="text-center text-[11px] uppercase tracking-[0.1em] text-text-secondary mt-1">
-              Завершите текущий челлендж
-            </p>
-          )}
+      {!isActive ? (
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to={`/challenges/${challenge.id}`}
+            className="pressable inline-flex min-h-12 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-5 py-3 text-sm font-semibold text-text-primary"
+          >
+            Посмотреть
+          </Link>
+          <Button onClick={() => onTakeChallenge(challenge.id)}>
+            Начать
+          </Button>
         </div>
       ) : (
         <Link

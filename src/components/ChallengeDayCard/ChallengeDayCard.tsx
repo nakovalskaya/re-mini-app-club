@@ -9,12 +9,14 @@ type ChallengeDayCardProps = {
   day: ChallengeDay;
   status: ChallengeDayStatus;
   onComplete: (dayId: string) => void;
+  onSkip?: (dayId: string) => void;
 };
 
 export function ChallengeDayCard({
   day,
   status,
-  onComplete
+  onComplete,
+  onSkip
 }: ChallengeDayCardProps) {
   const isLocked = status === "locked";
   const isCompleted = status === "completed";
@@ -87,22 +89,45 @@ export function ChallengeDayCard({
         </p>
       </div>
 
-      <div className="mt-5 grid h-12 grid-cols-2 gap-3 border-t border-border-soft pt-4">
+      <div className="mt-5 flex h-12 items-center gap-3 border-t border-border-soft pt-4">
         <Button
           variant="secondary"
           disabled={isLocked}
           onClick={() => openTelegramLink(day.telegramUrl)}
-          className="h-full"
+          className="h-full flex-1"
         >
-          Открыть
+          Открыть задание
         </Button>
-        <Button
-          disabled={isLocked || isPreview}
-          onClick={() => onComplete(day.id)}
-          className={cn("h-full transition-colors duration-300", isCompleted && "bg-[#66b37a] text-white border-transparent")}
-        >
-          {isCompleted ? "Снять отметку" : "Выполнить"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {onSkip && (
+            <button
+              onClick={() => onSkip(day.id)}
+              disabled={isLocked || isPreview}
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
+                isSkipped 
+                  ? "bg-[#ebdcd5] border-[#ebdcd5] text-[#8c7b74]" 
+                  : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
+                (isLocked || isPreview) && "opacity-40 cursor-not-allowed"
+              )}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          )}
+          <button
+            onClick={() => onComplete(day.id)}
+            disabled={isLocked || isPreview}
+            className={cn(
+              "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
+              isCompleted 
+                ? "bg-[#66b37a] border-[#66b37a] text-white" 
+                : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
+              (isLocked || isPreview) && "opacity-40 cursor-not-allowed"
+            )}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </button>
+        </div>
       </div>
     </div>
   );

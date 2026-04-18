@@ -51,7 +51,6 @@ export function CategoryScreen() {
                     : "default"
               }
               onTakeChallenge={takeChallenge}
-              canTakeNewChallenge={!isAnyActive}
             />
           ))}
         </div>

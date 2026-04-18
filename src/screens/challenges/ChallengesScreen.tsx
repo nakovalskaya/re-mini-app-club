@@ -101,7 +101,9 @@ export function ChallengesScreen() {
           ) : null}
 
           <div className="space-y-4">
-            {personalChallenges.map((challenge) => (
+            {personalChallenges
+              .filter((challenge) => challenge!.id !== activeChallengeId)
+              .map((challenge) => (
               <ChallengeCard
                 key={challenge!.id}
                 challenge={challenge!}
