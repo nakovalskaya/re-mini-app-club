@@ -11,264 +11,335 @@ import {
 import { cloudStorage } from "@/storage/cloud-storage/cloudStorage";
 import { STORAGE_KEYS } from "@/storage/user-state/keys";
 
+type PersistedUserState = {
+  favorites: string[];
+  activeChallengeId: string | null;
+  takenChallengeIds: string[];
+  completedDayIdsByChallenge: Record<string, string[]>;
+  skippedDayIdsByChallenge: Record<string, string[]>;
+};
+
 type AppStateContextValue = {
   favoriteIds: string[];
-  isFavorite: (materialId: string) => boolean;
-  toggleFavorite: (materialId: string) => void;
   favoritesHydrated: boolean;
   activeChallengeId: string | null;
-  challengeProgress: Record<string, string[]>;
+  takenChallengeIds: string[];
+  completedDayIdsByChallenge: Record<string, string[]>;
+  skippedDayIdsByChallenge: Record<string, string[]>;
   challengesHydrated: boolean;
+  isFavorite: (materialId: string) => boolean;
+  toggleFavorite: (materialId: string) => void;
   takeChallenge: (challengeId: string) => void;
   completeChallengeDay: (challengeId: string, dayId: string) => void;
   getCompletedCount: (challengeId: string) => number;
   isChallengeActive: (challengeId: string) => boolean;
+  isChallengeTaken: (challengeId: string) => boolean;
+  isChallengeCompleted: (challengeId: string, totalDays: number) => boolean;
+  getAggregateChallengeProgress: (challengeDayCounts: Record<string, number>) => {
+    completed: number;
+    total: number;
+  };
+};
+
+const EMPTY_USER_STATE: PersistedUserState = {
+  favorites: [],
+  activeChallengeId: null,
+  takenChallengeIds: [],
+  completedDayIdsByChallenge: {},
+  skippedDayIdsByChallenge: {}
 };
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [favoritesHydrated, setFavoritesHydrated] = useState(false);
-  const [activeChallengeId, setActiveChallengeId] = useState<string | null>(null);
-  const [challengeProgress, setChallengeProgress] = useState<Record<string, string[]>>(
+function hasPersistedData(state: PersistedUserState) {
+  return (
+    state.favorites.length > 0 ||
+    state.takenChallengeIds.length > 0 ||
+    state.activeChallengeId !== null ||
+    Object.keys(state.completedDayIdsByChallenge).length > 0 ||
+    Object.keys(state.skippedDayIdsByChallenge).length > 0
+  );
+}
+
+function normalizeIdList(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return [...new Set(value.filter((item): item is string => typeof item === "string"))];
+}
+
+function normalizeMap(value: unknown) {
+  if (!value || typeof value !== "object") {
+    return {};
+  }
+
+  return Object.entries(value as Record<string, unknown>).reduce<Record<string, string[]>>(
+    (acc, [key, entry]) => {
+      acc[key] = normalizeIdList(entry);
+      return acc;
+    },
     {}
   );
-  const [challengesHydrated, setChallengesHydrated] = useState(false);
-  const hasLoadedFavorites = useRef(false);
-  const hasLoadedChallenges = useRef(false);
+}
 
-  const normalizeFavoriteIds = useCallback((value: unknown) => {
-    if (!Array.isArray(value)) {
-      return [];
+function normalizeUserState(value: unknown): PersistedUserState {
+  if (!value || typeof value !== "object") {
+    return EMPTY_USER_STATE;
+  }
+
+  const source = value as Partial<PersistedUserState>;
+
+  return {
+    favorites: normalizeIdList(source.favorites),
+    activeChallengeId:
+      typeof source.activeChallengeId === "string" ? source.activeChallengeId : null,
+    takenChallengeIds: normalizeIdList(source.takenChallengeIds),
+    completedDayIdsByChallenge: normalizeMap(source.completedDayIdsByChallenge),
+    skippedDayIdsByChallenge: normalizeMap(source.skippedDayIdsByChallenge)
+  };
+}
+
+async function loadLegacyState(): Promise<PersistedUserState> {
+  const [favoritesRaw, activeChallengeRaw, challengeProgressRaw] = await Promise.all([
+    cloudStorage.getItem(STORAGE_KEYS.favorites),
+    cloudStorage.getItem(STORAGE_KEYS.challengeActive),
+    cloudStorage.getItem(STORAGE_KEYS.challengeProgress)
+  ]);
+
+  const favorites = favoritesRaw ? normalizeIdList(JSON.parse(favoritesRaw)) : [];
+  const activeChallengeId = activeChallengeRaw || null;
+  const completedDayIdsByChallenge = challengeProgressRaw
+    ? normalizeMap(JSON.parse(challengeProgressRaw))
+    : {};
+  const takenChallengeIds = [
+    ...new Set([
+      ...Object.keys(completedDayIdsByChallenge),
+      ...(activeChallengeId ? [activeChallengeId] : [])
+    ])
+  ];
+
+  return {
+    favorites,
+    activeChallengeId,
+    takenChallengeIds,
+    completedDayIdsByChallenge,
+    skippedDayIdsByChallenge: {}
+  };
+}
+
+export function AppStateProvider({ children }: { children: ReactNode }) {
+  const [userState, setUserState] = useState<PersistedUserState>(EMPTY_USER_STATE);
+  const [hydrated, setHydrated] = useState(false);
+  const hasLoadedState = useRef(false);
+  const hasUserMutatedState = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadState() {
+      try {
+        const persisted = await cloudStorage.getItem(STORAGE_KEYS.userState);
+
+        if (cancelled) {
+          return;
+        }
+
+        if (persisted) {
+          try {
+            setUserState(normalizeUserState(JSON.parse(persisted)));
+          } catch {
+            const legacyState = await loadLegacyState();
+            if (!cancelled) {
+              setUserState(legacyState);
+              if (hasPersistedData(legacyState)) {
+                await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
+              }
+            }
+          }
+        } else {
+          const legacyState = await loadLegacyState();
+          if (!cancelled) {
+            setUserState(legacyState);
+            if (hasPersistedData(legacyState)) {
+              await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
+            }
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setUserState(EMPTY_USER_STATE);
+        }
+      } finally {
+        if (!cancelled) {
+          hasLoadedState.current = true;
+          setHydrated(true);
+        }
+      }
     }
 
-    return [...new Set(value.filter((item): item is string => typeof item === "string"))];
+    void loadState();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadFavorites() {
-      try {
-        const stored = await cloudStorage.getItem(STORAGE_KEYS.favorites);
-        if (cancelled) {
-          return;
-        }
-
-        if (!stored) {
-          setFavoriteIds([]);
-          return;
-        }
-
-        const parsed = JSON.parse(stored) as unknown;
-        setFavoriteIds(normalizeFavoriteIds(parsed));
-      } catch {
-        if (!cancelled) {
-          setFavoriteIds([]);
-        }
-      } finally {
-        if (!cancelled) {
-          hasLoadedFavorites.current = true;
-          setFavoritesHydrated(true);
-        }
-      }
-    }
-
-    void loadFavorites();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [normalizeFavoriteIds]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadChallenges() {
-      try {
-        const [storedActive, storedProgress] = await Promise.all([
-          cloudStorage.getItem(STORAGE_KEYS.challengeActive),
-          cloudStorage.getItem(STORAGE_KEYS.challengeProgress)
-        ]);
-
-        if (cancelled) {
-          return;
-        }
-
-        setActiveChallengeId(storedActive || null);
-
-        if (!storedProgress) {
-          setChallengeProgress({});
-          return;
-        }
-
-        const parsed = JSON.parse(storedProgress) as Record<string, unknown>;
-        const normalized = Object.entries(parsed ?? {}).reduce<Record<string, string[]>>(
-          (acc, [challengeId, value]) => {
-            acc[challengeId] = normalizeFavoriteIds(value);
-            return acc;
-          },
-          {}
-        );
-
-        setChallengeProgress(normalized);
-      } catch {
-        if (!cancelled) {
-          setActiveChallengeId(null);
-          setChallengeProgress({});
-        }
-      } finally {
-        if (!cancelled) {
-          hasLoadedChallenges.current = true;
-          setChallengesHydrated(true);
-        }
-      }
-    }
-
-    void loadChallenges();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [normalizeFavoriteIds]);
-
-  useEffect(() => {
-    if (!hasLoadedFavorites.current) {
+    if (!hasLoadedState.current || !hasUserMutatedState.current) {
       return;
     }
 
-    const uniqueFavorites = [...new Set(favoriteIds)];
-    const serialized = JSON.stringify(uniqueFavorites);
-
-    void cloudStorage.setItem(STORAGE_KEYS.favorites, serialized);
-  }, [favoriteIds]);
-
-  useEffect(() => {
-    if (!hasLoadedChallenges.current) {
-      return;
-    }
-
-    const saveChallenges = async () => {
-      if (activeChallengeId) {
-        await cloudStorage.setItem(STORAGE_KEYS.challengeActive, activeChallengeId);
-      } else {
-        await cloudStorage.removeItem(STORAGE_KEYS.challengeActive);
-      }
-    };
-
-    void saveChallenges();
-  }, [activeChallengeId]);
-
-  useEffect(() => {
-    if (!hasLoadedChallenges.current) {
-      return;
-    }
-
-    const normalizedProgress = Object.entries(challengeProgress).reduce<
-      Record<string, string[]>
-    >((acc, [challengeId, dayIds]) => {
-      acc[challengeId] = [...new Set(dayIds)];
-      return acc;
-    }, {});
-
-    void cloudStorage.setItem(
-      STORAGE_KEYS.challengeProgress,
-      JSON.stringify(normalizedProgress)
-    );
-  }, [challengeProgress]);
+    void cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(userState));
+  }, [userState]);
 
   const isFavorite = useCallback(
-    (materialId: string) => favoriteIds.includes(materialId),
-    [favoriteIds]
+    (materialId: string) => userState.favorites.includes(materialId),
+    [userState.favorites]
   );
 
   const toggleFavorite = useCallback((materialId: string) => {
-    setFavoriteIds((current) =>
-      current.includes(materialId)
-        ? current.filter((id) => id !== materialId)
-        : [...current, materialId]
-    );
+    hasUserMutatedState.current = true;
+    setUserState((current) => ({
+      ...current,
+      favorites: current.favorites.includes(materialId)
+        ? current.favorites.filter((id) => id !== materialId)
+        : [...current.favorites, materialId]
+    }));
   }, []);
 
-  const takeChallenge = useCallback(
-    (challengeId: string) => {
+  const takeChallenge = useCallback((challengeId: string) => {
+    hasUserMutatedState.current = true;
+    setUserState((current) => {
       const shouldSwitch =
-        activeChallengeId &&
-        activeChallengeId !== challengeId &&
+        current.activeChallengeId &&
+        current.activeChallengeId !== challengeId &&
         window.confirm(
           "У тебя уже есть активный челлендж. Переключиться? Прогресс по текущему сохранится."
         );
 
-      if (activeChallengeId && activeChallengeId !== challengeId && !shouldSwitch) {
-        return;
+      if (
+        current.activeChallengeId &&
+        current.activeChallengeId !== challengeId &&
+        !shouldSwitch
+      ) {
+        return current;
       }
 
-      setActiveChallengeId(challengeId);
-      setChallengeProgress((current) => ({
+      return {
         ...current,
-        [challengeId]: current[challengeId] ?? []
-      }));
-    },
-    [activeChallengeId]
-  );
+        activeChallengeId: challengeId,
+        takenChallengeIds: current.takenChallengeIds.includes(challengeId)
+          ? current.takenChallengeIds
+          : [...current.takenChallengeIds, challengeId],
+        completedDayIdsByChallenge: {
+          ...current.completedDayIdsByChallenge,
+          [challengeId]: current.completedDayIdsByChallenge[challengeId] ?? []
+        },
+        skippedDayIdsByChallenge: {
+          ...current.skippedDayIdsByChallenge,
+          [challengeId]: current.skippedDayIdsByChallenge[challengeId] ?? []
+        }
+      };
+    });
+  }, []);
 
   const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
-    setChallengeProgress((current) => {
-      const completed = current[challengeId] ?? [];
+    hasUserMutatedState.current = true;
+    setUserState((current) => {
+      const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
       if (completed.includes(dayId)) {
         return current;
       }
 
       return {
         ...current,
-        [challengeId]: [...completed, dayId]
+        takenChallengeIds: current.takenChallengeIds.includes(challengeId)
+          ? current.takenChallengeIds
+          : [...current.takenChallengeIds, challengeId],
+        completedDayIdsByChallenge: {
+          ...current.completedDayIdsByChallenge,
+          [challengeId]: [...completed, dayId]
+        }
       };
     });
   }, []);
 
   const getCompletedCount = useCallback(
-    (challengeId: string) => challengeProgress[challengeId]?.length ?? 0,
-    [challengeProgress]
+    (challengeId: string) =>
+      userState.completedDayIdsByChallenge[challengeId]?.length ?? 0,
+    [userState.completedDayIdsByChallenge]
   );
 
   const isChallengeActive = useCallback(
-    (challengeId: string) => activeChallengeId === challengeId,
-    [activeChallengeId]
+    (challengeId: string) => userState.activeChallengeId === challengeId,
+    [userState.activeChallengeId]
+  );
+
+  const isChallengeTaken = useCallback(
+    (challengeId: string) => userState.takenChallengeIds.includes(challengeId),
+    [userState.takenChallengeIds]
+  );
+
+  const isChallengeCompleted = useCallback(
+    (challengeId: string, totalDays: number) =>
+      (userState.completedDayIdsByChallenge[challengeId]?.length ?? 0) >= totalDays,
+    [userState.completedDayIdsByChallenge]
+  );
+
+  const getAggregateChallengeProgress = useCallback(
+    (challengeDayCounts: Record<string, number>) => {
+      return userState.takenChallengeIds.reduce(
+        (acc, challengeId) => {
+          acc.completed += userState.completedDayIdsByChallenge[challengeId]?.length ?? 0;
+          acc.total += challengeDayCounts[challengeId] ?? 0;
+          return acc;
+        },
+        { completed: 0, total: 0 }
+      );
+    },
+    [userState.completedDayIdsByChallenge, userState.takenChallengeIds]
   );
 
   const value = useMemo(
     () => ({
-      favoriteIds,
+      favoriteIds: userState.favorites,
+      favoritesHydrated: hydrated,
+      activeChallengeId: userState.activeChallengeId,
+      takenChallengeIds: userState.takenChallengeIds,
+      completedDayIdsByChallenge: userState.completedDayIdsByChallenge,
+      skippedDayIdsByChallenge: userState.skippedDayIdsByChallenge,
+      challengesHydrated: hydrated,
       isFavorite,
       toggleFavorite,
-      favoritesHydrated,
-      activeChallengeId,
-      challengeProgress,
-      challengesHydrated,
       takeChallenge,
       completeChallengeDay,
       getCompletedCount,
-      isChallengeActive
+      isChallengeActive,
+      isChallengeTaken,
+      isChallengeCompleted,
+      getAggregateChallengeProgress
     }),
     [
-      favoriteIds,
+      userState.favorites,
+      userState.activeChallengeId,
+      userState.takenChallengeIds,
+      userState.completedDayIdsByChallenge,
+      userState.skippedDayIdsByChallenge,
+      hydrated,
       isFavorite,
       toggleFavorite,
-      favoritesHydrated,
-      activeChallengeId,
-      challengeProgress,
-      challengesHydrated,
       takeChallenge,
       completeChallengeDay,
       getCompletedCount,
-      isChallengeActive
+      isChallengeActive,
+      isChallengeTaken,
+      isChallengeCompleted,
+      getAggregateChallengeProgress
     ]
   );
 
-  return (
-    <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>
-  );
+  return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
 
 export function useAppState() {

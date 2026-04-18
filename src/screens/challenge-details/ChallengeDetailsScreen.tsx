@@ -14,7 +14,8 @@ export function ChallengeDetailsScreen() {
     activeChallengeId,
     completeChallengeDay,
     getCompletedCount,
-    challengeProgress,
+    completedDayIdsByChallenge,
+    isChallengeTaken,
     takeChallenge
   } = useAppState();
   const challenge = id ? getChallengeById(id) : null;
@@ -26,8 +27,8 @@ export function ChallengeDetailsScreen() {
     }
   }, [challenge]);
 
-  const isTaken = challenge ? activeChallengeId === challenge.id : false;
-  const completedDayIds = challenge ? challengeProgress[challenge.id] ?? [] : [];
+  const isTaken = challenge ? isChallengeTaken(challenge.id) : false;
+  const completedDayIds = challenge ? completedDayIdsByChallenge[challenge.id] ?? [] : [];
   const completedCount = challenge ? getCompletedCount(challenge.id) : 0;
 
   const selectedDay = useMemo(
@@ -78,6 +79,10 @@ export function ChallengeDetailsScreen() {
           {!isTaken ? (
             <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
               Взять челлендж
+            </Button>
+          ) : activeChallengeId !== challenge.id ? (
+            <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
+              Сделать активным
             </Button>
           ) : null}
         </div>

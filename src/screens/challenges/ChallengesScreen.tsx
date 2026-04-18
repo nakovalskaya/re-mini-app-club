@@ -6,17 +6,35 @@ import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
 import { getChallengeById, getChallenges } from "@/features/challenges/selectors";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/Button/Button";
 
 export function ChallengesScreen() {
   const {
     activeChallengeId,
     challengesHydrated,
+    getAggregateChallengeProgress,
     getCompletedCount,
     isChallengeActive,
-    takeChallenge
+    isChallengeCompleted,
+    takeChallenge,
+    takenChallengeIds
   } = useAppState();
   const challenges = getChallenges();
+  const personalChallenges = useMemo(
+    () =>
+      takenChallengeIds
+        .map((challengeId) => getChallengeById(challengeId))
+        .filter(Boolean),
+    [takenChallengeIds]
+  );
+  const challengeDayCounts = useMemo(
+    () =>
+      challenges.reduce<Record<string, number>>((acc, challenge) => {
+        acc[challenge.id] = challenge.durationDays;
+        return acc;
+      }, {}),
+    [challenges]
+  );
+  const aggregate = getAggregateChallengeProgress(challengeDayCounts);
   const activeChallenge = useMemo(
     () => (activeChallengeId ? getChallengeById(activeChallengeId) : null),
     [activeChallengeId]
@@ -26,8 +44,8 @@ export function ChallengesScreen() {
     <section className="screen-stack">
       <SectionTitle
         title="Челленджи"
-        eyebrow="Практика"
-        description="Выбирай один активный маршрут и проходи задания по дням в спокойном ритме."
+        eyebrow="Личное"
+        description="Здесь живут только взятые и уже пройденные челленджи с общим прогрессом."
       />
 
       {!challengesHydrated ? (
@@ -35,46 +53,72 @@ export function ChallengesScreen() {
           title="Загружаем челленджи"
           description="Подтягиваем твой активный маршрут и прогресс."
         />
-      ) : activeChallenge ? (
-        <div className="surface-card-elevated space-y-5 bg-accent-deep p-card text-bg-base">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.24em] text-accent-gold">
-              Твой активный челлендж
-            </p>
-            <h2 className="font-serif text-[2rem] leading-none">{activeChallenge.title}</h2>
-            <p className="text-sm leading-6 text-[#f7e8e3]">
-              {activeChallenge.description}
-            </p>
-          </div>
-          <ProgressBar
-            value={getCompletedCount(activeChallenge.id)}
-            max={activeChallenge.durationDays}
-          />
-          <Link
-            to={`/challenges/${activeChallenge.id}`}
-            className="pressable inline-flex min-h-12 items-center justify-center rounded-button bg-[rgba(255,248,247,0.92)] px-5 py-3 text-sm font-semibold text-accent-deep"
-          >
-            Продолжить
-          </Link>
-        </div>
-      ) : (
+      ) : personalChallenges.length === 0 ? (
         <EmptyState
-          title="Пока нет активного челленджа"
-          description="Выбери маршрут ниже — после этого он появится в твоей личной зоне."
+          title="Пока нет взятых челленджей"
+          description="Открой раздел «Марафоны» и возьми первый челлендж — после этого он появится здесь."
         />
-      )}
+      ) : (
+        <>
+          {personalChallenges.length > 1 ? (
+            <div className="surface-card space-y-4 p-card">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
+                  Общий прогресс
+                </p>
+                <h2 className="font-serif text-[1.9rem] leading-none text-text-primary">
+                  Все взятые челленджи
+                </h2>
+              </div>
+              <ProgressBar value={aggregate.completed} max={aggregate.total || 1} />
+            </div>
+          ) : null}
 
-      <div className="space-y-4">
-        {challenges.map((challenge) => (
-          <ChallengeCard
-            key={challenge.id}
-            challenge={challenge}
-            completedDays={getCompletedCount(challenge.id)}
-            isActive={isChallengeActive(challenge.id)}
-            onTakeChallenge={takeChallenge}
-          />
-        ))}
-      </div>
+          {activeChallenge ? (
+            <div className="surface-card-elevated space-y-5 bg-accent-deep p-card text-bg-base">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.24em] text-accent-gold">
+                  Текущий активный
+                </p>
+                <h2 className="font-serif text-[2rem] leading-none">
+                  {activeChallenge.title}
+                </h2>
+                <p className="text-sm leading-6 text-[#f7e8e3]">
+                  {activeChallenge.description}
+                </p>
+              </div>
+              <ProgressBar
+                value={getCompletedCount(activeChallenge.id)}
+                max={activeChallenge.durationDays}
+              />
+              <Link
+                to={`/challenges/${activeChallenge.id}`}
+                className="pressable inline-flex min-h-12 items-center justify-center rounded-button bg-[rgba(255,248,247,0.92)] px-5 py-3 text-sm font-semibold text-accent-deep"
+              >
+                Открыть
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="space-y-4">
+            {personalChallenges.map((challenge) => (
+              <ChallengeCard
+                key={challenge!.id}
+                challenge={challenge!}
+                completedDays={getCompletedCount(challenge!.id)}
+                status={
+                  isChallengeActive(challenge!.id)
+                    ? "active"
+                    : isChallengeCompleted(challenge!.id, challenge!.durationDays)
+                      ? "completed"
+                      : "taken"
+                }
+                onTakeChallenge={takeChallenge}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }

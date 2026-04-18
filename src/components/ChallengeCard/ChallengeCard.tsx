@@ -6,16 +6,26 @@ import type { Challenge } from "@/shared/types/content";
 type ChallengeCardProps = {
   challenge: Challenge;
   completedDays: number;
-  isActive?: boolean;
+  status?: "default" | "taken" | "completed" | "active";
   onTakeChallenge: (challengeId: string) => void;
 };
 
 export function ChallengeCard({
   challenge,
   completedDays,
-  isActive = false,
+  status = "default",
   onTakeChallenge
 }: ChallengeCardProps) {
+  const isActive = status === "active";
+  const isTaken = status === "taken" || status === "active" || status === "completed";
+  const isCompleted = status === "completed";
+  const badgeLabel = isCompleted ? "пройден" : isActive ? "активен" : isTaken ? "взят" : null;
+  const actionLabel = isActive
+    ? "Продолжить"
+    : isTaken
+      ? "Сделать активным"
+      : "Взять челлендж";
+
   return (
     <div className="surface-card flex flex-col gap-5 p-card">
       <div className="space-y-3">
@@ -28,9 +38,9 @@ export function ChallengeCard({
               {challenge.title}
             </h3>
           </div>
-          {isActive ? (
+          {badgeLabel ? (
             <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-deep">
-              активен
+              {badgeLabel}
             </span>
           ) : null}
         </div>
@@ -63,7 +73,7 @@ export function ChallengeCard({
           Посмотреть
         </Link>
         <Button onClick={() => onTakeChallenge(challenge.id)}>
-          {isActive ? "Продолжить" : "Взять челлендж"}
+          {actionLabel}
         </Button>
       </div>
     </div>
