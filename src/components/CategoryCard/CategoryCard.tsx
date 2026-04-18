@@ -20,10 +20,10 @@ export function CategoryCard({ category }: CategoryCardProps) {
         </span>
       </div>
       <div className="space-y-2">
-        <h3 className="font-serif text-[1.8rem] leading-none text-text-primary">
+        <h3 className="font-serif text-[1.62rem] leading-[0.98] text-text-primary">
           {category.title}
         </h3>
-        <p className="max-w-[18ch] text-sm leading-6 text-text-secondary">
+        <p className="max-w-[18ch] text-[13px] leading-5 text-text-secondary">
           {category.description}
         </p>
       </div>

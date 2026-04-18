@@ -25,14 +25,14 @@ export function CalendarDateCell({
     <Link
       to={`/calendar/${date}`}
       className={cn(
-        "pressable flex min-h-[64px] flex-col items-center justify-between rounded-compact border px-2 py-3 text-text-primary",
+        "pressable flex min-h-[50px] flex-col items-center justify-between rounded-compact border px-1.5 py-2 text-text-primary",
         eventTypes.length > 0
           ? "border-border-medium bg-bg-surface shadow-soft"
           : "border-border-soft bg-[rgba(255,248,247,0.72)]",
         isToday && "ring-1 ring-accent-gold"
       )}
     >
-      <span className="text-sm font-semibold">{label}</span>
+      <span className="text-[13px] font-semibold leading-none">{label}</span>
       <div className="flex items-center gap-1">
         {eventTypes.slice(0, 3).map((type, index) => (
           <span

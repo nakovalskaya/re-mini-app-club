@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { BackButton } from "@/components/BackButton/BackButton";
 import { ChallengeCard } from "@/components/ChallengeCard/ChallengeCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
@@ -35,6 +36,7 @@ export function CategoryScreen() {
 
   return (
     <section className="screen-stack">
+      <BackButton />
       <SectionTitle
         title={category.slug === "marathon" ? "Марафоны" : category.title}
         eyebrow="Категория"

@@ -49,11 +49,11 @@ export function MaterialCard({
             <span>{material.duration}</span>
           </div>
           <h3
-            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.9rem] leading-none" : "font-serif text-[1.65rem] leading-none"}`}
+            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.72rem] leading-[0.98]" : "font-serif text-[1.48rem] leading-[0.98]"}`}
           >
             {material.title}
           </h3>
-          <p className="text-sm leading-6 text-text-secondary">
+          <p className="text-[13px] leading-5 text-text-secondary">
             {material.shortDescription}
           </p>
         </div>

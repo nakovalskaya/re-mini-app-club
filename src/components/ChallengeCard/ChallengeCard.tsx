@@ -39,7 +39,7 @@ export function ChallengeCard({
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
               челлендж
             </p>
-            <h3 className="mt-2 font-serif text-[1.9rem] leading-none text-text-primary">
+            <h3 className="mt-2 font-serif text-[1.72rem] leading-[0.98] text-text-primary">
               {challenge.title}
             </h3>
           </div>
@@ -76,7 +76,7 @@ export function ChallengeCard({
         <div className="grid grid-cols-2 gap-3">
           <Link
             to={`/challenges/${challenge.id}`}
-            className="pressable inline-flex min-h-12 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-5 py-3 text-sm font-semibold text-text-primary"
+            className="pressable inline-flex min-h-11 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-4 py-2.5 text-[13px] font-semibold leading-none text-text-primary"
           >
             Посмотреть
           </Link>
@@ -87,7 +87,7 @@ export function ChallengeCard({
       ) : (
         <Link
           to={`/challenges/${challenge.id}`}
-          className="pressable inline-flex min-h-12 items-center justify-center rounded-button bg-accent-deep px-5 py-3 text-sm font-semibold text-bg-base"
+          className="pressable inline-flex min-h-11 items-center justify-center rounded-button bg-accent-deep px-4 py-2.5 text-[13px] font-semibold leading-none text-bg-base"
         >
           Открыть
         </Link>

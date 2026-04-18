@@ -39,12 +39,14 @@
 html,
 body,
 #root {
+  height: 100%;
   min-height: 100%;
 }
 
 html {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none;
 }
 
 html::-webkit-scrollbar,
@@ -60,6 +62,8 @@ body {
     linear-gradient(180deg, #fffafa 0%, #faf4f4 100%);
   color: var(--color-text-primary);
   font-family: Manrope, Inter, system-ui, sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 * {
@@ -96,19 +100,19 @@ a {
 
 @layer components {
   .safe-top {
-    padding-top: calc(env(safe-area-inset-top) + 16px);
+    padding-top: calc(env(safe-area-inset-top) + 10px);
   }
 
   .safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
   }
 
   .screen-shell {
-    @apply mx-auto flex min-h-screen w-full max-w-md flex-col bg-bg-base;
+    @apply mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden bg-bg-base;
   }
 
   .screen-content {
-    @apply flex-1 px-screen pb-32;
+    @apply flex-1 overflow-y-auto overscroll-contain px-screen pb-28;
   }
 
   .screen-stack {
@@ -157,5 +161,77 @@ a {
 
   .text-balance {
     text-wrap: balance;
+  }
+
+  .tabbar-glass {
+    isolation: isolate;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    background:
+      linear-gradient(180deg, rgba(113, 48, 41, 0.14), rgba(255, 248, 247, 0.16)),
+      rgba(255, 244, 242, 0.44);
+    box-shadow:
+      0 14px 34px rgba(79, 2, 2, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.46),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px) saturate(145%);
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+  }
+
+  .tabbar-glass::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18),
+      rgba(255, 255, 255, 0.04)
+    );
+    opacity: 0.9;
+  }
+
+  .tabbar-glass::after {
+    content: "";
+    position: absolute;
+    inset: -8% -3% -14% -3%;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.42;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.34), transparent 26%),
+      radial-gradient(circle at 76% 30%, rgba(255, 208, 148, 0.18), transparent 24%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02));
+    filter: url(#tabbar-liquid-distortion);
+    mix-blend-mode: screen;
+    transform: scale(1.06);
+  }
+
+  .tabbar-item {
+    z-index: 2;
+    transition:
+      color 180ms ease,
+      text-shadow 180ms ease,
+      opacity 180ms ease,
+      transform 160ms ease;
+  }
+
+  .tabbar-icon {
+    transition:
+      color 180ms ease,
+      filter 180ms ease,
+      transform 160ms ease;
+  }
+
+  .tabbar-item-active {
+    text-shadow: 0 0 16px rgba(255, 208, 148, 0.16);
+  }
+
+  .tabbar-item-active .tabbar-icon {
+    filter:
+      drop-shadow(0 0 10px rgba(255, 208, 148, 0.22))
+      drop-shadow(0 0 4px rgba(255, 255, 255, 0.18));
+    transform: translateY(-0.5px);
   }
 }

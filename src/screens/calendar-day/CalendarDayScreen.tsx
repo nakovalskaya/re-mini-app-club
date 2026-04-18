@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { BackButton } from "@/components/BackButton/BackButton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
@@ -10,6 +11,7 @@ export function CalendarDayScreen() {
 
   return (
     <section className="screen-stack">
+      <BackButton />
       <SectionTitle
         title={date ?? "Дата"}
         eyebrow="Материалы дня"

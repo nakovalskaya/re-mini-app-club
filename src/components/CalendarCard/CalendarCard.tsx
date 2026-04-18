@@ -20,16 +20,16 @@ const legend = [
 
 export function CalendarCard({ monthLabel, days }: CalendarCardProps) {
   return (
-    <div className="surface-card space-y-5 p-card">
-      <div className="space-y-3">
+    <div className="surface-card max-h-[46vh] space-y-4 overflow-hidden p-4">
+      <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
           График материалов
         </p>
         <div className="flex items-end justify-between gap-4">
-          <h3 className="font-serif text-[2rem] leading-none text-text-primary">
+          <h3 className="font-serif text-[1.56rem] leading-[0.98] text-text-primary">
             {monthLabel}
           </h3>
-          <div className="flex flex-wrap justify-end gap-3 text-[11px] uppercase tracking-[0.14em] text-text-secondary">
+          <div className="flex max-w-[58%] flex-wrap justify-end gap-x-2.5 gap-y-1 text-[10px] uppercase tracking-[0.12em] text-text-secondary">
             {legend.map((item) => (
               <span key={item.label} className="inline-flex items-center gap-1.5">
                 <span className={`h-2 w-2 rounded-full ${item.color}`} />
@@ -39,7 +39,7 @@ export function CalendarCard({ monthLabel, days }: CalendarCardProps) {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1.5">
         {days.map((day) => (
           <CalendarDateCell
             key={day.date}

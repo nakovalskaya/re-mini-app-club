@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { BackButton } from "@/components/BackButton/BackButton";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
-import { IconButton } from "@/components/IconButton/IconButton";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
 import { openTelegramLink } from "@/features/telegram/telegram";
 import { getMaterialById } from "@/features/materials/selectors";
@@ -11,7 +11,6 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 
 export function MaterialScreen() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const material = id ? getMaterialById(id) : null;
 
   if (!material) {
@@ -41,11 +40,7 @@ export function MaterialScreen() {
   return (
     <section className="screen-stack pb-10">
       <div className="flex items-center justify-between">
-        <IconButton
-          icon={<span className="text-lg leading-none">←</span>}
-          onClick={() => navigate(-1)}
-          aria-label="Назад"
-        />
+        <BackButton />
         <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
           Материал
         </p>
@@ -66,10 +61,10 @@ export function MaterialScreen() {
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
               {typeLabel} · {material.duration}
             </p>
-            <h1 className="font-serif text-[2.2rem] leading-none text-text-primary">
+            <h1 className="font-serif text-[1.95rem] leading-[0.98] text-text-primary">
               {material.title}
             </h1>
-            <p className="text-base leading-7 text-text-secondary">
+            <p className="text-[15px] leading-6 text-text-secondary">
               {material.longDescription ?? material.shortDescription}
             </p>
           </div>

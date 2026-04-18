@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
+import { BackButton } from "@/components/BackButton/BackButton";
 import { ChallengeDayCard } from "@/components/ChallengeDayCard/ChallengeDayCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
@@ -103,6 +104,7 @@ export function ChallengeDetailsScreen() {
 
   return (
     <section className="screen-stack">
+      <BackButton />
       <SectionTitle
         title={challenge.title}
         eyebrow="Челлендж"

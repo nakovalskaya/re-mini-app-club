@@ -29,13 +29,13 @@ export function SectionTitle({
         <h2
           className={cn(
             "text-text-primary",
-            serif ? "font-serif text-[2rem] leading-none" : "text-xl font-semibold"
+            serif ? "font-serif text-[1.72rem] leading-[0.98]" : "text-[1.1rem] font-semibold leading-tight"
           )}
         >
           {title}
         </h2>
         {description ? (
-          <p className="max-w-[34ch] text-sm leading-6 text-text-secondary">
+          <p className="max-w-[34ch] text-[13px] leading-5 text-text-secondary">
             {description}
           </p>
         ) : null}

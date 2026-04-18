@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
@@ -32,6 +32,9 @@ function ShellContent() {
       <main className="screen-content">
         <Outlet />
       </main>
+      <ScrollRestoration
+        getKey={(location) => `${location.pathname}${location.search}`}
+      />
       {isDebug ? <DevDebugPanel /> : null}
       <TabBar items={tabBarItems} />
 

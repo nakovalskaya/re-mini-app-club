@@ -29,7 +29,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "pressable inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-button px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-state-disabledBg disabled:text-state-disabledText",
+        "pressable inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-button px-4 py-2.5 text-[13px] font-semibold leading-none transition disabled:cursor-not-allowed disabled:bg-state-disabledBg disabled:text-state-disabledText",
         variantClasses[variant],
         className
       )}
