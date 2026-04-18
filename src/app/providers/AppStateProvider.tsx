@@ -302,7 +302,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const hasUserMutatedState = useRef(false);
   const hydrationInFlight = useRef(false);
   const storageReadyRef = useRef(canUseLocalStorageMode());
-  const optimisticStateRef = useRef<PersistedUserState | null>(null);
+  const pendingMutationsRef = useRef<Array<(state: PersistedUserState) => PersistedUserState>>([]);
   const lastForegroundRehydrateAtRef = useRef(0);
 
   const hydrateFromStorage = useCallback(async () => {
@@ -311,8 +311,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await loadUserStateFromStorageWithRetry();
-      const optimisticState = optimisticStateRef.current;
-      const nextState = optimisticState ?? result.state;
+      let nextState = result.state;
+      const pendingMutations = pendingMutationsRef.current;
+      
+      if (pendingMutations.length > 0) {
+        pendingMutations.forEach((mutate) => {
+          nextState = mutate(nextState);
+        });
+        pendingMutationsRef.current = [];
+      }
 
       setUserState(nextState);
       storageReadyRef.current = true;
@@ -322,8 +329,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         storageReady: true
       });
 
-      if (optimisticState) {
-        optimisticStateRef.current = null;
+      if (pendingMutations.length > 0) {
         await persistUserStateToStorage(nextState);
       } else if (result.source === "legacy" && hasPersistedData(result.state)) {
         await persistUserStateToStorage(result.state);
@@ -451,7 +457,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const next = mutate(current);
 
         if (!storageReadyRef.current) {
-          optimisticStateRef.current = next;
+          pendingMutationsRef.current.push(mutate);
         }
 
         return next;

@@ -149,6 +149,14 @@ function normalizeTelegramItemsResult(
   }, {});
 }
 
+function toTelegramStorageKey(key: string) {
+  return key.replace(/[^A-Za-z0-9_-]/g, "_");
+}
+
+function toTelegramStorageKeys(keys: string[]) {
+  return keys.map(toTelegramStorageKey);
+}
+
 async function invokeCloudStorageWithFallback<T>({
   operation,
   key,
@@ -210,7 +218,13 @@ async function withOperationTimeout<T>(
   });
 }
 
+let isCloudStoragePermanentlyUnavailable = false;
+
 async function waitForTelegramCloudStorage(timeoutMs = TELEGRAM_CLOUD_STORAGE_WAIT_MS) {
+  if (isCloudStoragePermanentlyUnavailable) {
+    return null;
+  }
+
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < timeoutMs) {
@@ -222,6 +236,7 @@ async function waitForTelegramCloudStorage(timeoutMs = TELEGRAM_CLOUD_STORAGE_WA
     await new Promise((resolve) => window.setTimeout(resolve, TELEGRAM_CLOUD_STORAGE_POLL_MS));
   }
 
+  isCloudStoragePermanentlyUnavailable = true;
   return null;
 }
 
@@ -279,6 +294,7 @@ const localStorageAdapter: CloudStorageAdapter = {
 const telegramStorageAdapter: CloudStorageAdapter = {
   async getItem(key) {
     const cloudStorage = await waitForTelegramCloudStorage();
+    const telegramKey = toTelegramStorageKey(key);
 
     if (!cloudStorage) {
       const error = createUnavailableError();
@@ -295,11 +311,11 @@ const telegramStorageAdapter: CloudStorageAdapter = {
 
     return invokeCloudStorageWithFallback<string | null>({
       operation: "getItem",
-      key,
-      invokePromise: () => cloudStorage.getItem(key),
+      key: telegramKey,
+      invokePromise: () => cloudStorage.getItem(telegramKey),
       invokeCallback: () =>
         new Promise<string | null>((resolve, reject) => {
-          cloudStorage.getItem(key, (error, value) => {
+          cloudStorage.getItem(telegramKey, (error, value) => {
             if (error) {
               reject(error);
               return;
@@ -336,6 +352,7 @@ const telegramStorageAdapter: CloudStorageAdapter = {
   },
   async getItems(keys) {
     const cloudStorage = await waitForTelegramCloudStorage();
+    const telegramKeys = toTelegramStorageKeys(keys);
 
     if (!cloudStorage) {
       const error = createUnavailableError();
@@ -352,24 +369,37 @@ const telegramStorageAdapter: CloudStorageAdapter = {
 
     return invokeCloudStorageWithFallback<Record<string, string | null>>({
       operation: "getItems",
-      key: keys.join(","),
-      invokePromise: () => cloudStorage.getItems(keys),
+      key: telegramKeys.join(","),
+      invokePromise: () => cloudStorage.getItems(telegramKeys),
       invokeCallback: () =>
         new Promise<Record<string, string | null>>((resolve, reject) => {
-          cloudStorage.getItems(keys, (error, values) => {
+          cloudStorage.getItems(telegramKeys, (error, values) => {
             if (error) {
               reject(error);
               return;
             }
 
-            resolve(normalizeTelegramItemsResult(keys, values));
+            const normalizedTelegramValues = normalizeTelegramItemsResult(telegramKeys, values);
+            const normalizedValues = keys.reduce<Record<string, string | null>>((acc, originalKey, index) => {
+              acc[originalKey] = normalizedTelegramValues[telegramKeys[index]] ?? null;
+              return acc;
+            }, {});
+
+            resolve(normalizedValues);
           });
         }),
       normalize: (value) =>
-        normalizeTelegramItemsResult(
-          keys,
-          (value ?? null) as Record<string, string> | string[] | null
-        )
+        {
+          const normalizedTelegramValues = normalizeTelegramItemsResult(
+            telegramKeys,
+            (value ?? null) as Record<string, string> | string[] | null
+          );
+
+          return keys.reduce<Record<string, string | null>>((acc, originalKey, index) => {
+            acc[originalKey] = normalizedTelegramValues[telegramKeys[index]] ?? null;
+            return acc;
+          }, {});
+        }
     })
       .then((values) => {
         debugStorage({
@@ -397,6 +427,7 @@ const telegramStorageAdapter: CloudStorageAdapter = {
   },
   async setItem(key, value) {
     const cloudStorage = await waitForTelegramCloudStorage();
+    const telegramKey = toTelegramStorageKey(key);
 
     if (!cloudStorage) {
       const error = createUnavailableError();
@@ -414,11 +445,11 @@ const telegramStorageAdapter: CloudStorageAdapter = {
 
     return invokeCloudStorageWithFallback<void>({
       operation: "setItem",
-      key,
-      invokePromise: () => cloudStorage.setItem(key, value),
+      key: telegramKey,
+      invokePromise: () => cloudStorage.setItem(telegramKey, value),
       invokeCallback: () =>
         new Promise<void>((resolve, reject) => {
-          cloudStorage.setItem(key, value, (error) => {
+          cloudStorage.setItem(telegramKey, value, (error) => {
             if (error) {
               reject(error);
               return;
@@ -453,6 +484,7 @@ const telegramStorageAdapter: CloudStorageAdapter = {
   },
   async removeItem(key) {
     const cloudStorage = await waitForTelegramCloudStorage();
+    const telegramKey = toTelegramStorageKey(key);
 
     if (!cloudStorage) {
       const error = createUnavailableError();
@@ -469,11 +501,11 @@ const telegramStorageAdapter: CloudStorageAdapter = {
 
     return invokeCloudStorageWithFallback<void>({
       operation: "removeItem",
-      key,
-      invokePromise: () => cloudStorage.removeItem(key),
+      key: telegramKey,
+      invokePromise: () => cloudStorage.removeItem(telegramKey),
       invokeCallback: () =>
         new Promise<void>((resolve, reject) => {
-          cloudStorage.removeItem(key, (error) => {
+          cloudStorage.removeItem(telegramKey, (error) => {
             if (error) {
               reject(error);
               return;
@@ -536,28 +568,56 @@ export const cloudStorage: CloudStorageAdapter = {
   async getItem(key) {
     const { mode } = getStorageMode();
     if (mode === "telegram" || mode === "unavailable") {
-      return telegramStorageAdapter.getItem(key);
+      try {
+        return await telegramStorageAdapter.getItem(key);
+      } catch (error: any) {
+        if (error?.message === createUnavailableError().message) {
+          return localStorageAdapter.getItem(key);
+        }
+        throw error;
+      }
     }
     return localStorageAdapter.getItem(key);
   },
   async getItems(keys) {
     const { mode } = getStorageMode();
     if (mode === "telegram" || mode === "unavailable") {
-      return telegramStorageAdapter.getItems(keys);
+      try {
+        return await telegramStorageAdapter.getItems(keys);
+      } catch (error: any) {
+        if (error?.message === createUnavailableError().message) {
+          return localStorageAdapter.getItems(keys);
+        }
+        throw error;
+      }
     }
     return localStorageAdapter.getItems(keys);
   },
   async setItem(key, value) {
     const { mode } = getStorageMode();
     if (mode === "telegram" || mode === "unavailable") {
-      return telegramStorageAdapter.setItem(key, value);
+      try {
+        return await telegramStorageAdapter.setItem(key, value);
+      } catch (error: any) {
+        if (error?.message === createUnavailableError().message) {
+          return localStorageAdapter.setItem(key, value);
+        }
+        throw error;
+      }
     }
     return localStorageAdapter.setItem(key, value);
   },
   async removeItem(key) {
     const { mode } = getStorageMode();
     if (mode === "telegram" || mode === "unavailable") {
-      return telegramStorageAdapter.removeItem(key);
+      try {
+        return await telegramStorageAdapter.removeItem(key);
+      } catch (error: any) {
+        if (error?.message === createUnavailableError().message) {
+          return localStorageAdapter.removeItem(key);
+        }
+        throw error;
+      }
     }
     return localStorageAdapter.removeItem(key);
   }
