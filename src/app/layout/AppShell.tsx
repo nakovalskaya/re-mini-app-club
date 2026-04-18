@@ -14,6 +14,39 @@ const isDebug =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true") ||
   (typeof window !== "undefined" && window.location.search.includes("debug=true"));
 
+declare global {
+  interface Window {
+    __MINI_APP_SCROLL_DEBUG__?: {
+      routeKey?: string;
+      navigationType?: string;
+      container?: string;
+      savedScrollTop?: number;
+      appliedScrollTop?: number;
+      currentScrollTop?: number;
+      events?: Array<{
+        type: "save" | "apply";
+        routeKey: string;
+        navigationType?: string;
+        scrollTop: number;
+        container: string;
+        at: string;
+      }>;
+    };
+  }
+}
+
+function debugScrollRestore(update: NonNullable<Window["__MINI_APP_SCROLL_DEBUG__"]>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.__MINI_APP_SCROLL_DEBUG__ = update;
+
+  if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+    console.info("[mini-app-scroll-restore]", update);
+  }
+}
+
 export function AppShell() {
   return (
     <AppStateProvider>
@@ -33,6 +66,7 @@ function ShellContent() {
     dismissChallengeDialog
   } = useAppState();
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
+  const routeScrollKey = `${location.pathname}${location.search}`;
 
   useEffect(() => {
     const element = contentRef.current;
@@ -42,16 +76,34 @@ function ShellContent() {
     }
 
     const handleScroll = () => {
-      scrollPositionsRef.current.set(location.key, element.scrollTop);
+      scrollPositionsRef.current.set(routeScrollKey, element.scrollTop);
+      debugScrollRestore({
+        routeKey: routeScrollKey,
+        navigationType,
+        container: "main.screen-content",
+        savedScrollTop: element.scrollTop,
+        appliedScrollTop: window.__MINI_APP_SCROLL_DEBUG__?.appliedScrollTop ?? 0,
+        currentScrollTop: element.scrollTop,
+        events: [
+          ...(window.__MINI_APP_SCROLL_DEBUG__?.events ?? []).slice(-9),
+          {
+            type: "save",
+            routeKey: routeScrollKey,
+            navigationType,
+            scrollTop: element.scrollTop,
+            container: "main.screen-content",
+            at: new Date().toISOString()
+          }
+        ]
+      });
     };
 
     element.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       element.removeEventListener("scroll", handleScroll);
-      scrollPositionsRef.current.set(location.key, element.scrollTop);
     };
-  }, [location.key]);
+  }, [navigationType, routeScrollKey]);
 
   useLayoutEffect(() => {
     const element = contentRef.current;
@@ -61,10 +113,33 @@ function ShellContent() {
     }
 
     const nextTop =
-      navigationType === "POP" ? (scrollPositionsRef.current.get(location.key) ?? 0) : 0;
+      navigationType === "POP" ? (scrollPositionsRef.current.get(routeScrollKey) ?? 0) : 0;
 
-    element.scrollTo({ top: nextTop, left: 0, behavior: "auto" });
-  }, [location.key, navigationType]);
+    const applyScroll = () => {
+      element.scrollTo({ top: nextTop, left: 0, behavior: "auto" });
+      debugScrollRestore({
+        routeKey: routeScrollKey,
+        navigationType,
+        container: "main.screen-content",
+        savedScrollTop: scrollPositionsRef.current.get(routeScrollKey) ?? 0,
+        appliedScrollTop: nextTop,
+        currentScrollTop: element.scrollTop,
+        events: [
+          ...(window.__MINI_APP_SCROLL_DEBUG__?.events ?? []).slice(-9),
+          {
+            type: "apply",
+            routeKey: routeScrollKey,
+            navigationType,
+            scrollTop: nextTop,
+            container: "main.screen-content",
+            at: new Date().toISOString()
+          }
+        ]
+      });
+    };
+
+    applyScroll();
+  }, [navigationType, routeScrollKey]);
 
   return (
     <div className="screen-shell safe-top">

@@ -9,8 +9,8 @@ export const ROUTE_CLUB = "/club";
 export const ROUTE_CALENDAR_DAY = "/calendar/:date";
 
 export const tabBarItems = [
-  { label: "Главная", to: ROUTE_HOME, icon: "⌂" },
-  { label: "Челленджи", to: ROUTE_CHALLENGES, icon: "◌" },
-  { label: "Избранное", to: ROUTE_FAVORITES, icon: "★" },
-  { label: "О клубе", to: ROUTE_CLUB, icon: "○" }
+  { label: "Главная", to: ROUTE_HOME, icon: "house" },
+  { label: "Челленджи", to: ROUTE_CHALLENGES, icon: "target" },
+  { label: "Избранное", to: ROUTE_FAVORITES, icon: "star" },
+  { label: "О клубе", to: ROUTE_CLUB, icon: "book" }
 ] as const;

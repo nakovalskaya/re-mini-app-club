@@ -167,8 +167,8 @@ a {
     isolation: isolate;
     border: 1px solid rgba(255, 255, 255, 0.32);
     background:
-      linear-gradient(180deg, rgba(113, 48, 41, 0.09), rgba(255, 248, 247, 0.12)),
-      rgba(255, 244, 242, 0.34);
+      linear-gradient(180deg, rgba(113, 48, 41, 0.07), rgba(255, 248, 247, 0.09)),
+      rgba(255, 244, 242, 0.27);
     box-shadow:
       0 12px 28px rgba(79, 2, 2, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -210,9 +210,11 @@ a {
 
   .tabbar-item {
     z-index: 2;
+    opacity: 0.56;
     transition:
       color 180ms ease,
       text-shadow 180ms ease,
+      filter 180ms ease,
       opacity 180ms ease,
       transform 160ms ease;
   }
@@ -221,18 +223,22 @@ a {
     transition:
       color 180ms ease,
       filter 180ms ease,
+      opacity 180ms ease,
       transform 160ms ease;
   }
 
   .tabbar-item-active {
     color: rgba(93, 9, 6, 0.92);
-    text-shadow: 0 0 10px rgba(255, 208, 148, 0.1);
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(255, 208, 148, 0.14);
   }
 
   .tabbar-item-active .tabbar-icon {
     filter:
-      drop-shadow(0 0 7px rgba(255, 208, 148, 0.16))
-      drop-shadow(0 0 2px rgba(255, 255, 255, 0.12));
-    transform: translateY(-0.25px);
+      drop-shadow(0 0 8px rgba(255, 208, 148, 0.2))
+      drop-shadow(0 0 3px rgba(255, 255, 255, 0.14));
+    opacity: 1;
+    transform: translateY(-0.25px) scale(1.035);
   }
+
 }

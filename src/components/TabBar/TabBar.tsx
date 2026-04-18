@@ -1,15 +1,23 @@
+import { Book, HouseSimple, Star, Target } from "@phosphor-icons/react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/shared/utils/cn";
 
 type TabItem = {
   label: string;
   to: string;
-  icon: string;
+  icon: "house" | "target" | "star" | "book";
 };
 
 type TabBarProps = {
   items: readonly TabItem[];
 };
+
+const iconMap = {
+  house: HouseSimple,
+  target: Target,
+  star: Star,
+  book: Book
+} as const;
 
 export function TabBar({ items }: TabBarProps) {
   return (
@@ -48,19 +56,28 @@ export function TabBar({ items }: TabBarProps) {
       <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-md justify-center px-4">
       <div className="tabbar-glass relative flex w-full items-center justify-between overflow-hidden rounded-[24px] px-2.5 py-2">
         {items.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "tabbar-item pressable relative flex min-w-0 flex-1 flex-col items-center gap-0.5 px-2 py-1.5 text-[11px] font-medium text-text-secondary",
-                isActive && "tabbar-item-active text-accent-deep"
-              )
-            }
-          >
-            <span className="tabbar-icon text-[15px] leading-none">{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
+          (() => {
+            const Icon = iconMap[item.icon];
+
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                aria-label={item.label}
+                title={item.label}
+                className={({ isActive }) =>
+                  cn(
+                    "tabbar-item pressable relative flex min-w-0 flex-1 items-center justify-center px-2 py-1.5 text-text-secondary",
+                    isActive && "tabbar-item-active text-accent-deep"
+                  )
+                }
+              >
+                <span className="tabbar-icon flex h-7 w-7 items-center justify-center">
+                  <Icon size={27} weight="regular" />
+                </span>
+              </NavLink>
+            );
+          })()
         ))}
       </div>
       </nav>
