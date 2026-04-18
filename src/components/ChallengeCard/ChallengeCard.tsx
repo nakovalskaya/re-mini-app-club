@@ -8,23 +8,19 @@ type ChallengeCardProps = {
   completedDays: number;
   status?: "default" | "taken" | "completed" | "active";
   onTakeChallenge: (challengeId: string) => void;
+  canTakeNewChallenge?: boolean;
 };
 
 export function ChallengeCard({
   challenge,
   completedDays,
   status = "default",
-  onTakeChallenge
+  onTakeChallenge,
+  canTakeNewChallenge = true
 }: ChallengeCardProps) {
-  const isActive = status === "active";
   const isTaken = status === "taken" || status === "active" || status === "completed";
   const isCompleted = status === "completed";
-  const badgeLabel = isCompleted ? "пройден" : isActive ? "активен" : isTaken ? "взят" : null;
-  const actionLabel = isActive
-    ? "Продолжить"
-    : isTaken
-      ? "Сделать активным"
-      : "Взять челлендж";
+  const badgeLabel = isCompleted ? "пройден" : isTaken ? "взят" : null;
 
   return (
     <div className="surface-card flex flex-col gap-5 p-card">
@@ -65,17 +61,33 @@ export function ChallengeCard({
         <ProgressBar value={completedDays} max={challenge.durationDays} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {!isTaken ? (
+        <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              to={`/challenges/${challenge.id}`}
+              className="pressable inline-flex min-h-12 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-5 py-3 text-sm font-semibold text-text-primary"
+            >
+              Посмотреть
+            </Link>
+            <Button disabled={!canTakeNewChallenge} onClick={() => onTakeChallenge(challenge.id)}>
+              Начать
+            </Button>
+          </div>
+          {!canTakeNewChallenge && (
+            <p className="text-center text-[11px] uppercase tracking-[0.1em] text-text-secondary mt-1">
+              Завершите текущий челлендж
+            </p>
+          )}
+        </div>
+      ) : (
         <Link
           to={`/challenges/${challenge.id}`}
-          className="pressable inline-flex min-h-12 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-5 py-3 text-sm font-semibold text-text-primary"
+          className="pressable inline-flex min-h-12 items-center justify-center rounded-button bg-accent-deep px-5 py-3 text-sm font-semibold text-bg-base"
         >
-          Посмотреть
+          Открыть
         </Link>
-        <Button onClick={() => onTakeChallenge(challenge.id)}>
-          {actionLabel}
-        </Button>
-      </div>
+      )}
     </div>
   );
 }

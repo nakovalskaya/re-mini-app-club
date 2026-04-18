@@ -3,7 +3,7 @@ import { openTelegramLink } from "@/features/telegram/telegram";
 import type { ChallengeDay } from "@/shared/types/content";
 import { cn } from "@/shared/utils/cn";
 
-type ChallengeDayStatus = "completed" | "available" | "locked" | "preview";
+type ChallengeDayStatus = "completed" | "current" | "available" | "locked" | "preview" | "skipped";
 
 type ChallengeDayCardProps = {
   day: ChallengeDay;
@@ -18,66 +18,90 @@ export function ChallengeDayCard({
 }: ChallengeDayCardProps) {
   const isLocked = status === "locked";
   const isCompleted = status === "completed";
+  const isSkipped = status === "skipped";
   const isPreview = status === "preview";
+  const isCurrent = status === "current" || status === "available"; // visual treatment
 
   return (
     <div
       className={cn(
-        "surface-card flex min-h-[280px] flex-col gap-5 p-card",
+        "surface-card flex min-h-[300px] flex-col gap-0 p-card",
         isCompleted && "bg-[#fff8ef]",
+        isSkipped && "bg-[#f8f5f4]",
         isLocked && "opacity-75"
       )}
     >
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold",
-                isCompleted && "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep",
-                status === "available" && "border-accent-deep bg-accent-deep text-bg-base",
-                isPreview && "border-border-medium bg-bg-soft text-text-primary",
-                isLocked && "border-border-soft bg-bg-surface text-text-secondary"
-              )}
-            >
-              {day.dayNumber}
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">
-                день {day.dayNumber}
-              </p>
-              <h3 className="font-serif text-[1.65rem] leading-none text-text-primary">
-                {day.title}
-              </h3>
-            </div>
+      <div className="flex h-[48px] items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors duration-200",
+              isCompleted && "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep",
+              isCurrent && "border-accent-deep bg-accent-deep text-bg-base",
+              isSkipped && "border-[#ebdcd5] bg-[#ebdcd5] text-[#8c7b74]",
+              isPreview && "border-border-medium bg-bg-soft text-text-primary",
+              isLocked && "border-border-soft bg-bg-surface text-text-secondary"
+            )}
+          >
+            {isCompleted ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            ) : isLocked ? (
+              "·"
+            ) : (
+              day.dayNumber
+            )}
           </div>
+          <div className="flex flex-col justify-center">
+            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-text-secondary leading-none mb-1.5">
+              день {day.dayNumber}
+            </p>
+            <h3 className="font-serif text-lg sm:text-[1.3rem] leading-tight text-text-primary line-clamp-2">
+              {day.title}
+            </h3>
+          </div>
+        </div>
+        <div className="flex h-11 items-center">
           {isLocked ? (
-            <span className="rounded-full border border-border-soft px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-text-secondary">
-              locked
+            <span className="rounded-full border border-border-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+              закрыт
             </span>
           ) : isCompleted ? (
-            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-accent-deep">
-              done
+            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-accent-deep whitespace-nowrap">
+              пройден
+            </span>
+          ) : isSkipped ? (
+            <span className="rounded-full border border-border-medium bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary whitespace-nowrap">
+              пропущен
+            </span>
+          ) : isCurrent ? (
+           <span className="rounded-full bg-[#e8f3ed] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2c6e49] whitespace-nowrap">
+              текущий
             </span>
           ) : null}
         </div>
-
-        <p className="text-sm leading-6 text-text-secondary">{day.description}</p>
       </div>
 
-      <div className="mt-auto grid grid-cols-2 gap-3 border-t border-border-soft pt-4">
+      <div className="flex-1 min-h-[80px]">
+        <p className="text-[13px] sm:text-sm leading-6 text-text-secondary line-clamp-4 sm:line-clamp-none">
+          {day.description}
+        </p>
+      </div>
+
+      <div className="mt-5 grid h-12 grid-cols-2 gap-3 border-t border-border-soft pt-4">
         <Button
           variant="secondary"
           disabled={isLocked}
           onClick={() => openTelegramLink(day.telegramUrl)}
+          className="h-full"
         >
           Открыть
         </Button>
         <Button
-          disabled={isLocked || isCompleted || isPreview}
+          disabled={isLocked || isPreview}
           onClick={() => onComplete(day.id)}
+          className={cn("h-full transition-colors duration-300", isCompleted && "bg-[#66b37a] text-white border-transparent")}
         >
-          {isCompleted ? "Выполнено" : "Выполнил"}
+          {isCompleted ? "Снять отметку" : "Выполнить"}
         </Button>
       </div>
     </div>

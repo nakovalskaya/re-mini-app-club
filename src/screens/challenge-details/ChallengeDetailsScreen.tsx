@@ -6,16 +6,17 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
-import { getChallengeById } from "@/features/challenges/selectors";
+import { getChallengeById, getChallenges } from "@/features/challenges/selectors";
 
 export function ChallengeDetailsScreen() {
   const { id } = useParams();
   const {
     activeChallengeId,
-    completeChallengeDay,
+    toggleChallengeDay,
     getCompletedCount,
     completedDayIdsByChallenge,
     isChallengeTaken,
+    isChallengeCompleted,
     takeChallenge
   } = useAppState();
   const challenge = id ? getChallengeById(id) : null;
@@ -35,6 +36,10 @@ export function ChallengeDetailsScreen() {
     () => challenge?.days.find((day) => day.id === selectedDayId) ?? challenge?.days[0] ?? null,
     [challenge, selectedDayId]
   );
+
+  const challenges = getChallenges();
+  const activeChallengeObj = activeChallengeId ? challenges.find((c) => c.id === activeChallengeId) : null;
+  const isAnyActive = activeChallengeObj != null && !isChallengeCompleted(activeChallengeObj.id, activeChallengeObj.durationDays);
 
   if (!challenge) {
     return (
@@ -57,8 +62,16 @@ export function ChallengeDetailsScreen() {
     }
 
     const nextAvailable = completedCount + 1;
-    return dayNumber <= nextAvailable ? ("available" as const) : ("locked" as const);
+    if (dayNumber === nextAvailable) {
+      return "current" as const;
+    }
+    if (dayNumber < nextAvailable) {
+      return "skipped" as const;
+    }
+    return "locked" as const;
   };
+
+  const isChallengeDone = completedCount >= challenge.durationDays;
 
   return (
     <section className="screen-stack">
@@ -75,21 +88,34 @@ export function ChallengeDetailsScreen() {
               {challenge.durationDays} дней · сложность {challenge.difficulty}/5
             </p>
             <ProgressBar value={completedCount} max={challenge.durationDays} />
+            {isChallengeDone && (
+              <p className="text-sm font-semibold text-[#66b37a]">
+                Поздравляем! Челлендж полностью пройден.
+              </p>
+            )}
           </div>
-          {!isTaken ? (
-            <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
-              Взять челлендж
-            </Button>
-          ) : activeChallengeId !== challenge.id ? (
-            <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
-              Сделать активным
-            </Button>
-          ) : null}
+          {!isTaken && (
+            <div className="flex flex-col items-end gap-2">
+              <Button
+                className="w-auto px-5"
+                onClick={() => takeChallenge(challenge.id)}
+                disabled={isAnyActive}
+              >
+                Начать
+              </Button>
+              {isAnyActive && (
+                <p className="text-[11px] uppercase tracking-[0.08em] text-text-secondary text-right max-w-[120px]">
+                  Сначала завершите текущий
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-5 gap-3 sm:grid-cols-6">
           {challenge.days.map((day) => {
             const status = getDayStatus(day.dayNumber, day.id);
+            const isSelected = selectedDay?.id === day.id;
 
             return (
               <button
@@ -103,12 +129,14 @@ export function ChallengeDetailsScreen() {
                 className={`pressable flex aspect-square items-center justify-center rounded-full border text-sm font-semibold ${
                   status === "completed"
                     ? "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep"
-                    : status === "available"
+                    : status === "current" || status === "available"
                       ? "border-accent-deep bg-accent-deep text-bg-base"
-                      : status === "preview"
-                        ? "border-border-medium bg-bg-soft text-text-primary"
-                        : "border-border-soft bg-bg-surface text-text-secondary"
-                } ${selectedDay?.id === day.id ? "ring-2 ring-accent-gold/40" : ""}`}
+                      : status === "skipped"
+                        ? "border-[#ebdcd5] bg-[#ebdcd5] text-[#8c7b74]"
+                        : status === "preview"
+                          ? "border-border-medium bg-bg-soft text-text-primary"
+                          : "border-border-soft bg-bg-surface text-text-secondary"
+                } ${isSelected ? "ring-2 ring-accent-gold/50" : ""}`}
                 disabled={status === "locked"}
               >
                 {status === "locked" ? "·" : day.dayNumber}
@@ -122,7 +150,7 @@ export function ChallengeDetailsScreen() {
         <ChallengeDayCard
           day={selectedDay}
           status={getDayStatus(selectedDay.dayNumber, selectedDay.id)}
-          onComplete={(dayId) => completeChallengeDay(challenge.id, dayId)}
+          onComplete={(dayId) => toggleChallengeDay(challenge.id, dayId)}
         />
       ) : (
         <EmptyState

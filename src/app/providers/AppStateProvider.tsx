@@ -31,7 +31,7 @@ type AppStateContextValue = {
   isFavorite: (materialId: string) => boolean;
   toggleFavorite: (materialId: string) => void;
   takeChallenge: (challengeId: string) => void;
-  completeChallengeDay: (challengeId: string, dayId: string) => void;
+  toggleChallengeDay: (challengeId: string, dayId: string) => void;
   getCompletedCount: (challengeId: string) => number;
   isChallengeActive: (challengeId: string) => boolean;
   isChallengeTaken: (challengeId: string) => boolean;
@@ -486,45 +486,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const takeChallenge = useCallback((challengeId: string) => {
     applyUserStateMutation((current) => {
-      const shouldSwitch =
-        current.activeChallengeId &&
-        current.activeChallengeId !== challengeId &&
-        window.confirm(
-          "У тебя уже есть активный челлендж. Переключиться? Прогресс по текущему сохранится."
-        );
-
-      if (
-        current.activeChallengeId &&
-        current.activeChallengeId !== challengeId &&
-        !shouldSwitch
-      ) {
-        return current;
-      }
-
       return {
         ...current,
         activeChallengeId: challengeId,
         takenChallengeIds: current.takenChallengeIds.includes(challengeId)
           ? current.takenChallengeIds
-          : [...current.takenChallengeIds, challengeId],
-        completedDayIdsByChallenge: {
-          ...current.completedDayIdsByChallenge,
-          [challengeId]: current.completedDayIdsByChallenge[challengeId] ?? []
-        },
-        skippedDayIdsByChallenge: {
-          ...current.skippedDayIdsByChallenge,
-          [challengeId]: current.skippedDayIdsByChallenge[challengeId] ?? []
-        }
+          : [...current.takenChallengeIds, challengeId]
       };
     });
   }, [applyUserStateMutation]);
 
-  const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
+  const toggleChallengeDay = useCallback((challengeId: string, dayId: string) => {
     applyUserStateMutation((current) => {
       const completed = current.completedDayIdsByChallenge[challengeId] ?? [];
-      if (completed.includes(dayId)) {
-        return current;
-      }
+      const isCompleted = completed.includes(dayId);
 
       return {
         ...current,
@@ -533,7 +508,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           : [...current.takenChallengeIds, challengeId],
         completedDayIdsByChallenge: {
           ...current.completedDayIdsByChallenge,
-          [challengeId]: [...completed, dayId]
+          [challengeId]: isCompleted
+            ? completed.filter((id) => id !== dayId)
+            : [...completed, dayId]
         }
       };
     });
@@ -588,7 +565,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isFavorite,
       toggleFavorite,
       takeChallenge,
-      completeChallengeDay,
+      toggleChallengeDay,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,
@@ -615,7 +592,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isFavorite,
       toggleFavorite,
       takeChallenge,
-      completeChallengeDay,
+      toggleChallengeDay,
       getCompletedCount,
       isChallengeActive,
       isChallengeTaken,

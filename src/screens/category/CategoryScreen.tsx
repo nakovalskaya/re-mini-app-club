@@ -11,9 +11,12 @@ export function CategoryScreen() {
   const { slug } = useParams();
   const category = slug ? getCategoryBySlug(slug) : null;
   const categoryMaterials = slug ? getMaterialsByCategorySlug(slug) : [];
-  const { getCompletedCount, isChallengeTaken, isChallengeCompleted, takeChallenge } =
+  const { activeChallengeId, getCompletedCount, isChallengeTaken, isChallengeCompleted, takeChallenge } =
     useAppState();
   const challenges = getChallenges();
+
+  const activeChallenge = activeChallengeId ? challenges.find(c => c.id === activeChallengeId) : null;
+  const isAnyActive = activeChallenge ? (!isChallengeCompleted(activeChallenge.id, activeChallenge.durationDays)) : false;
 
   if (!category) {
     return (
@@ -48,6 +51,7 @@ export function CategoryScreen() {
                     : "default"
               }
               onTakeChallenge={takeChallenge}
+              canTakeNewChallenge={!isAnyActive}
             />
           ))}
         </div>

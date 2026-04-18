@@ -7,6 +7,10 @@ import { tabBarItems } from "@/shared/constants/routes";
 
 initTelegramWebApp();
 
+const isDebug =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true") ||
+  (typeof window !== "undefined" && window.location.search.includes("debug=true"));
+
 export function AppShell() {
   return (
     <AppStateProvider>
@@ -14,7 +18,7 @@ export function AppShell() {
         <main className="screen-content">
           <Outlet />
         </main>
-        <DevDebugPanel />
+        {isDebug ? <DevDebugPanel /> : null}
         <TabBar items={tabBarItems} />
       </div>
     </AppStateProvider>
