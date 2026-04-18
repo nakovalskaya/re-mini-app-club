@@ -36,11 +36,12 @@ export function DevDebugPanel() {
     () => window.__MINI_APP_USER_STATE_DEBUG__ ?? null
   );
   const [manualReadResult, setManualReadResult] = useState<string>("—");
-  const runtime = useMemo(() => getTelegramRuntimeInfo(), []);
+  const [runtime, setRuntime] = useState(() => getTelegramRuntimeInfo());
   const storageMode = getCloudStorageMode();
 
   useEffect(() => {
     const interval = window.setInterval(() => {
+      setRuntime(getTelegramRuntimeInfo());
       setStorageDebug(getCloudStorageDebugState());
       setUserStateDebug(window.__MINI_APP_USER_STATE_DEBUG__ ?? null);
     }, 400);

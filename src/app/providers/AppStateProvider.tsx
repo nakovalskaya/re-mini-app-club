@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode
 } from "react";
-import { cloudStorage } from "@/storage/cloud-storage/cloudStorage";
+import { cloudStorage, getCloudStorageMode } from "@/storage/cloud-storage/cloudStorage";
 import { STORAGE_KEYS } from "@/storage/user-state/keys";
 
 type PersistedUserState = {
@@ -87,6 +87,10 @@ function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STAT
   };
 
   console.info("[mini-app-user-state]", window.__MINI_APP_USER_STATE_DEBUG__);
+}
+
+function canMutateBeforeHydration() {
+  return getCloudStorageMode().mode !== "telegram";
 }
 
 function hasPersistedData(state: PersistedUserState) {
@@ -322,7 +326,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleFavorite = useCallback((materialId: string) => {
-    if (!hasLoadedState.current || hydrationInFlight.current) {
+    if (
+      (!hasLoadedState.current || hydrationInFlight.current) &&
+      !canMutateBeforeHydration()
+    ) {
       return;
     }
 
@@ -336,7 +343,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const takeChallenge = useCallback((challengeId: string) => {
-    if (!hasLoadedState.current || hydrationInFlight.current) {
+    if (
+      (!hasLoadedState.current || hydrationInFlight.current) &&
+      !canMutateBeforeHydration()
+    ) {
       return;
     }
 
@@ -376,7 +386,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const completeChallengeDay = useCallback((challengeId: string, dayId: string) => {
-    if (!hasLoadedState.current || hydrationInFlight.current) {
+    if (
+      (!hasLoadedState.current || hydrationInFlight.current) &&
+      !canMutateBeforeHydration()
+    ) {
       return;
     }
 

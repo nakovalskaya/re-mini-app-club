@@ -112,7 +112,7 @@ function createUnavailableError() {
   );
 }
 
-async function waitForTelegramCloudStorage(timeoutMs = 1500) {
+async function waitForTelegramCloudStorage(timeoutMs = 350) {
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < timeoutMs) {
