@@ -21,6 +21,14 @@ type PersistedUserState = {
   finishedChallengeIds: string[];
 };
 
+type ChallengeConfirmationDialog = {
+  title: string;
+  description: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  onConfirm: () => void;
+};
+
 type AppStateContextValue = {
   userState: PersistedUserState;
   favoriteIds: string[];
@@ -49,6 +57,9 @@ type AppStateContextValue = {
   resetAllChallenges: () => void;
   forceRehydrateFromStorage: () => Promise<void>;
   forceWriteUserStateToStorage: () => Promise<void>;
+  challengeConfirmationDialog: ChallengeConfirmationDialog | null;
+  confirmChallengeDialog: () => void;
+  dismissChallengeDialog: () => void;
 };
 
 const EMPTY_USER_STATE: PersistedUserState = {
@@ -313,6 +324,8 @@ async function persistUserStateToStorage(userState: PersistedUserState) {
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [userState, setUserState] = useState<PersistedUserState>(EMPTY_USER_STATE);
   const [hydrated, setHydrated] = useState(false);
+  const [challengeConfirmationDialog, setChallengeConfirmationDialog] =
+    useState<ChallengeConfirmationDialog | null>(null);
   const hasLoadedState = useRef(false);
   const hasUserMutatedState = useRef(false);
   const hydrationInFlight = useRef(false);
@@ -499,17 +512,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }));
   }, [applyUserStateMutation]);
 
-  const takeChallenge = useCallback((challengeId: string) => {
+  const startChallenge = useCallback((challengeId: string) => {
     applyUserStateMutation((current) => {
       const isRestartingClosedChallenge =
         current.completedChallengeIds.includes(challengeId) ||
         current.finishedChallengeIds.includes(challengeId);
-
-      if (current.activeChallengeId && current.activeChallengeId !== challengeId) {
-        if (!window.confirm("Чтобы начать новый челлендж, нужно завершить текущий. Прогресс сохранится.")) {
-          return current;
-        }
-      }
 
       const previousActiveChallengeId =
         current.activeChallengeId && current.activeChallengeId !== challengeId
@@ -549,6 +556,58 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       };
     });
   }, [applyUserStateMutation]);
+
+  const askToRestartChallenge = useCallback(
+    (challengeId: string) => {
+      setChallengeConfirmationDialog({
+        title: "Начать заново?",
+        description: "Прогресс сбросится. Хочешь пройти заново?",
+        confirmLabel: "Да",
+        cancelLabel: "Отмена",
+        onConfirm: () => {
+          setChallengeConfirmationDialog(null);
+          startChallenge(challengeId);
+        }
+      });
+    },
+    [startChallenge]
+  );
+
+  const takeChallenge = useCallback(
+    (challengeId: string) => {
+      const isRestartingClosedChallenge =
+        userState.completedChallengeIds.includes(challengeId) ||
+        userState.finishedChallengeIds.includes(challengeId);
+
+      if (userState.activeChallengeId && userState.activeChallengeId !== challengeId) {
+        setChallengeConfirmationDialog({
+          title: "Можно взять только один челлендж",
+          description: "Чтобы начать новый челлендж, нужно завершить текущий.",
+          confirmLabel: "Ок",
+          cancelLabel: "Отмена",
+          onConfirm: () => {
+            setChallengeConfirmationDialog(null);
+
+            if (isRestartingClosedChallenge) {
+              askToRestartChallenge(challengeId);
+              return;
+            }
+
+            startChallenge(challengeId);
+          }
+        });
+        return;
+      }
+
+      if (isRestartingClosedChallenge) {
+        askToRestartChallenge(challengeId);
+        return;
+      }
+
+      startChallenge(challengeId);
+    },
+    [askToRestartChallenge, startChallenge, userState]
+  );
 
   const finishActiveChallenge = useCallback(() => {
     applyUserStateMutation((current) => {
@@ -739,6 +798,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       },
       forceWriteUserStateToStorage: async () => {
         await persistUserStateToStorage(userState);
+      },
+      challengeConfirmationDialog,
+      confirmChallengeDialog: () => {
+        challengeConfirmationDialog?.onConfirm();
+      },
+      dismissChallengeDialog: () => {
+        setChallengeConfirmationDialog(null);
       }
     }),
     [
@@ -763,7 +829,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isChallengeCompleted,
       isChallengeFinishedEarly,
       getAggregateChallengeProgress,
-      hydrateFromStorage
+      hydrateFromStorage,
+      challengeConfirmationDialog
     ]
   );
 
