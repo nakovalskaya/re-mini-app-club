@@ -129,7 +129,7 @@ export function ChallengeDetailsScreen() {
                 className={`pressable flex aspect-square items-center justify-center rounded-full border text-sm font-semibold ${
                   status === "completed"
                     ? "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep"
-                    : status === "current" || status === "available"
+                    : status === "current"
                       ? "border-accent-deep bg-accent-deep text-bg-base"
                       : status === "skipped"
                         ? "border-[#ebdcd5] bg-[#ebdcd5] text-[#8c7b74]"
