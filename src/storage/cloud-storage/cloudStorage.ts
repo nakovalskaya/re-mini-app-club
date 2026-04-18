@@ -7,106 +7,389 @@ export interface CloudStorageAdapter {
   removeItem(key: string): Promise<void>;
 }
 
-const fallbackStorage: CloudStorageAdapter = {
+type StorageMode = "telegram" | "local" | "unavailable";
+
+type CloudStorageDebugEvent = {
+  timestamp: string;
+  op: "getItem" | "getItems" | "setItem" | "removeItem";
+  key?: string;
+  keys?: string[];
+  mode: StorageMode;
+  ok: boolean;
+  value?: string | null;
+  values?: Record<string, string | null>;
+  error?: string;
+};
+
+type CloudStorageDebugState = {
+  mode: StorageMode;
+  isTelegramWebApp: boolean;
+  hasCloudStorage: boolean;
+  lastReadKey?: string;
+  lastReadValue?: string | null;
+  lastWriteKey?: string;
+  lastWriteValue?: string;
+  lastError?: string;
+  events: CloudStorageDebugEvent[];
+};
+
+declare global {
+  interface Window {
+    __MINI_APP_STORAGE_DEBUG__?: CloudStorageDebugState;
+  }
+}
+
+const MAX_DEBUG_EVENTS = 20;
+
+function getStorageMode(): {
+  mode: StorageMode;
+  isTelegramWebApp: boolean;
+  hasCloudStorage: boolean;
+} {
+  const webApp = getTelegramWebApp();
+  const isTelegramWebApp = Boolean(webApp);
+  const hasCloudStorage = Boolean(webApp?.CloudStorage);
+
+  if (hasCloudStorage) {
+    return { mode: "telegram", isTelegramWebApp, hasCloudStorage };
+  }
+
+  if (isTelegramWebApp) {
+    return { mode: "unavailable", isTelegramWebApp, hasCloudStorage };
+  }
+
+  return { mode: "local", isTelegramWebApp, hasCloudStorage };
+}
+
+function isDev() {
+  return typeof import.meta !== "undefined" && import.meta.env?.DEV;
+}
+
+function debugStorage(event: CloudStorageDebugEvent) {
+  if (!isDev() || typeof window === "undefined") {
+    return;
+  }
+
+  const meta = getStorageMode();
+  const current = window.__MINI_APP_STORAGE_DEBUG__ ?? {
+    mode: meta.mode,
+    isTelegramWebApp: meta.isTelegramWebApp,
+    hasCloudStorage: meta.hasCloudStorage,
+    events: []
+  };
+
+  const next: CloudStorageDebugState = {
+    ...current,
+    mode: meta.mode,
+    isTelegramWebApp: meta.isTelegramWebApp,
+    hasCloudStorage: meta.hasCloudStorage,
+    lastReadKey:
+      event.op === "getItem" || event.op === "getItems" ? event.key ?? event.keys?.join(",") : current.lastReadKey,
+    lastReadValue:
+      event.op === "getItem"
+        ? event.value ?? null
+        : event.op === "getItems"
+          ? JSON.stringify(event.values ?? {})
+          : current.lastReadValue,
+    lastWriteKey:
+      event.op === "setItem" || event.op === "removeItem"
+        ? event.key ?? current.lastWriteKey
+        : current.lastWriteKey,
+    lastWriteValue: event.op === "setItem" ? event.value ?? "" : current.lastWriteValue,
+    lastError: event.ok ? undefined : event.error,
+    events: [event, ...current.events].slice(0, MAX_DEBUG_EVENTS)
+  };
+
+  window.__MINI_APP_STORAGE_DEBUG__ = next;
+
+  const method = event.ok ? "info" : "error";
+  console[method]("[mini-app-storage]", event);
+}
+
+function createUnavailableError() {
+  return new Error(
+    "Telegram WebApp is available, but CloudStorage API is unavailable in this environment."
+  );
+}
+
+async function waitForTelegramCloudStorage(timeoutMs = 1500) {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    const cloudStorage = getTelegramWebApp()?.CloudStorage;
+    if (cloudStorage) {
+      return cloudStorage;
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+  }
+
+  return null;
+}
+
+const localStorageAdapter: CloudStorageAdapter = {
   async getItem(key) {
-    return window.localStorage.getItem(key);
+    const value = window.localStorage.getItem(key);
+    debugStorage({
+      timestamp: new Date().toISOString(),
+      op: "getItem",
+      key,
+      mode: "local",
+      ok: true,
+      value
+    });
+    return value;
   },
   async getItems(keys) {
-    return keys.reduce<Record<string, string | null>>((acc, key) => {
+    const values = keys.reduce<Record<string, string | null>>((acc, key) => {
       acc[key] = window.localStorage.getItem(key);
       return acc;
     }, {});
+    debugStorage({
+      timestamp: new Date().toISOString(),
+      op: "getItems",
+      keys,
+      mode: "local",
+      ok: true,
+      values
+    });
+    return values;
   },
   async setItem(key, value) {
     window.localStorage.setItem(key, value);
+    debugStorage({
+      timestamp: new Date().toISOString(),
+      op: "setItem",
+      key,
+      mode: "local",
+      ok: true,
+      value
+    });
   },
   async removeItem(key) {
     window.localStorage.removeItem(key);
+    debugStorage({
+      timestamp: new Date().toISOString(),
+      op: "removeItem",
+      key,
+      mode: "local",
+      ok: true
+    });
   }
 };
 
-const telegramStorage: CloudStorageAdapter = {
+const telegramStorageAdapter: CloudStorageAdapter = {
   async getItem(key) {
-    const webApp = getTelegramWebApp();
-    const cloudStorage = webApp?.CloudStorage;
+    const cloudStorage = await waitForTelegramCloudStorage();
 
     if (!cloudStorage) {
-      return fallbackStorage.getItem(key);
+      const error = createUnavailableError();
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "getItem",
+        key,
+        mode: "unavailable",
+        ok: false,
+        error: error.message
+      });
+      throw error;
     }
 
     return new Promise((resolve, reject) => {
       cloudStorage.getItem(key, (error, value) => {
         if (error) {
+          debugStorage({
+            timestamp: new Date().toISOString(),
+            op: "getItem",
+            key,
+            mode: "telegram",
+            ok: false,
+            error: String(error)
+          });
           reject(error);
           return;
         }
 
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "getItem",
+          key,
+          mode: "telegram",
+          ok: true,
+          value: value ?? null
+        });
         resolve(value ?? null);
       });
     });
   },
   async getItems(keys) {
-    const webApp = getTelegramWebApp();
-    const cloudStorage = webApp?.CloudStorage;
+    const cloudStorage = await waitForTelegramCloudStorage();
 
     if (!cloudStorage) {
-      return fallbackStorage.getItems(keys);
+      const error = createUnavailableError();
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "getItems",
+        keys,
+        mode: "unavailable",
+        ok: false,
+        error: error.message
+      });
+      throw error;
     }
 
     return new Promise((resolve, reject) => {
       cloudStorage.getItems(keys, (error, values) => {
         if (error) {
+          debugStorage({
+            timestamp: new Date().toISOString(),
+            op: "getItems",
+            keys,
+            mode: "telegram",
+            ok: false,
+            error: String(error)
+          });
           reject(error);
           return;
         }
 
-        resolve(
-          keys.reduce<Record<string, string | null>>((acc, key) => {
-            acc[key] = values?.[key] ?? null;
-            return acc;
-          }, {})
-        );
+        const normalized = keys.reduce<Record<string, string | null>>((acc, key) => {
+          acc[key] = values?.[key] ?? null;
+          return acc;
+        }, {});
+
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "getItems",
+          keys,
+          mode: "telegram",
+          ok: true,
+          values: normalized
+        });
+        resolve(normalized);
       });
     });
   },
   async setItem(key, value) {
-    const webApp = getTelegramWebApp();
-    const cloudStorage = webApp?.CloudStorage;
+    const cloudStorage = await waitForTelegramCloudStorage();
 
     if (!cloudStorage) {
-      return fallbackStorage.setItem(key, value);
+      const error = createUnavailableError();
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "setItem",
+        key,
+        mode: "unavailable",
+        ok: false,
+        value,
+        error: error.message
+      });
+      throw error;
     }
 
     return new Promise((resolve, reject) => {
       cloudStorage.setItem(key, value, (error) => {
         if (error) {
+          debugStorage({
+            timestamp: new Date().toISOString(),
+            op: "setItem",
+            key,
+            mode: "telegram",
+            ok: false,
+            value,
+            error: String(error)
+          });
           reject(error);
           return;
         }
 
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "setItem",
+          key,
+          mode: "telegram",
+          ok: true,
+          value
+        });
         resolve();
       });
     });
   },
   async removeItem(key) {
-    const webApp = getTelegramWebApp();
-    const cloudStorage = webApp?.CloudStorage;
+    const cloudStorage = await waitForTelegramCloudStorage();
 
     if (!cloudStorage) {
-      return fallbackStorage.removeItem(key);
+      const error = createUnavailableError();
+      debugStorage({
+        timestamp: new Date().toISOString(),
+        op: "removeItem",
+        key,
+        mode: "unavailable",
+        ok: false,
+        error: error.message
+      });
+      throw error;
     }
 
     return new Promise((resolve, reject) => {
       cloudStorage.removeItem(key, (error) => {
         if (error) {
+          debugStorage({
+            timestamp: new Date().toISOString(),
+            op: "removeItem",
+            key,
+            mode: "telegram",
+            ok: false,
+            error: String(error)
+          });
           reject(error);
           return;
         }
 
+        debugStorage({
+          timestamp: new Date().toISOString(),
+          op: "removeItem",
+          key,
+          mode: "telegram",
+          ok: true
+        });
         resolve();
       });
     });
   }
 };
 
-export const cloudStorage = telegramStorage;
+export function getCloudStorageMode() {
+  return getStorageMode();
+}
+
+export const cloudStorage: CloudStorageAdapter = {
+  async getItem(key) {
+    const { mode } = getStorageMode();
+    if (mode === "telegram" || mode === "unavailable") {
+      return telegramStorageAdapter.getItem(key);
+    }
+    return localStorageAdapter.getItem(key);
+  },
+  async getItems(keys) {
+    const { mode } = getStorageMode();
+    if (mode === "telegram" || mode === "unavailable") {
+      return telegramStorageAdapter.getItems(keys);
+    }
+    return localStorageAdapter.getItems(keys);
+  },
+  async setItem(key, value) {
+    const { mode } = getStorageMode();
+    if (mode === "telegram" || mode === "unavailable") {
+      return telegramStorageAdapter.setItem(key, value);
+    }
+    return localStorageAdapter.setItem(key, value);
+  },
+  async removeItem(key) {
+    const { mode } = getStorageMode();
+    if (mode === "telegram" || mode === "unavailable") {
+      return telegramStorageAdapter.removeItem(key);
+    }
+    return localStorageAdapter.removeItem(key);
+  }
+};

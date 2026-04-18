@@ -51,6 +51,37 @@ const EMPTY_USER_STATE: PersistedUserState = {
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
+declare global {
+  interface Window {
+    __MINI_APP_USER_STATE_DEBUG__?: {
+      hydrated: boolean;
+      readSource?: "user_state:v2" | "legacy" | "empty";
+      lastReadRaw?: string | null;
+      lastPersistedRaw?: string;
+      lastWriteOk?: boolean;
+      lastError?: string;
+      lastHydratedState?: PersistedUserState;
+    };
+  }
+}
+
+function debugUserState(update: Partial<NonNullable<Window["__MINI_APP_USER_STATE_DEBUG__"]>>) {
+  if (
+    typeof window === "undefined" ||
+    !(typeof import.meta !== "undefined" && import.meta.env?.DEV)
+  ) {
+    return;
+  }
+
+  window.__MINI_APP_USER_STATE_DEBUG__ = {
+    hydrated: false,
+    ...(window.__MINI_APP_USER_STATE_DEBUG__ ?? {}),
+    ...update
+  };
+
+  console.info("[mini-app-user-state]", window.__MINI_APP_USER_STATE_DEBUG__);
+}
+
 function hasPersistedData(state: PersistedUserState) {
   return (
     state.favorites.length > 0 ||
@@ -147,11 +178,24 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         if (persisted) {
           try {
-            setUserState(normalizeUserState(JSON.parse(persisted)));
+            const normalized = normalizeUserState(JSON.parse(persisted));
+            setUserState(normalized);
+            debugUserState({
+              hydrated: false,
+              readSource: "user_state:v2",
+              lastReadRaw: persisted,
+              lastHydratedState: normalized
+            });
           } catch {
             const legacyState = await loadLegacyState();
             if (!cancelled) {
               setUserState(legacyState);
+              debugUserState({
+                hydrated: false,
+                readSource: "legacy",
+                lastReadRaw: persisted,
+                lastHydratedState: legacyState
+              });
               if (hasPersistedData(legacyState)) {
                 await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
               }
@@ -161,19 +205,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           const legacyState = await loadLegacyState();
           if (!cancelled) {
             setUserState(legacyState);
+            debugUserState({
+              hydrated: false,
+              readSource: hasPersistedData(legacyState) ? "legacy" : "empty",
+              lastReadRaw: persisted,
+              lastHydratedState: legacyState
+            });
             if (hasPersistedData(legacyState)) {
               await cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(legacyState));
             }
           }
         }
-      } catch {
+      } catch (error) {
         if (!cancelled) {
           setUserState(EMPTY_USER_STATE);
+          debugUserState({
+            hydrated: false,
+            readSource: "empty",
+            lastError: error instanceof Error ? error.message : String(error),
+            lastHydratedState: EMPTY_USER_STATE
+          });
         }
       } finally {
         if (!cancelled) {
           hasLoadedState.current = true;
           setHydrated(true);
+          debugUserState({ hydrated: true });
         }
       }
     }
@@ -190,7 +247,23 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    void cloudStorage.setItem(STORAGE_KEYS.userState, JSON.stringify(userState));
+    const serializedState = JSON.stringify(userState);
+
+    void cloudStorage
+      .setItem(STORAGE_KEYS.userState, serializedState)
+      .then(() => {
+        debugUserState({
+          lastPersistedRaw: serializedState,
+          lastWriteOk: true
+        });
+      })
+      .catch((error) => {
+        debugUserState({
+          lastPersistedRaw: serializedState,
+          lastWriteOk: false,
+          lastError: error instanceof Error ? error.message : String(error)
+        });
+      });
   }, [userState]);
 
   const isFavorite = useCallback(
