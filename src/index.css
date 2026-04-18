@@ -1,3 +1,6 @@
+@import "@fontsource/manrope/300.css";
+@import "@fontsource/manrope/400.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,7 +64,8 @@ body {
     radial-gradient(circle at top right, rgba(255, 208, 148, 0.2), transparent 28%),
     linear-gradient(180deg, #fffafa 0%, #faf4f4 100%);
   color: var(--color-text-primary);
-  font-family: Manrope, Inter, system-ui, sans-serif;
+  font-family: "Manrope", sans-serif;
+  font-weight: 300;
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -95,6 +99,39 @@ a {
 
   p {
     margin: 0;
+  }
+
+  body,
+  button,
+  input,
+  textarea,
+  select {
+    font-family: "Manrope", sans-serif;
+    font-weight: 300;
+  }
+
+  .font-sans,
+  .font-medium,
+  .font-semibold,
+  .font-bold,
+  .font-montserrat {
+    font-family: "Manrope", sans-serif;
+    font-weight: 400;
+  }
+
+  .text-xs {
+    font-size: 0.72rem;
+    line-height: 1rem;
+  }
+
+  .text-sm {
+    font-size: 0.84rem;
+    line-height: 1.3rem;
+  }
+
+  .text-base {
+    font-size: 0.96rem;
+    line-height: 1.45rem;
   }
 }
 

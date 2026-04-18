@@ -54,7 +54,7 @@ export function TabBar({ items }: TabBarProps) {
       </svg>
 
       <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-md justify-center px-4">
-      <div className="tabbar-glass relative flex w-full items-center justify-between overflow-hidden rounded-[24px] px-2.5 py-2">
+      <div className="tabbar-glass relative flex w-full items-center justify-between overflow-hidden rounded-[24px] px-2.5 py-2.5">
         {items.map((item) => (
           (() => {
             const Icon = iconMap[item.icon];
@@ -67,7 +67,7 @@ export function TabBar({ items }: TabBarProps) {
                 title={item.label}
                 className={({ isActive }) =>
                   cn(
-                    "tabbar-item pressable relative flex min-w-0 flex-1 items-center justify-center px-2 py-1.5 text-text-secondary",
+                    "tabbar-item pressable relative flex min-w-0 flex-1 items-center justify-center px-2 py-2 text-text-secondary",
                     isActive && "tabbar-item-active text-accent-deep"
                   )
                 }

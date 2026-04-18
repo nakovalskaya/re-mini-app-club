@@ -29,9 +29,9 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ["Manrope", "Inter", "system-ui", "sans-serif"],
+        sans: ["Manrope", "sans-serif"],
         serif: ["Cormorant Garamond", "Georgia", "serif"],
-        montserrat: ["Montserrat", "Inter", "system-ui", "sans-serif"]
+        montserrat: ["Manrope", "sans-serif"]
       },
       borderRadius: {
         xl2: "var(--radius-surface-xl)",
