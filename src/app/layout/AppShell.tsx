@@ -1,4 +1,5 @@
-import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
@@ -22,7 +23,10 @@ export function AppShell() {
 }
 
 function ShellContent() {
+  const contentRef = useRef<HTMLElement | null>(null);
+  const scrollPositionsRef = useRef<Map<string, number>>(new Map());
   const location = useLocation();
+  const navigationType = useNavigationType();
   const {
     challengeConfirmationDialog,
     confirmChallengeDialog,
@@ -30,14 +34,46 @@ function ShellContent() {
   } = useAppState();
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
 
+  useEffect(() => {
+    const element = contentRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const handleScroll = () => {
+      scrollPositionsRef.current.set(location.key, element.scrollTop);
+    };
+
+    element.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      element.removeEventListener("scroll", handleScroll);
+      scrollPositionsRef.current.set(location.key, element.scrollTop);
+    };
+  }, [location.key]);
+
+  useLayoutEffect(() => {
+    const element = contentRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const nextTop =
+      navigationType === "POP" ? (scrollPositionsRef.current.get(location.key) ?? 0) : 0;
+
+    element.scrollTo({ top: nextTop, left: 0, behavior: "auto" });
+  }, [location.key, navigationType]);
+
   return (
     <div className="screen-shell safe-top">
-      <main className={cn("screen-content", !shouldShowTabBar && "pb-8")}>
+      <main
+        ref={contentRef}
+        className={cn("screen-content", !shouldShowTabBar && "pb-8")}
+      >
         <Outlet />
       </main>
-      <ScrollRestoration
-        getKey={(location) => `${location.pathname}${location.search}`}
-      />
       {isDebug ? <DevDebugPanel /> : null}
       {shouldShowTabBar ? <TabBar items={tabBarItems} /> : null}
 
