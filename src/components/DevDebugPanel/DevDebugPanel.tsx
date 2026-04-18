@@ -72,8 +72,8 @@ export function DevDebugPanel() {
   }, []);
 
   return (
-    <aside className="fixed inset-x-3 bottom-[88px] z-50 mx-auto max-w-md">
-      <div className="surface-card-elevated overflow-hidden border-border-medium bg-[rgba(255,248,247,0.96)] backdrop-blur">
+    <aside className="pointer-events-none fixed inset-x-3 bottom-[88px] z-50 mx-auto max-w-md">
+      <div className="pointer-events-auto surface-card-elevated overflow-hidden border-border-medium bg-[rgba(255,248,247,0.96)] backdrop-blur">
         <button
           type="button"
           onClick={() => setExpanded((current) => !current)}
@@ -93,7 +93,7 @@ export function DevDebugPanel() {
         </button>
 
         {expanded ? (
-          <div className="space-y-4 border-t border-border-soft px-4 py-4 text-sm text-text-primary">
+          <div className="max-h-[min(58vh,28rem)] space-y-4 overflow-y-auto border-t border-border-soft px-4 py-4 text-sm text-text-primary">
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-[18px] bg-bg-soft p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-text-secondary">
@@ -173,6 +173,7 @@ export function DevDebugPanel() {
             <div className="grid gap-2">
               <Button
                 variant="secondary"
+                className="min-h-11 text-sm"
                 onClick={async () => {
                   try {
                     const result = await cloudStorage.getItem(STORAGE_KEYS.userState);
@@ -188,6 +189,7 @@ export function DevDebugPanel() {
               </Button>
               <Button
                 variant="secondary"
+                className="min-h-11 text-sm"
                 onClick={async () => {
                   try {
                     await forceWriteUserStateToStorage();
@@ -200,6 +202,7 @@ export function DevDebugPanel() {
               </Button>
               <Button
                 variant="secondary"
+                className="min-h-11 text-sm"
                 onClick={async () => {
                   await resetLocalFallbackStorage(LOCAL_RESET_KEYS);
                   setManualReadResult("local fallback cleared");
@@ -209,6 +212,7 @@ export function DevDebugPanel() {
               </Button>
               <Button
                 variant="primary"
+                className="min-h-11 text-sm"
                 onClick={async () => {
                   await forceRehydrateFromStorage();
                 }}
