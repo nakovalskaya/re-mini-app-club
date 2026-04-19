@@ -27,18 +27,19 @@ export function MaterialScreen() {
   const materialTopics = topics.filter((topic) => material.topicIds.includes(topic.id));
   const hasTelegramUrl = Boolean(material.telegramUrl);
   const openLabel = hasTelegramUrl ? "Смотреть" : "Контент скоро появится";
+  const isTextMaterial = material.type === "guide" || material.type === "article";
   const typeLabel = useMemo(() => {
     const labels: Record<string, string> = {
-      lesson: "lesson",
-      live: "live",
-      podcast: "podcast",
-      guide: "guide",
-      article: "article"
+      lesson: "Урок",
+      live: "Эфир",
+      podcast: "Подкаст",
+      guide: "Гайд",
+      article: "Статья"
     };
 
     return labels[material.type] ?? material.type;
   }, [material.type]);
-  const meta = [typeLabel, material.duration].filter(Boolean).join(" · ");
+  const meta = [typeLabel, !isTextMaterial ? material.duration : ""].filter(Boolean).join(" · ");
 
   return (
     <section className="screen-stack pb-10">

@@ -18,30 +18,30 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
       to={`/category/${category.slug}`}
-      className="surface-card pressable relative flex aspect-[1.22/1] min-h-[134px] flex-col justify-between overflow-hidden border-0 p-0"
-      style={
-        coverImage
-          ? {
-              backgroundImage: `linear-gradient(180deg, rgba(39,8,8,0.18) 0%, rgba(39,8,8,0.08) 34%, rgba(21,5,5,0.58) 100%), url(${coverImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center"
-            }
-          : undefined
-      }
+      className="surface-card pressable relative flex aspect-[16/9] min-h-[108px] flex-col justify-between overflow-hidden border-0 p-0"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.1),transparent_32%),linear-gradient(180deg,transparent_0%,rgba(26,6,6,0.14)_52%,rgba(26,6,6,0.38)_100%)]" />
+      {coverImage ? (
+        <img
+          src={coverImage}
+          alt={category.title}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : null}
 
-      <div className="relative flex h-full flex-col justify-between p-[15px]">
-        <div className="space-y-1.5">
-          <span className="text-[11px] uppercase tracking-[0.24em] text-[#fff4ef]">
-            {String(category.order).padStart(2, "0")}
-          </span>
-          <h3 className="max-w-[7ch] font-serif text-[1.5rem] leading-[0.93] text-[#fff8f2]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_32%),linear-gradient(180deg,rgba(26,6,6,0.03)_0%,rgba(26,6,6,0.02)_42%,rgba(26,6,6,0.05)_100%)]" />
+
+      <div className="relative grid h-full grid-rows-[auto_1fr_auto] px-[15px] pt-3 pb-3.5">
+        <span className="self-start text-[10px] uppercase leading-none tracking-[0.24em] text-[#fff4ef]">
+          {String(category.order).padStart(2, "0")}
+        </span>
+
+        <div className="mt-1.5 flex min-h-0 items-start">
+          <h3 className="max-w-[7ch] font-serif text-[1.38rem] leading-[0.92] text-[#fff8f2]">
             {category.title}
           </h3>
         </div>
 
-        <p className="max-w-[15ch] text-[13px] leading-[1.3] text-[rgba(255,248,242,0.88)]">
+        <p className="max-w-[16ch] self-end text-[13px] leading-[1.38] text-[rgba(255,248,242,0.9)]">
           {category.description}
         </p>
       </div>

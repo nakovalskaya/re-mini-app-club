@@ -13,7 +13,15 @@ export function MaterialCard({
   featured = false
 }: MaterialCardProps) {
   const navigate = useNavigate();
-  const meta = [material.type, material.duration].filter(Boolean);
+  const typeLabelByType: Record<Material["type"], string> = {
+    lesson: "Урок",
+    live: "Эфир",
+    podcast: "Подкаст",
+    guide: "Гайд",
+    article: "Статья"
+  };
+  const isTextMaterial = material.type === "guide" || material.type === "article";
+  const meta = [typeLabelByType[material.type], !isTextMaterial ? material.duration : ""].filter(Boolean);
 
   return (
     <article
