@@ -26,10 +26,10 @@ export const categories: Category[] = [
     isVisible: true
   },
   {
-    id: "cat-marathon",
-    slug: "marathon",
-    title: "Марафон",
-    description: "Челленджи и практика по дням",
+    id: "cat-library",
+    slug: "library",
+    title: "Библиотека",
+    description: "Гайды, статьи и методички",
     order: 4,
     isVisible: true
   }

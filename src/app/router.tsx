@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/app/layout/AppShell";
 import { CalendarDayScreen } from "@/screens/calendar-day/CalendarDayScreen";
 import { CategoryScreen } from "@/screens/category/CategoryScreen";
+import { ChallengeCatalogScreen } from "@/screens/challenge-catalog/ChallengeCatalogScreen";
 import { ChallengeDetailsScreen } from "@/screens/challenge-details/ChallengeDetailsScreen";
 import { ChallengesScreen } from "@/screens/challenges/ChallengesScreen";
 import { ClubScreen } from "@/screens/club/ClubScreen";
@@ -12,6 +13,7 @@ import { TopicScreen } from "@/screens/topic/TopicScreen";
 import {
   ROUTE_CALENDAR_DAY,
   ROUTE_CATEGORY,
+  ROUTE_CHALLENGE_CATALOG,
   ROUTE_CHALLENGE_DETAILS,
   ROUTE_CHALLENGES,
   ROUTE_CLUB,
@@ -31,6 +33,7 @@ export const router = createBrowserRouter([
       { path: ROUTE_TOPIC, element: <TopicScreen /> },
       { path: ROUTE_MATERIAL, element: <MaterialScreen /> },
       { path: ROUTE_CHALLENGES, element: <ChallengesScreen /> },
+      { path: ROUTE_CHALLENGE_CATALOG, element: <ChallengeCatalogScreen /> },
       { path: ROUTE_CHALLENGE_DETAILS, element: <ChallengeDetailsScreen /> },
       { path: ROUTE_FAVORITES, element: <FavoritesScreen /> },
       { path: ROUTE_CLUB, element: <ClubScreen /> },

@@ -31,11 +31,14 @@ export function MaterialScreen() {
     const labels: Record<string, string> = {
       lesson: "lesson",
       live: "live",
-      podcast: "podcast"
+      podcast: "podcast",
+      guide: "guide",
+      article: "article"
     };
 
     return labels[material.type] ?? material.type;
   }, [material.type]);
+  const meta = [typeLabel, material.duration].filter(Boolean).join(" · ");
 
   return (
     <section className="screen-stack pb-10">
@@ -59,7 +62,7 @@ export function MaterialScreen() {
         <div className="space-y-5 p-card">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
-              {typeLabel} · {material.duration}
+              {meta}
             </p>
             <h1 className="font-serif text-[1.95rem] leading-[0.98] text-text-primary">
               {material.title}

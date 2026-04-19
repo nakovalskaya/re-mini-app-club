@@ -5,14 +5,14 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
-import { getChallengeById, getChallenges } from "@/features/challenges/selectors";
-import { Link } from "react-router-dom";
+import { getChallengeById } from "@/features/challenges/selectors";
+import { Link, useNavigate } from "react-router-dom";
+import { ROUTE_CHALLENGE_CATALOG } from "@/shared/constants/routes";
 
 export function ChallengesScreen() {
   const {
     activeChallengeId,
     challengesHydrated,
-    getAggregateChallengeProgress,
     getCompletedCount,
     isChallengeActive,
     isChallengeCompleted,
@@ -21,7 +21,7 @@ export function ChallengesScreen() {
     takeChallenge,
     takenChallengeIds
   } = useAppState();
-  const challenges = getChallenges();
+  const navigate = useNavigate();
   const personalChallenges = useMemo(
     () =>
       takenChallengeIds
@@ -29,15 +29,6 @@ export function ChallengesScreen() {
         .filter(Boolean),
     [takenChallengeIds]
   );
-  const challengeDayCounts = useMemo(
-    () =>
-      challenges.reduce<Record<string, number>>((acc, challenge) => {
-        acc[challenge.id] = challenge.durationDays;
-        return acc;
-      }, {}),
-    [challenges]
-  );
-  const aggregate = getAggregateChallengeProgress(challengeDayCounts);
   const activeChallenge = useMemo(
     () => (activeChallengeId ? getChallengeById(activeChallengeId) : null),
     [activeChallengeId]
@@ -48,8 +39,25 @@ export function ChallengesScreen() {
       <SectionTitle
         title="Челленджи"
         eyebrow="Личное"
-        description="Здесь живут только взятые и уже пройденные челленджи с общим прогрессом."
+        description="Здесь живут только твои маршруты: активные, взятые и уже завершённые."
       />
+
+      <Link
+        to={ROUTE_CHALLENGE_CATALOG}
+        className="surface-card pressable block space-y-3 p-card"
+      >
+        <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
+          Каталог
+        </p>
+        <div className="space-y-2">
+          <h2 className="font-serif text-[1.72rem] leading-[0.98] text-text-primary">
+            Все движухи
+          </h2>
+          <p className="max-w-[30ch] text-[13px] leading-5 text-text-secondary">
+            Открой каталог и выбери маршрут под себя
+          </p>
+        </div>
+      </Link>
 
       {import.meta.env.DEV ? (
         <div className="surface-card flex items-center justify-between gap-4 p-4">
@@ -79,24 +87,12 @@ export function ChallengesScreen() {
       ) : personalChallenges.length === 0 ? (
         <EmptyState
           title="Пока нет взятых челленджей"
-          description="Открой раздел «Марафоны» и возьми первый челлендж — после этого он появится здесь."
+          description="Открой каталог движух и возьми первый маршрут — после этого он появится здесь."
+          actionLabel="Открыть каталог"
+          onAction={() => navigate(ROUTE_CHALLENGE_CATALOG)}
         />
       ) : (
         <>
-          {personalChallenges.length > 1 ? (
-            <div className="surface-card space-y-4 p-card">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
-                  Общий прогресс
-                </p>
-                <h2 className="font-serif text-[1.9rem] leading-none text-text-primary">
-                  Все взятые челленджи
-                </h2>
-              </div>
-              <ProgressBar value={aggregate.completed} max={aggregate.total || 1} />
-            </div>
-          ) : null}
-
           {activeChallenge ? (
             <div className="surface-card-elevated space-y-5 bg-accent-deep p-card text-bg-base">
               <div className="space-y-2">

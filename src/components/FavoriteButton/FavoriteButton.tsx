@@ -32,9 +32,9 @@ export function FavoriteButton({ materialId, className }: FavoriteButtonProps) {
       icon={
         <span
           className={cn(
-            "text-base transition-transform duration-200",
-            active && "text-[#8f5a00]",
-            isAnimating && "scale-[1.14]"
+            "text-base transition-all duration-200",
+            active && "text-[#c27a00] drop-shadow-[0_0_10px_rgba(255,208,148,0.55)]",
+            (active || isAnimating) && "scale-[1.12]"
           )}
         >
           ★
@@ -43,7 +43,7 @@ export function FavoriteButton({ materialId, className }: FavoriteButtonProps) {
       isActive={active}
       className={cn(
         "favorite-button h-10 w-10 rounded-full border-border-soft bg-[rgba(255,248,247,0.92)] shadow-soft backdrop-blur",
-        active && "border-[#f0cf8e] bg-[#fff2dc]",
+        active && "border-[#f3cf8b] bg-[#fff5df] shadow-[0_10px_24px_rgba(194,122,0,0.16)]",
         isAnimating && "favorite-button-animate",
         className
       )}

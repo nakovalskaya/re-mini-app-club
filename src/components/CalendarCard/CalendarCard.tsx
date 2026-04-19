@@ -62,26 +62,28 @@ export function CalendarCard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
-        {weekdayLabels.map((label) => (
-          <div
-            key={label}
-            className="flex h-7 items-center justify-center text-[11px] uppercase tracking-[0.08em] text-text-secondary"
-          >
-            {label}
-          </div>
-        ))}
+      <div key={monthLabel} className="calendar-month-animate space-y-0">
+        <div className="grid grid-cols-7 gap-1.5">
+          {weekdayLabels.map((label) => (
+            <div
+              key={label}
+              className="flex h-7 items-center justify-center text-[11px] uppercase tracking-[0.08em] text-text-secondary"
+            >
+              {label}
+            </div>
+          ))}
 
-        {days.map((day) => (
-          <CalendarDateCell
-            key={day.date}
-            date={day.date}
-            label={day.label}
-            eventTypes={day.eventTypes}
-            isCurrentMonth={day.isCurrentMonth}
-            isToday={day.date === new Date().toISOString().slice(0, 10)}
-          />
-        ))}
+          {days.map((day) => (
+            <CalendarDateCell
+              key={day.date}
+              date={day.date}
+              label={day.label}
+              eventTypes={day.eventTypes}
+              isCurrentMonth={day.isCurrentMonth}
+              isToday={day.date === new Date().toISOString().slice(0, 10)}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] uppercase tracking-[0.12em] text-text-secondary">

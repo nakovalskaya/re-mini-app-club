@@ -3,6 +3,7 @@ export const ROUTE_CATEGORY = "/category/:slug";
 export const ROUTE_TOPIC = "/topic/:slug";
 export const ROUTE_MATERIAL = "/materials/:id";
 export const ROUTE_CHALLENGES = "/challenges";
+export const ROUTE_CHALLENGE_CATALOG = "/challenges/catalog";
 export const ROUTE_CHALLENGE_DETAILS = "/challenges/:id";
 export const ROUTE_FAVORITES = "/favorites";
 export const ROUTE_CLUB = "/club";

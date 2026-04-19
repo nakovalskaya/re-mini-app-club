@@ -1,27 +1,14 @@
 import { useParams } from "react-router-dom";
 import { BackButton } from "@/components/BackButton/BackButton";
-import { ChallengeCard } from "@/components/ChallengeCard/ChallengeCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
-import { useAppState } from "@/app/providers/AppStateProvider";
-import { getChallenges } from "@/features/challenges/selectors";
 import { getCategoryBySlug, getMaterialsByCategorySlug } from "@/features/materials/selectors";
 
 export function CategoryScreen() {
   const { slug } = useParams();
   const category = slug ? getCategoryBySlug(slug) : null;
   const categoryMaterials = slug ? getMaterialsByCategorySlug(slug) : [];
-  const {
-    getCompletedCount,
-    isChallengeActive,
-    isChallengeTaken,
-    isChallengeCompleted,
-    isChallengeFinishedEarly,
-    takeChallenge
-  } =
-    useAppState();
-  const challenges = getChallenges();
 
   if (!category) {
     return (
@@ -38,31 +25,11 @@ export function CategoryScreen() {
     <section className="screen-stack">
       <BackButton />
       <SectionTitle
-        title={category.slug === "marathon" ? "Марафоны" : category.title}
+        title={category.title}
         eyebrow="Категория"
         description={category.description}
       />
-      {category.slug === "marathon" ? (
-        <div className="space-y-4">
-          {challenges.map((challenge) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              completedDays={getCompletedCount(challenge.id)}
-              status={
-                isChallengeActive(challenge.id)
-                  ? "active"
-                  : isChallengeCompleted(challenge.id)
-                    ? "completed"
-                    : isChallengeFinishedEarly(challenge.id) || isChallengeTaken(challenge.id)
-                    ? "taken"
-                    : "default"
-              }
-              onTakeChallenge={takeChallenge}
-            />
-          ))}
-        </div>
-      ) : categoryMaterials.length === 0 ? (
+      {categoryMaterials.length === 0 ? (
         <EmptyState
           title="Пока пусто"
           description="Для этой категории еще не добавлены материалы."

@@ -35,7 +35,7 @@ export const materials: Material[] = [
     status: "published",
     publishedAt: "2026-03-05",
     scheduledAt: "2026-03-05",
-    tags: ["recommended"],
+    tags: [],
     orderWeight: 9,
     calendarColorKey: "live"
   },
@@ -73,7 +73,7 @@ export const materials: Material[] = [
     status: "published",
     publishedAt: "2026-03-10",
     scheduledAt: "2026-03-10",
-    tags: ["recommended"],
+    tags: [],
     orderWeight: 8,
     calendarColorKey: "lesson"
   },
@@ -303,6 +303,64 @@ export const materials: Material[] = [
     scheduledAt: "2026-04-24",
     tags: ["recommended"],
     orderWeight: 10.5,
+    calendarColorKey: "lesson"
+  },
+  {
+    id: "mat-017",
+    type: "guide",
+    categoryId: "cat-library",
+    topicIds: ["topic-content", "topic-mindset"],
+    title: "Как выстроить систему контента без выгорания",
+    shortDescription: "Пошаговый гайд, как перестать делать хаос и перейти в систему.",
+    longDescription:
+      "Гайд о том, как разложить контент по ритму, форматам и смысловым блокам так, чтобы клуб и личный бренд не держались на ручном героизме.",
+    telegramUrl: "https://t.me/example_guide_1",
+    coverImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+    duration: "",
+    status: "published",
+    publishedAt: "2026-02-09",
+    scheduledAt: "2026-02-09",
+    tags: ["recommended"],
+    orderWeight: 9.1,
+    calendarColorKey: "lesson"
+  },
+  {
+    id: "mat-018",
+    type: "article",
+    categoryId: "cat-library",
+    topicIds: ["topic-content", "topic-sales"],
+    title: "Почему твой контент не продаёт",
+    shortDescription:
+      "Разбор ошибок, из-за которых подписчики не становятся клиентами.",
+    longDescription:
+      "Статья с разбором самых частых сбоев в контентной логике: когда есть охваты, реакции и сохранения, но почти нет движения к заявке.",
+    telegramUrl: "https://t.me/example_article_1",
+    coverImage: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80",
+    duration: "10 мин",
+    status: "published",
+    publishedAt: "2026-02-14",
+    scheduledAt: "2026-02-14",
+    tags: [],
+    orderWeight: 8.6,
+    calendarColorKey: "lesson"
+  },
+  {
+    id: "mat-019",
+    type: "guide",
+    categoryId: "cat-library",
+    topicIds: ["topic-funnels", "topic-sales"],
+    title: "Автоворонка без прогревов",
+    shortDescription: "Как получать заявки без сторис и ежедневного давления.",
+    longDescription:
+      "Гайд по спокойной воронке, где движение к покупке создаётся через связку смыслов, структуры и точек входа, а не через постоянный дожим.",
+    telegramUrl: "https://t.me/example_guide_2",
+    coverImage: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80",
+    duration: "",
+    status: "published",
+    publishedAt: "2026-02-20",
+    scheduledAt: "2026-02-20",
+    tags: ["recommended"],
+    orderWeight: 8.9,
     calendarColorKey: "lesson"
   }
 ];

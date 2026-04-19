@@ -191,6 +191,11 @@ a {
       0 0 0 6px rgba(255, 208, 148, 0.16);
   }
 
+  .calendar-month-animate {
+    animation: calendar-month-enter 220ms ease;
+    transform-origin: center top;
+  }
+
   .editorial-line {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--color-border-medium), transparent);
@@ -278,4 +283,16 @@ a {
     transform: translateY(-0.25px) scale(1.035);
   }
 
+}
+
+@keyframes calendar-month-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
