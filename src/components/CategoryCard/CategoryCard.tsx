@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import type { Category } from "@/shared/types/content";
 
@@ -12,9 +13,13 @@ const categoryCoverBySlug: Record<string, string> = {
   library: "/category-covers/books.jpg"
 };
 
-export function CategoryCard({ category }: CategoryCardProps) {
+for (const coverImage of Object.values(categoryCoverBySlug)) {
+  const image = new Image();
+  image.src = coverImage;
+}
+
+function CategoryCardComponent({ category }: CategoryCardProps) {
   const coverImage = categoryCoverBySlug[category.slug];
-  const prioritizeImage = category.order <= 2;
 
   return (
     <Link
@@ -27,8 +32,8 @@ export function CategoryCard({ category }: CategoryCardProps) {
           alt={category.title}
           width={1920}
           height={1080}
-          loading={prioritizeImage ? "eager" : "lazy"}
-          fetchPriority={prioritizeImage ? "high" : "auto"}
+          loading="eager"
+          fetchPriority="high"
           decoding="async"
           className="category-card-image absolute inset-0 h-full w-full object-cover"
         />
@@ -54,3 +59,5 @@ export function CategoryCard({ category }: CategoryCardProps) {
     </Link>
   );
 }
+
+export const CategoryCard = memo(CategoryCardComponent);

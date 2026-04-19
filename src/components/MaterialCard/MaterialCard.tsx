@@ -45,7 +45,7 @@ export function MaterialCard({
           navigate(`/materials/${material.id}`);
         }
       }}
-      className="surface-card pressable block overflow-hidden"
+      className="surface-card block overflow-hidden"
     >
       <div className={`material-image-frame relative ${imageHeights}`}>
         <img

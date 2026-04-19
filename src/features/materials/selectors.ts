@@ -9,18 +9,28 @@ export type CalendarDayCell = {
   isCurrentMonth: boolean;
 };
 
+const visibleCategories = [...categories]
+  .sort((a, b) => a.order - b.order)
+  .filter((item) => item.isVisible);
+
+const visibleTopics = [...topics]
+  .sort((a, b) => a.order - b.order)
+  .filter((item) => item.isVisible);
+
+const recommendedMaterials = materials
+  .filter((material) => material.status === "published" && material.tags.includes("recommended"))
+  .sort((a, b) => b.orderWeight - a.orderWeight);
+
 export function getVisibleCategories() {
-  return [...categories].sort((a, b) => a.order - b.order).filter((item) => item.isVisible);
+  return visibleCategories;
 }
 
 export function getVisibleTopics() {
-  return [...topics].sort((a, b) => a.order - b.order).filter((item) => item.isVisible);
+  return visibleTopics;
 }
 
 export function getRecommendedMaterials() {
-  return materials
-    .filter((material) => material.status === "published" && material.tags.includes("recommended"))
-    .sort((a, b) => b.orderWeight - a.orderWeight);
+  return recommendedMaterials;
 }
 
 export function getMaterialsByCategorySlug(slug: string) {

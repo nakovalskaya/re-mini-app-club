@@ -44,12 +44,14 @@ body,
 #root {
   height: 100%;
   min-height: 100%;
+  max-height: 100%;
 }
 
 html {
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 html::-webkit-scrollbar,
@@ -68,6 +70,7 @@ body {
   font-weight: 300;
   overflow: hidden;
   overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 * {
@@ -307,16 +310,14 @@ a {
       color 180ms ease,
       text-shadow 180ms ease,
       filter 180ms ease,
-      opacity 180ms ease,
-      transform 160ms ease;
+      opacity 180ms ease;
   }
 
   .tabbar-icon {
     transition:
       color 180ms ease,
       filter 180ms ease,
-      opacity 180ms ease,
-      transform 160ms ease;
+      opacity 180ms ease;
   }
 
   .tabbar-item-active {
@@ -330,7 +331,6 @@ a {
       drop-shadow(0 0 8px rgba(255, 208, 148, 0.22))
       drop-shadow(0 0 3px rgba(255, 255, 255, 0.12));
     opacity: 1;
-    transform: translateY(-0.25px) scale(1.035);
   }
 
 }
