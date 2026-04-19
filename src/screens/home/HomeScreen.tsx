@@ -24,7 +24,7 @@ export function HomeScreen() {
         subtitle="Закрытый клуб Надежды Ковальской"
       />
 
-      <div className="-mt-14 grid grid-cols-2 auto-rows-fr gap-2.5">
+      <div className="relative z-[1] -mt-24 grid grid-cols-2 auto-rows-fr gap-2.5">
         {categories.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}

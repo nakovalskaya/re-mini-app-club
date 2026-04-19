@@ -42,8 +42,8 @@ export function FavoriteButton({ materialId, className }: FavoriteButtonProps) {
       }
       isActive={active}
       className={cn(
-        "favorite-button h-10 w-10 rounded-full border-border-soft bg-[rgba(255,248,247,0.92)] shadow-soft backdrop-blur",
-        active && "border-[#f3cf8b] bg-[#fff5df] shadow-[0_10px_24px_rgba(194,122,0,0.16)]",
+        "favorite-button favorite-button-shell h-10 w-10 rounded-full border-border-soft shadow-soft backdrop-blur",
+        active && "favorite-button-active border-[#f3cf8b]",
         isAnimating && "favorite-button-animate",
         className
       )}

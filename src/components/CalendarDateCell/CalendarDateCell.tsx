@@ -34,7 +34,7 @@ export function CalendarDateCell({
         "pressable flex h-[50px] flex-col items-start justify-between rounded-[9px] border px-[7px] py-[7px] text-left text-text-primary",
         eventTypes.length > 0
           ? "border-border-medium bg-bg-surface shadow-soft"
-          : "border-border-soft bg-[rgba(255,248,247,0.72)]",
+          : "border-border-soft bg-[var(--color-surface-muted)]",
         isToday && "ring-1 ring-accent-gold"
       )}
     >

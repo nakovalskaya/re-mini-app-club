@@ -73,7 +73,7 @@ export function DevDebugPanel() {
 
   return (
     <aside className="pointer-events-none fixed inset-x-3 bottom-[88px] z-50 mx-auto max-w-md">
-      <div className="pointer-events-auto surface-card-elevated overflow-hidden border-border-medium bg-[rgba(255,248,247,0.96)] backdrop-blur">
+      <div className="frost-panel-strong pointer-events-auto surface-card-elevated overflow-hidden border-border-medium backdrop-blur">
         <button
           type="button"
           onClick={() => setExpanded((current) => !current)}

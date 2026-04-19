@@ -32,8 +32,8 @@ export function ChallengeDayCard({
     <div
       className={cn(
         "surface-card flex min-h-[300px] flex-col gap-0 p-card",
-        isCompleted && "bg-[#fff8ef]",
-        isSkipped && "bg-[#f8f5f4]",
+        isCompleted && "status-surface-completed",
+        isSkipped && "status-surface-skipped",
         isLocked && "opacity-75"
       )}
     >
@@ -42,9 +42,9 @@ export function ChallengeDayCard({
           <div
             className={cn(
               "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors duration-200",
-              isCompleted && "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep",
+              isCompleted && "status-chip-completed",
               isCurrent && "border-accent-deep bg-accent-deep text-bg-base",
-              isSkipped && "border-[#ebdcd5] bg-[#ebdcd5] text-[#8c7b74]",
+              isSkipped && "status-chip-skipped",
               isPreview && "border-border-medium bg-bg-soft text-text-primary",
               isLocked && "border-border-soft bg-bg-surface text-text-secondary"
             )}
@@ -76,7 +76,7 @@ export function ChallengeDayCard({
               {readOnlyLabel}
             </span>
           ) : isCompleted ? (
-            <span className="rounded-full bg-[#fff2dc] px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-accent-deep whitespace-nowrap">
+            <span className="status-chip-completed rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.14em] whitespace-nowrap">
               пройден
             </span>
           ) : isSkipped ? (
@@ -84,7 +84,7 @@ export function ChallengeDayCard({
               пропущен
             </span>
           ) : isCurrent ? (
-           <span className="rounded-full bg-[#e8f3ed] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#2c6e49] whitespace-nowrap">
+           <span className="status-chip-active rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap">
               текущий
             </span>
           ) : null}
@@ -114,7 +114,7 @@ export function ChallengeDayCard({
               className={cn(
                 "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
                 isSkipped 
-                  ? "bg-[#ebdcd5] border-[#ebdcd5] text-[#8c7b74]" 
+                  ? "status-chip-skipped" 
                   : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
                 (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
               )}
@@ -126,12 +126,21 @@ export function ChallengeDayCard({
             onClick={() => onComplete(day.id)}
             disabled={isLocked || isPreview || readOnly}
             className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
+                "flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300",
               isCompleted 
-                ? "bg-[#66b37a] border-[#66b37a] text-white" 
+                ? "border-transparent"
                 : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
               (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
             )}
+            style={
+              isCompleted
+                ? {
+                    backgroundColor: "var(--color-status-done-fill)",
+                    borderColor: "var(--color-status-done-fill)",
+                    color: "var(--color-status-done-fill-text)"
+                  }
+                : undefined
+            }
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>

@@ -24,8 +24,12 @@ export interface TelegramWebApp {
   ready(): void;
   expand?: () => void;
   openTelegramLink?: (url: string) => void;
+  onEvent?: (eventType: string, callback: () => void) => void;
+  offEvent?: (eventType: string, callback: () => void) => void;
   version?: string;
   platform?: string;
+  colorScheme?: "light" | "dark";
+  themeParams?: Record<string, string>;
   CloudStorage?: TelegramWebAppCloudStorage;
 }
 

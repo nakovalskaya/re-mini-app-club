@@ -94,7 +94,7 @@ export function MaterialScreen() {
       </div>
 
       <div className="mt-2 pb-2">
-        <div className="rounded-[24px] border border-border-soft bg-[rgba(255,248,247,0.94)] p-3 shadow-soft backdrop-blur">
+        <div className="frost-panel rounded-[24px] border border-border-soft p-3 shadow-soft backdrop-blur">
           <Button
             disabled={!hasTelegramUrl}
             onClick={() => {

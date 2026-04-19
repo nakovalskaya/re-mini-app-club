@@ -150,11 +150,11 @@ export function ChallengeDetailsScreen() {
                 }}
                 className={`pressable flex aspect-square items-center justify-center rounded-full border text-sm font-semibold ${
                   status === "completed"
-                    ? "border-[#f0cf8e] bg-[#fff2dc] text-accent-deep"
+                    ? "status-chip-completed"
                     : status === "current"
                       ? "border-accent-deep bg-accent-deep text-bg-base"
                       : status === "skipped"
-                        ? "border-[#ebdcd5] bg-[#ebdcd5] text-[#8c7b74]"
+                        ? "status-chip-skipped"
                         : status === "preview"
                           ? "border-border-medium bg-bg-soft text-text-primary"
                           : "border-border-soft bg-bg-surface text-text-secondary"
@@ -199,7 +199,7 @@ export function ChallengeDetailsScreen() {
       )}
 
       {showCompletionOverlay ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(40,24,20,0.38)] px-4 py-6">
+        <div className="overlay-scrim fixed inset-0 z-40 flex items-center justify-center px-4 py-6">
           <div className="surface-card w-full max-w-[21.5rem] space-y-4 rounded-[22px] p-5 font-montserrat shadow-floating">
             <div className="space-y-2">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-secondary">
@@ -235,7 +235,7 @@ export function ChallengeDetailsScreen() {
       ) : null}
 
       {showFinishOverlay ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(40,24,20,0.38)] px-4 py-6">
+        <div className="overlay-scrim fixed inset-0 z-40 flex items-center justify-center px-4 py-6">
           <div className="surface-card w-full max-w-[21.5rem] space-y-4 rounded-[22px] p-5 font-montserrat shadow-floating">
             <div className="space-y-2">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-secondary">

@@ -24,11 +24,11 @@ export function ChallengeCard({
     status === "active" ? "активен" : null;
   const badgeClassName =
     status === "completed"
-      ? "bg-[#fff2dc] text-accent-deep"
+      ? "status-chip-completed"
       : status === "taken"
-        ? "bg-[#f4e4e1] text-[#9a5d56]"
+        ? "border-transparent"
         : status === "active"
-          ? "bg-[#e8f3ed] text-[#2c6e49]"
+          ? "status-chip-active"
           : "";
 
   return (
@@ -46,6 +46,14 @@ export function ChallengeCard({
           {badgeLabel ? (
             <span
               className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${badgeClassName}`}
+              style={
+                status === "taken"
+                  ? {
+                      backgroundColor: "var(--color-status-finished-bg)",
+                      color: "var(--color-status-finished-text)"
+                    }
+                  : undefined
+              }
             >
               {badgeLabel}
             </span>

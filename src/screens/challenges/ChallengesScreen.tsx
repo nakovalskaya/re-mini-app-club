@@ -112,7 +112,7 @@ export function ChallengesScreen() {
               />
               <Link
                 to={`/challenges/${activeChallenge.id}`}
-                className="pressable inline-flex min-h-12 items-center justify-center rounded-button bg-[rgba(255,248,247,0.92)] px-5 py-3 text-sm font-semibold text-accent-deep"
+                className="frost-button pressable inline-flex min-h-12 items-center justify-center rounded-button px-5 py-3 text-sm font-semibold text-accent-deep"
               >
                 Открыть
               </Link>
