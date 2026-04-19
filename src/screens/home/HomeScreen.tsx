@@ -20,9 +20,8 @@ export function HomeScreen() {
   return (
     <section className="screen-stack">
       <HeroPanel
-        eyebrow="Авторская программа"
-        title="MetaMarketing"
-        subtitle="Личный кабинет клуба, где материалы не теряются: их легко находить, сохранять и проходить в своём ритме."
+        title="Реакция"
+        subtitle="Закрытый клуб Надежды Ковальской"
       />
 
       <div className="-mt-1 grid grid-cols-2 auto-rows-fr gap-2.5">

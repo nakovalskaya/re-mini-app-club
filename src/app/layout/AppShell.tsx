@@ -4,7 +4,7 @@ import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
 import { initTelegramWebApp } from "@/features/telegram/telegram";
-import { AppStateProvider, useAppState } from "@/app/providers/AppStateProvider";
+import { useAppState } from "@/app/providers/AppStateProvider";
 import { tabBarItems } from "@/shared/constants/routes";
 import { cn } from "@/shared/utils/cn";
 
@@ -48,11 +48,7 @@ function debugScrollRestore(update: NonNullable<Window["__MINI_APP_SCROLL_DEBUG_
 }
 
 export function AppShell() {
-  return (
-    <AppStateProvider>
-      <ShellContent />
-    </AppStateProvider>
-  );
+  return <ShellContent />;
 }
 
 function ShellContent() {
