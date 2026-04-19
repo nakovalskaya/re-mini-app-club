@@ -14,21 +14,27 @@ const categoryCoverBySlug: Record<string, string> = {
 
 export function CategoryCard({ category }: CategoryCardProps) {
   const coverImage = categoryCoverBySlug[category.slug];
+  const prioritizeImage = category.order <= 2;
 
   return (
     <Link
       to={`/category/${category.slug}`}
-      className="surface-card pressable relative flex aspect-[16/9] min-h-[108px] flex-col justify-between overflow-hidden border-0 p-0"
+      className="category-card surface-card pressable relative flex flex-col justify-between overflow-hidden border-0 p-0"
     >
       {coverImage ? (
         <img
           src={coverImage}
           alt={category.title}
-          className="absolute inset-0 h-full w-full object-cover"
+          width={1920}
+          height={1080}
+          loading={prioritizeImage ? "eager" : "lazy"}
+          fetchPriority={prioritizeImage ? "high" : "auto"}
+          decoding="async"
+          className="category-card-image absolute inset-0 h-full w-full object-cover"
         />
       ) : null}
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_32%),linear-gradient(180deg,rgba(26,6,6,0.03)_0%,rgba(26,6,6,0.02)_42%,rgba(26,6,6,0.05)_100%)]" />
+      <div className="category-card-overlay absolute inset-0" />
 
       <div className="relative grid h-full grid-rows-[auto_1fr_auto] px-[15px] pt-3 pb-3.5">
         <span className="self-start text-[10px] uppercase leading-none tracking-[0.24em] text-[#fff4ef]">

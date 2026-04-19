@@ -205,6 +205,36 @@ a {
     text-wrap: balance;
   }
 
+  .category-card {
+    height: 102px;
+    min-height: 102px;
+    background:
+      radial-gradient(circle at top right, rgba(255, 208, 148, 0.14), transparent 30%),
+      linear-gradient(135deg, #6f0a13 0%, #7b130d 55%, #5f070f 100%);
+  }
+
+  .category-card-image {
+    transform: translateZ(0);
+  }
+
+  .category-card-overlay {
+    background:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 32%),
+      linear-gradient(
+        180deg,
+        rgba(26, 6, 6, 0.03) 0%,
+        rgba(26, 6, 6, 0.02) 42%,
+        rgba(26, 6, 6, 0.05) 100%
+      );
+  }
+
+  @media (min-width: 390px) {
+    .category-card {
+      height: 108px;
+      min-height: 108px;
+    }
+  }
+
   .tabbar-glass {
     isolation: isolate;
     border: 1px solid rgba(255, 255, 255, 0.28);

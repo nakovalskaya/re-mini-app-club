@@ -25,7 +25,7 @@ export function HomeScreen() {
         subtitle="Личный кабинет клуба, где материалы не теряются: их легко находить, сохранять и проходить в своём ритме."
       />
 
-      <div className="-mt-1 grid grid-cols-2 gap-2.5">
+      <div className="-mt-1 grid grid-cols-2 auto-rows-fr gap-2.5">
         {categories.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}
