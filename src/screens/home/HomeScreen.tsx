@@ -25,13 +25,13 @@ export function HomeScreen() {
         subtitle="Личный кабинет клуба, где материалы не теряются: их легко находить, сохранять и проходить в своём ритме."
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="-mt-1 grid grid-cols-2 gap-2.5">
         {categories.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <SectionTitle title="Темы клуба" eyebrow="Навигация" />
         <div className="-mx-screen overflow-x-auto px-screen">
           <div className="flex w-max gap-2 pb-1">
@@ -42,19 +42,19 @@ export function HomeScreen() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <SectionTitle title="График материалов" />
         <CalendarCard />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <SectionTitle
           title="Рекомендуемое"
           eyebrow="Подборка"
           description="Автоматическая витрина материалов, отмеченных как recommended."
         />
         {featured ? <MaterialCard material={featured} featured /> : null}
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {restRecommended.map((material) => (
             <MaterialCard key={material.id} material={material} />
           ))}

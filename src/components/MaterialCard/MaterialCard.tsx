@@ -32,7 +32,7 @@ export function MaterialCard({
         <img
           src={material.coverImage}
           alt={material.title}
-          className={`w-full object-cover ${featured ? "h-56" : "h-48"}`}
+          className={`w-full object-cover ${featured ? "h-52" : "h-44"}`}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
         <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
@@ -42,8 +42,8 @@ export function MaterialCard({
           </div>
         ) : null}
       </div>
-      <div className="space-y-4 p-card">
-        <div className="space-y-2">
+      <div className="space-y-3 p-card">
+        <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-text-secondary">
             {meta.map((item, index) => (
               <div key={`${material.id}-meta-${item}-${index}`} className="inline-flex items-center gap-2">
@@ -53,7 +53,7 @@ export function MaterialCard({
             ))}
           </div>
           <h3
-            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.72rem] leading-[0.98]" : "font-serif text-[1.48rem] leading-[0.98]"}`}
+            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.64rem] leading-[0.95]" : "font-serif text-[1.42rem] leading-[0.95]"}`}
           >
             {material.title}
           </h3>

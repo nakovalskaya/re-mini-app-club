@@ -55,16 +55,16 @@ export function MaterialScreen() {
           <img
             src={material.coverImage}
             alt={material.title}
-            className="h-72 w-full object-cover"
+            className="h-64 w-full object-cover"
           />
           <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
         </div>
-        <div className="space-y-5 p-card">
-          <div className="space-y-2">
+        <div className="space-y-4 p-card">
+          <div className="space-y-1.5">
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
               {meta}
             </p>
-            <h1 className="font-serif text-[1.95rem] leading-[0.98] text-text-primary">
+            <h1 className="font-serif text-[1.84rem] leading-[0.95] text-text-primary">
               {material.title}
             </h1>
             <p className="text-[15px] leading-6 text-text-secondary">

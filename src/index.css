@@ -26,11 +26,11 @@
   --radius-button: 18px;
   --radius-icon-button: 14px;
 
-  --spacing-screen-x: 24px;
-  --spacing-section-y: 32px;
-  --spacing-block-gap: 16px;
-  --spacing-card-padding: 20px;
-  --spacing-card-padding-compact: 16px;
+  --spacing-screen-x: 22px;
+  --spacing-section-y: 30px;
+  --spacing-block-gap: 15px;
+  --spacing-card-padding: 18px;
+  --spacing-card-padding-compact: 15px;
 
   --shadow-card-soft: 0 12px 30px rgba(79, 2, 2, 0.06);
   --shadow-card-elevated:
@@ -137,11 +137,11 @@ a {
 
 @layer components {
   .safe-top {
-    padding-top: calc(env(safe-area-inset-top) + 10px);
+    padding-top: calc(env(safe-area-inset-top) + 8px);
   }
 
   .safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
   }
 
   .screen-shell {
@@ -149,7 +149,7 @@ a {
   }
 
   .screen-content {
-    @apply flex-1 overflow-y-auto overscroll-contain px-screen pb-28;
+    @apply flex-1 overflow-y-auto overscroll-contain px-screen pb-[6.5rem];
   }
 
   .screen-stack {

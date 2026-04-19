@@ -24,26 +24,26 @@ export function CalendarDateCell({
   isToday = false
 }: CalendarDateCellProps) {
   if (!isCurrentMonth) {
-    return <div className="h-[54px] rounded-[10px] bg-transparent" aria-hidden="true" />;
+    return <div className="h-[50px] rounded-[9px] bg-transparent" aria-hidden="true" />;
   }
 
   return (
     <Link
       to={`/calendar/${date}`}
       className={cn(
-        "pressable flex h-[54px] flex-col items-start justify-between rounded-[10px] border px-2 py-2 text-left text-text-primary",
+        "pressable flex h-[50px] flex-col items-start justify-between rounded-[9px] border px-[7px] py-[7px] text-left text-text-primary",
         eventTypes.length > 0
           ? "border-border-medium bg-bg-surface shadow-soft"
           : "border-border-soft bg-[rgba(255,248,247,0.72)]",
         isToday && "ring-1 ring-accent-gold"
       )}
     >
-      <span className="text-[13px] font-semibold leading-none">{label}</span>
-      <div className="flex items-center gap-1.5">
+      <span className="text-[12px] font-semibold leading-none">{label}</span>
+      <div className="flex items-center gap-1">
         {eventTypes.slice(0, 3).map((type, index) => (
           <span
             key={`${date}-${type}-${index}`}
-            className={cn("h-2.5 w-2.5 rounded-full", eventTypeClasses[type] ?? "bg-accent-gold")}
+            className={cn("h-2 w-2 rounded-full", eventTypeClasses[type] ?? "bg-accent-gold")}
           />
         ))}
       </div>

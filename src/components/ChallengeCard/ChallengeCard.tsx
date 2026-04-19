@@ -32,14 +32,14 @@ export function ChallengeCard({
           : "";
 
   return (
-    <div className="surface-card flex flex-col gap-5 p-card">
-      <div className="space-y-3">
+    <div className="surface-card flex flex-col gap-4 p-card">
+      <div className="space-y-2.5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
               челлендж
             </p>
-            <h3 className="mt-2 font-serif text-[1.72rem] leading-[0.98] text-text-primary">
+            <h3 className="mt-1.5 font-serif text-[1.64rem] leading-[0.95] text-text-primary">
               {challenge.title}
             </h3>
           </div>

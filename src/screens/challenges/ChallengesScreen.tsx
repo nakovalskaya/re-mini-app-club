@@ -60,7 +60,7 @@ export function ChallengesScreen() {
       </Link>
 
       {import.meta.env.DEV ? (
-        <div className="surface-card flex items-center justify-between gap-4 p-4">
+        <div className="surface-card flex items-center justify-between gap-4 p-[15px]">
           <div className="space-y-1">
             <p className="text-[11px] uppercase tracking-[0.18em] text-text-secondary">
               dev tools
@@ -94,12 +94,12 @@ export function ChallengesScreen() {
       ) : (
         <>
           {activeChallenge ? (
-            <div className="surface-card-elevated space-y-5 bg-accent-deep p-card text-bg-base">
-              <div className="space-y-2">
+            <div className="surface-card-elevated space-y-4 bg-accent-deep p-card text-bg-base">
+              <div className="space-y-1.5">
                 <p className="text-xs uppercase tracking-[0.24em] text-accent-gold">
                   Текущий активный
                 </p>
-                <h2 className="font-serif text-[2rem] leading-none">
+                <h2 className="font-serif text-[1.88rem] leading-[0.95]">
                   {activeChallenge.title}
                 </h2>
                 <p className="text-sm leading-6 text-[#f7e8e3]">
@@ -119,7 +119,7 @@ export function ChallengesScreen() {
             </div>
           ) : null}
 
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {personalChallenges
               .filter((challenge) => challenge!.id !== activeChallengeId)
               .map((challenge) => (
