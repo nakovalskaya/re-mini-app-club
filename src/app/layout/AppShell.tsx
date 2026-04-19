@@ -138,7 +138,7 @@ function ShellContent() {
   }, [navigationType, routeScrollKey]);
 
   return (
-    <div className="screen-shell safe-top">
+    <div className="screen-shell">
       <main
         ref={contentRef}
         className={cn("screen-content", !shouldShowTabBar && "pb-8")}

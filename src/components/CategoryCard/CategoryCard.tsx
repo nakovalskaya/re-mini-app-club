@@ -41,20 +41,16 @@ function CategoryCardComponent({ category }: CategoryCardProps) {
 
       <div className="category-card-overlay absolute inset-0" />
 
-      <div className="relative grid h-full grid-rows-[auto_1fr_auto] px-[15px] pt-3 pb-3.5">
-        <span className="self-start text-[10px] uppercase leading-none tracking-[0.24em] text-[#fff4ef]">
+      <div className="relative flex h-full flex-col justify-between px-[15px] pt-3 pb-4">
+        <span className="self-start text-[14px] uppercase leading-none tracking-[0.2em] text-accent-gold">
           {String(category.order).padStart(2, "0")}
         </span>
 
-        <div className="mt-1.5 flex min-h-0 items-start">
-          <h3 className="max-w-[7ch] font-serif text-[1.38rem] leading-[0.92] text-[#fff8f2]">
+        <div className="flex min-h-0 items-end">
+          <h3 className="max-w-[7ch] font-serif text-[1.44rem] leading-[0.9] text-[#fff8f2]">
             {category.title}
           </h3>
         </div>
-
-        <p className="max-w-[16ch] self-end whitespace-pre-line text-[12.5px] leading-[1.34] text-[rgba(255,248,242,0.9)]">
-          {category.description}
-        </p>
       </div>
     </Link>
   );
