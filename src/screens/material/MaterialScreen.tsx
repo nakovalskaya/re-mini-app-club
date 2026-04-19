@@ -8,6 +8,7 @@ import { openTelegramLink } from "@/features/telegram/telegram";
 import { getMaterialById } from "@/features/materials/selectors";
 import { topics } from "@/data/topics";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
 
 export function MaterialScreen() {
   const { id } = useParams();
@@ -40,6 +41,11 @@ export function MaterialScreen() {
     return labels[material.type] ?? material.type;
   }, [material.type]);
   const meta = [typeLabel, !isTextMaterial ? material.duration : ""].filter(Boolean).join(" · ");
+  const detailImageSrc = getOptimizedImageUrl(material.coverImage, {
+    width: 1080,
+    quality: 72
+  });
+  const detailImageSrcSet = getImageSrcSet(material.coverImage, [640, 960, 1080], 72);
 
   return (
     <section className="screen-stack pb-10">
@@ -52,11 +58,18 @@ export function MaterialScreen() {
       </div>
 
       <div className="surface-card overflow-hidden">
-        <div className="relative">
+        <div className="material-image-frame relative h-64">
           <img
-            src={material.coverImage}
+            src={detailImageSrc}
+            srcSet={detailImageSrcSet}
+            sizes="(max-width: 768px) 100vw, 420px"
             alt={material.title}
-            className="h-64 w-full object-cover"
+            width={1200}
+            height={768}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="h-full w-full object-cover material-image-eager"
           />
           <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
         </div>

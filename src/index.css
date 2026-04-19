@@ -228,6 +228,25 @@ a {
       );
   }
 
+  .material-image-frame {
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top right, rgba(255, 208, 148, 0.16), transparent 28%),
+      linear-gradient(135deg, #f2e7e4 0%, #eadfdd 55%, #efe5e2 100%);
+  }
+
+  .material-image-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%);
+  }
+
+  .material-image-eager {
+    transform: translateZ(0);
+  }
+
   @media (min-width: 390px) {
     .category-card {
       height: 108px;

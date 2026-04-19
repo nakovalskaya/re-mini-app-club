@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
 import type { Material } from "@/shared/types/content";
+import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
 
 type MaterialCardProps = {
   material: Material;
@@ -22,6 +23,16 @@ export function MaterialCard({
   };
   const isTextMaterial = material.type === "guide" || material.type === "article";
   const meta = [typeLabelByType[material.type], !isTextMaterial ? material.duration : ""].filter(Boolean);
+  const imageHeights = featured ? "h-52" : "h-44";
+  const imageSrc = getOptimizedImageUrl(material.coverImage, {
+    width: featured ? 960 : 720,
+    quality: featured ? 72 : 66
+  });
+  const imageSrcSet = getImageSrcSet(
+    material.coverImage,
+    featured ? [480, 720, 960] : [320, 480, 720],
+    featured ? 72 : 66
+  );
 
   return (
     <article
@@ -36,11 +47,18 @@ export function MaterialCard({
       }}
       className="surface-card pressable block overflow-hidden"
     >
-      <div className="relative">
+      <div className={`material-image-frame relative ${imageHeights}`}>
         <img
-          src={material.coverImage}
+          src={imageSrc}
+          srcSet={imageSrcSet}
+          sizes={featured ? "(max-width: 768px) 100vw, 420px" : "(max-width: 768px) 100vw, 360px"}
           alt={material.title}
-          className={`w-full object-cover ${featured ? "h-52" : "h-44"}`}
+          width={1200}
+          height={featured ? 624 : 528}
+          loading={featured ? "eager" : "lazy"}
+          fetchPriority={featured ? "high" : "auto"}
+          decoding="async"
+          className={`h-full w-full object-cover ${featured ? "material-image-eager" : ""}`}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
         <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
