@@ -41,7 +41,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
           </h3>
         </div>
 
-        <p className="max-w-[16ch] self-end text-[13px] leading-[1.38] text-[rgba(255,248,242,0.9)]">
+        <p className="max-w-[16ch] self-end whitespace-pre-line text-[12.5px] leading-[1.34] text-[rgba(255,248,242,0.9)]">
           {category.description}
         </p>
       </div>

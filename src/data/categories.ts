@@ -5,7 +5,7 @@ export const categories: Category[] = [
     id: "cat-lives",
     slug: "lives",
     title: "Эфиры",
-    description: "Живые разборы и включения",
+    description: "Живые разборы\nи лекции",
     order: 1,
     isVisible: true
   },
@@ -21,7 +21,7 @@ export const categories: Category[] = [
     id: "cat-podcasts",
     slug: "podcasts",
     title: "Подкасты",
-    description: "Аудио для спокойного погружения",
+    description: "Аудио-лекции\nна разные темы",
     order: 3,
     isVisible: true
   },
