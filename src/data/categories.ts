@@ -1,4 +1,4 @@
-import type { Category } from "../shared/types/content";
+import type { Category } from "../shared/types/content.js";
 
 export const categories: Category[] = [
   {

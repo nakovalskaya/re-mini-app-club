@@ -20,7 +20,7 @@ export default async function handler(request: { method?: string }, response: an
       databaseId: process?.env?.NOTION_DATABASE_ID ?? process?.env?.DATABASE_ID
     });
 
-    response.setHeader("Cache-Control", "no-store, max-age=0");
+    response.setHeader("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
     response.setHeader("Content-Type", "application/json; charset=utf-8");
     response.statusCode = 200;
     response.end(JSON.stringify({ source: "notion", materials }));
