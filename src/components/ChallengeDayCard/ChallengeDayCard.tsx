@@ -31,19 +31,19 @@ export function ChallengeDayCard({
   return (
     <div
       className={cn(
-        "surface-card flex min-h-[300px] flex-col gap-0 p-card",
+        "surface-card-elevated flex min-h-[300px] flex-col gap-0 p-card",
         isCompleted && "status-surface-completed",
         isSkipped && "status-surface-skipped",
         isLocked && "opacity-75"
       )}
     >
-      <div className="flex h-[48px] items-center justify-between mb-4">
+      <div className="mb-4 flex h-[48px] items-center justify-between">
         <div className="flex items-center gap-3">
           <div
             className={cn(
               "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors duration-200",
               isCompleted && "status-chip-completed",
-              isCurrent && "border-accent-deep bg-accent-deep text-bg-base",
+              isCurrent && "border-accent-deep bg-bg-surface text-accent-deep shadow-soft",
               isSkipped && "status-chip-skipped",
               isPreview && "border-border-medium bg-bg-soft text-text-primary",
               isLocked && "border-border-soft bg-bg-surface text-text-secondary"
@@ -80,7 +80,7 @@ export function ChallengeDayCard({
               пройден
             </span>
           ) : isSkipped ? (
-            <span className="rounded-full border border-border-medium bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary whitespace-nowrap">
+            <span className="status-chip-skipped rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.14em] whitespace-nowrap">
               пропущен
             </span>
           ) : isCurrent ? (
@@ -102,7 +102,7 @@ export function ChallengeDayCard({
           variant="secondary"
           disabled={isLocked}
           onClick={() => openTelegramLink(day.telegramUrl)}
-          className="h-full flex-1"
+          className="h-full flex-1 rounded-[16px]"
         >
           Открыть задание
         </Button>

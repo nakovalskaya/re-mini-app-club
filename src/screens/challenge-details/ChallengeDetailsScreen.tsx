@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { LockSimple } from "@phosphor-icons/react";
 import { Button } from "@/components/Button/Button";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { ChallengeDayCard } from "@/components/ChallengeDayCard/ChallengeDayCard";
@@ -111,16 +112,19 @@ export function ChallengeDetailsScreen() {
         description={challenge.description}
       />
 
-      <div className="surface-card space-y-5 p-card">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
+      <div className="surface-card-elevated space-y-4 p-[1.05rem]">
+        <div className="flex items-end justify-between gap-3">
+          <div className="flex-1 space-y-2.5">
             <p className="text-sm text-text-secondary">
               {challenge.durationDays} дней · сложность {challenge.difficulty}/5
             </p>
             <ProgressBar value={completedCount} max={challenge.durationDays} />
           </div>
           {!isTaken ? (
-            <Button className="w-auto px-5" onClick={() => takeChallenge(challenge.id)}>
+            <Button
+              className="min-h-10 w-auto rounded-[16px] px-4 py-2 text-[12px] shadow-none"
+              onClick={() => takeChallenge(challenge.id)}
+            >
               Начать
             </Button>
           ) : null}
@@ -134,7 +138,8 @@ export function ChallengeDetailsScreen() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-5 gap-3 sm:grid-cols-6">
+        <div className="rounded-[22px] border border-border-soft bg-[var(--color-surface-muted)] p-3">
+          <div className="grid grid-cols-5 gap-2.5 sm:grid-cols-6">
           {challenge.days.map((day) => {
             const status = getDayStatus(day.dayNumber, day.id);
             const isSelected = selectedDay?.id === day.id;
@@ -148,23 +153,28 @@ export function ChallengeDetailsScreen() {
                     setSelectedDayId(day.id);
                   }
                 }}
-                className={`pressable flex aspect-square items-center justify-center rounded-full border text-sm font-semibold ${
+                className={`pressable flex h-[3.2rem] w-full max-w-[3.2rem] items-center justify-center justify-self-center rounded-full border text-[13px] font-semibold ${
                   status === "completed"
                     ? "status-chip-completed"
                     : status === "current"
-                      ? "border-accent-deep bg-accent-deep text-bg-base"
+                      ? "border-accent-deep bg-bg-surface text-accent-deep shadow-soft"
                       : status === "skipped"
                         ? "status-chip-skipped"
                         : status === "preview"
                           ? "border-border-medium bg-bg-soft text-text-primary"
                           : "border-border-soft bg-bg-surface text-text-secondary"
-                } ${isSelected ? "ring-2 ring-accent-gold/50" : ""}`}
+                } ${isSelected ? "ring-1 ring-accent-gold/60" : ""}`}
                 disabled={status === "locked" && !isReadOnly}
               >
-                {status === "locked" ? "·" : day.dayNumber}
+                {status === "locked" ? (
+                  <LockSimple size={15} weight="regular" color="#5d0806" />
+                ) : (
+                  day.dayNumber
+                )}
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 

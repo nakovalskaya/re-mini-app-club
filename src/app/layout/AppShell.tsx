@@ -67,6 +67,7 @@ function ShellContent() {
     dismissChallengeDialog
   } = useAppState();
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
+  const shouldApplyTopInset = location.pathname !== "/";
   const routeScrollKey = `${location.pathname}${location.search}`;
 
   useEffect(() => {
@@ -152,7 +153,14 @@ function ShellContent() {
 
   return (
     <div className="screen-shell">
-      <main ref={contentRef} className={cn("screen-content", !shouldShowTabBar && "pb-8")}>
+      <main
+        ref={contentRef}
+        className={cn(
+          "screen-content",
+          shouldApplyTopInset && "safe-top pt-3",
+          !shouldShowTabBar && "pb-8"
+        )}
+      >
         <Outlet />
       </main>
       {isDebug ? <DevDebugPanel /> : null}
