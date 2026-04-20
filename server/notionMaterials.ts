@@ -158,9 +158,15 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
     page.last_edited_time?.slice(0, 10) ||
     page.created_time?.slice(0, 10) ||
     new Date().toISOString().slice(0, 10);
+  const isPublished = readCheckbox(properties.Published);
   const coverImage = readUrl(properties.Cover) || coverFallbackByCategory[categoryId];
   const duration = readRichText(properties.Duration) || defaultDurationByType(type);
   const tags = readCheckbox(properties.Recommended) ? ["recommended"] : [];
+  const status: Material["status"] = isPublished ? "published" : publishedAt ? "scheduled" : "hidden";
+
+  if (status === "hidden") {
+    return null;
+  }
 
   return {
     id: `notion-${page.id.replace(/-/g, "")}`,
@@ -173,7 +179,7 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
     telegramUrl: readUrl(properties["Telegram URL"]),
     coverImage,
     duration,
-    status: "published",
+    status,
     publishedAt,
     scheduledAt: publishedAt,
     tags,
@@ -210,12 +216,6 @@ export async function fetchPublishedNotionMaterials({
       body: JSON.stringify({
         page_size: 100,
         ...(nextCursor ? { start_cursor: nextCursor } : {}),
-        filter: {
-          property: "Published",
-          checkbox: {
-            equals: true
-          }
-        },
         sorts: [
           {
             property: "Date",

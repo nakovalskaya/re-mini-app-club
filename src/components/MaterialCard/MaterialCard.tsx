@@ -14,6 +14,7 @@ export function MaterialCard({
   featured = false
 }: MaterialCardProps) {
   const navigate = useNavigate();
+  const isScheduled = material.status === "scheduled";
   const typeLabelByType: Record<Material["type"], string> = {
     lesson: "Урок",
     live: "Эфир",
@@ -22,7 +23,11 @@ export function MaterialCard({
     article: "Статья"
   };
   const isTextMaterial = material.type === "guide" || material.type === "article";
-  const meta = [typeLabelByType[material.type], !isTextMaterial ? material.duration : ""].filter(Boolean);
+  const meta = [
+    typeLabelByType[material.type],
+    isScheduled ? "Скоро" : "",
+    !isTextMaterial ? material.duration : ""
+  ].filter(Boolean);
   const imageHeights = featured ? "h-52" : "h-44";
   const imageSrc = getOptimizedImageUrl(material.coverImage, {
     width: featured ? 960 : 720,
@@ -94,7 +99,7 @@ export function MaterialCard({
             navigate(`/materials/${material.id}`);
           }}
         >
-          Смотреть
+          {isScheduled ? "Ждём публикацию" : "Смотреть"}
         </Button>
       </div>
     </article>

@@ -36,7 +36,7 @@ export function CalendarDayScreen() {
         eyebrow="Материалы дня"
         description={
           dayMaterials.length > 0
-            ? `На эту дату собрано материалов: ${dayMaterials.length}.`
+            ? `На эту дату запланировано материалов: ${dayMaterials.length}.`
             : "На эту дату пока нет материалов."
         }
       />

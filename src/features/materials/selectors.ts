@@ -29,10 +29,18 @@ function sortMaterials(materials: Material[]) {
   return [...materials].sort((a, b) => b.orderWeight - a.orderWeight);
 }
 
+function isPublishedMaterial(material: Material) {
+  return material.status === "published";
+}
+
+function isCalendarMaterial(material: Material) {
+  return material.status === "published" || material.status === "scheduled";
+}
+
 export function getRecommendedMaterials(materials: Material[]) {
   return sortMaterials(
     materials.filter(
-      (material) => material.status === "published" && material.tags.includes("recommended")
+      (material) => isPublishedMaterial(material) && material.tags.includes("recommended")
     )
   );
 }
@@ -43,7 +51,9 @@ export function getMaterialsByCategorySlug(materials: Material[], slug: string) 
     return [];
   }
 
-  return sortMaterials(materials.filter((material) => material.categoryId === category.id));
+  return sortMaterials(
+    materials.filter((material) => isPublishedMaterial(material) && material.categoryId === category.id)
+  );
 }
 
 export function getMaterialsByTopicSlug(materials: Material[], slug: string) {
@@ -52,7 +62,9 @@ export function getMaterialsByTopicSlug(materials: Material[], slug: string) {
     return [];
   }
 
-  return sortMaterials(materials.filter((material) => material.topicIds.includes(topic.id)));
+  return sortMaterials(
+    materials.filter((material) => isPublishedMaterial(material) && material.topicIds.includes(topic.id))
+  );
 }
 
 export function getMaterialById(materials: Material[], id: string) {
@@ -61,7 +73,11 @@ export function getMaterialById(materials: Material[], id: string) {
 
 export function getMaterialsByDate(materials: Material[], date: string) {
   return sortMaterials(
-    materials.filter((material) => material.scheduledAt === date || material.publishedAt === date)
+    materials.filter(
+      (material) =>
+        isCalendarMaterial(material) &&
+        (material.scheduledAt === date || material.publishedAt === date)
+    )
   );
 }
 
