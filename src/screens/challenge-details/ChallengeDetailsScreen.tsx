@@ -24,6 +24,7 @@ export function ChallengeDetailsScreen() {
     toggleSkipChallengeDay,
     finishActiveChallenge,
     completeChallenge,
+    requestResetChallengeProgress,
     skippedDayIdsByChallenge
   } = useAppState();
   const challenge = id ? getChallengeById(id) : null;
@@ -208,13 +209,20 @@ export function ChallengeDetailsScreen() {
         />
       )}
 
-      {activeChallengeId === challenge.id && (
-        <div className="mt-8 border-t border-border-soft pt-4">
+      <div className="mt-8 space-y-3 border-t border-border-soft pt-4">
+        {activeChallengeId === challenge.id ? (
           <Button variant="secondary" onClick={() => setShowFinishOverlay(true)}>
             Завершить челлендж
           </Button>
-        </div>
-      )}
+        ) : null}
+        <Button
+          variant="secondary"
+          className="border-[rgba(93,9,6,0.22)] text-accent-deep hover:bg-[rgba(93,9,6,0.05)] active:bg-[rgba(93,9,6,0.08)]"
+          onClick={() => requestResetChallengeProgress(challenge.id)}
+        >
+          Сбросить прогресс
+        </Button>
+      </div>
 
       {showCompletionOverlay ? (
         <div className="overlay-scrim fixed inset-0 z-40 flex items-center justify-center px-4 py-6">

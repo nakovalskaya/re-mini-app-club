@@ -17,7 +17,6 @@ export function ChallengesScreen() {
     isChallengeActive,
     isChallengeCompleted,
     isChallengeFinishedEarly,
-    resetAllChallenges,
     takeChallenge,
     takenChallengeIds
   } = useAppState();
@@ -58,26 +57,6 @@ export function ChallengesScreen() {
           </p>
         </div>
       </Link>
-
-      {import.meta.env.DEV ? (
-        <div className="surface-card flex items-center justify-between gap-4 p-[15px]">
-          <div className="space-y-1">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-text-secondary">
-              dev tools
-            </p>
-            <p className="text-sm text-text-secondary">
-              Сбросить состояние челленджей для повторного тестирования маршрутов.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            className="w-auto shrink-0 px-4"
-            onClick={resetAllChallenges}
-          >
-            Сбросить прогресс челленджей
-          </Button>
-        </div>
-      ) : null}
 
       {!challengesHydrated ? (
         <EmptyState

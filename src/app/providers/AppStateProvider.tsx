@@ -45,6 +45,7 @@ type AppStateContextValue = {
   toggleSkipChallengeDay: (challengeId: string, dayId: string) => void;
   finishActiveChallenge: () => void;
   completeChallenge: (challengeId: string) => void;
+  requestResetChallengeProgress: (challengeId: string) => void;
   getCompletedCount: (challengeId: string) => number;
   isChallengeActive: (challengeId: string) => boolean;
   isChallengeTaken: (challengeId: string) => boolean;
@@ -646,6 +647,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }));
   }, [applyUserStateMutation]);
 
+  const resetChallengeProgress = useCallback((challengeId: string) => {
+    applyUserStateMutation((current) => {
+      const nextCompletedDayIdsByChallenge = { ...current.completedDayIdsByChallenge };
+      const nextSkippedDayIdsByChallenge = { ...current.skippedDayIdsByChallenge };
+
+      delete nextCompletedDayIdsByChallenge[challengeId];
+      delete nextSkippedDayIdsByChallenge[challengeId];
+
+      return {
+        ...current,
+        activeChallengeId: current.activeChallengeId === challengeId ? null : current.activeChallengeId,
+        takenChallengeIds: current.takenChallengeIds.filter((id) => id !== challengeId),
+        completedDayIdsByChallenge: nextCompletedDayIdsByChallenge,
+        skippedDayIdsByChallenge: nextSkippedDayIdsByChallenge,
+        completedChallengeIds: current.completedChallengeIds.filter((id) => id !== challengeId),
+        finishedChallengeIds: current.finishedChallengeIds.filter((id) => id !== challengeId)
+      };
+    });
+  }, [applyUserStateMutation]);
+
+  const requestResetChallengeProgress = useCallback((challengeId: string) => {
+    setChallengeConfirmationDialog({
+      title: "Сбросить прогресс?",
+      description: "Все отмеченные дни и результаты будут удалены без возможности восстановления.",
+      confirmLabel: "Сбросить",
+      cancelLabel: "Отмена",
+      onConfirm: () => {
+        setChallengeConfirmationDialog(null);
+        resetChallengeProgress(challengeId);
+      }
+    });
+  }, [resetChallengeProgress]);
+
   const toggleChallengeDay = useCallback((challengeId: string, dayId: string) => {
     applyUserStateMutation((current) => {
       if (
@@ -783,6 +817,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleSkipChallengeDay,
       finishActiveChallenge,
       completeChallenge,
+      requestResetChallengeProgress,
       resetAllChallenges,
       getCompletedCount,
       isChallengeActive,
@@ -822,6 +857,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleSkipChallengeDay,
       finishActiveChallenge,
       completeChallenge,
+      requestResetChallengeProgress,
       resetAllChallenges,
       getCompletedCount,
       isChallengeActive,
