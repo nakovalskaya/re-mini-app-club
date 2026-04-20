@@ -37,7 +37,7 @@ export function HeroPanel({ eyebrow, title, subtitle }: HeroPanelProps) {
         </div>
       </div>
 
-      <div className="hero-panel-fade pointer-events-none absolute inset-x-0 bottom-0 h-28" />
+      <div className="hero-panel-fade pointer-events-none absolute inset-x-0 bottom-0 h-[7.8rem]" />
     </section>
   );
 }

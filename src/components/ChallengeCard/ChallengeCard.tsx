@@ -76,9 +76,11 @@ export function ChallengeCard({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <ProgressBar value={completedDays} max={challenge.durationDays} />
-      </div>
+      {status !== "default" ? (
+        <div className="space-y-2">
+          <ProgressBar value={completedDays} max={challenge.durationDays} />
+        </div>
+      ) : null}
 
       {!isActive ? (
         <div className="grid grid-cols-2 gap-3">

@@ -123,9 +123,6 @@ export function ChallengeDetailsScreen() {
             </span>
           </div>
           <div className="max-w-[13rem]">
-            <p className="text-sm text-text-secondary">
-              Прогресс
-            </p>
             <ProgressBar value={completedCount} max={challenge.durationDays} />
           </div>
         </div>
