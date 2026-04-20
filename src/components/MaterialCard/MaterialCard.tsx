@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
 import type { Material } from "@/shared/types/content";
 import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
@@ -72,8 +71,13 @@ export function MaterialCard({
             Рекомендуем
           </div>
         ) : null}
+        {isScheduled ? (
+          <div className="absolute bottom-4 left-4 rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
+            Скоро
+          </div>
+        ) : null}
       </div>
-      <div className="space-y-3 p-card">
+      <div className="space-y-1.5 p-card">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-text-secondary">
             {meta.map((item, index) => (
@@ -92,15 +96,6 @@ export function MaterialCard({
             {material.shortDescription}
           </p>
         </div>
-        <Button
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            navigate(`/materials/${material.id}`);
-          }}
-        >
-          {isScheduled ? "Ждём публикацию" : "Смотреть"}
-        </Button>
       </div>
     </article>
   );

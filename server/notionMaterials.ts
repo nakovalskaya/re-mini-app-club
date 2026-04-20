@@ -151,6 +151,7 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
   }
 
   const description = readRichText(properties.Description);
+  const extraDescription = readRichText(properties["Extra Description"]);
   const categoryId = resolveCategoryId(type, readSelect(properties.Category));
   const topicIds = resolveTopicIds(readMultiSelect(properties.Topics));
   const publishedAt =
@@ -176,6 +177,7 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
     title,
     shortDescription: description || title,
     longDescription: description || undefined,
+    extraDescription: extraDescription || undefined,
     telegramUrl: readUrl(properties["Telegram URL"]),
     coverImage,
     duration,
