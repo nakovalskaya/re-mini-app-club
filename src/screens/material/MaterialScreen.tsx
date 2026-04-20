@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
@@ -11,15 +12,27 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
 
 export function MaterialScreen() {
+  const { materials, isLoading } = useMaterials();
   const { id } = useParams();
-  const material = id ? getMaterialById(id) : null;
+  const material = id ? getMaterialById(materials, id) : null;
+
+  if (isLoading) {
+    return (
+      <section className="screen-stack">
+        <EmptyState
+          title="Загружаем материал"
+          description="Подключаем публикации из Notion."
+        />
+      </section>
+    );
+  }
 
   if (!material) {
     return (
       <section className="screen-stack">
         <EmptyState
           title="Материал не найден"
-          description="Похоже, этот материал ещё не добавлен в mock data."
+          description="Похоже, этот материал ещё не опубликован в базе."
         />
       </section>
     );

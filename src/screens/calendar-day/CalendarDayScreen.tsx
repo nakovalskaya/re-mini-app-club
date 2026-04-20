@@ -1,3 +1,4 @@
+import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { useParams } from "react-router-dom";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
@@ -6,8 +7,26 @@ import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { getMaterialsByDate } from "@/features/materials/selectors";
 
 export function CalendarDayScreen() {
+  const { materials, isLoading } = useMaterials();
   const { date } = useParams();
-  const dayMaterials = date ? getMaterialsByDate(date) : [];
+  const dayMaterials = date ? getMaterialsByDate(materials, date) : [];
+
+  if (isLoading) {
+    return (
+      <section className="screen-stack">
+        <BackButton />
+        <SectionTitle
+          title={date ?? "Дата"}
+          eyebrow="Материалы дня"
+          description="Подтягиваем материалы из Notion для этой даты."
+        />
+        <EmptyState
+          title="Загружаем материалы"
+          description="Календарь обновится сразу после загрузки публикаций."
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="screen-stack">

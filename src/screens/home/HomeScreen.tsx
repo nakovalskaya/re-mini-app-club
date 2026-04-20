@@ -1,3 +1,5 @@
+import { useMaterials } from "@/app/providers/MaterialsProvider";
+import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { CalendarCard } from "@/components/CalendarCard/CalendarCard";
 import { CategoryCard } from "@/components/CategoryCard/CategoryCard";
 import { HeroPanel } from "@/components/HeroPanel/HeroPanel";
@@ -11,9 +13,10 @@ import {
 } from "@/features/materials/selectors";
 
 export function HomeScreen() {
+  const { materials, isLoading } = useMaterials();
   const categories = getVisibleCategories();
   const topics = getVisibleTopics();
-  const recommended = getRecommendedMaterials();
+  const recommended = getRecommendedMaterials(materials);
   const featured = recommended[0];
   const restRecommended = recommended.slice(1, 5);
 
@@ -52,12 +55,26 @@ export function HomeScreen() {
           eyebrow="Подборка"
           description="Автоматическая витрина материалов, отмеченных как recommended."
         />
-        {featured ? <MaterialCard material={featured} featured /> : null}
-        <div className="space-y-3.5">
-          {restRecommended.map((material) => (
-            <MaterialCard key={material.id} material={material} />
-          ))}
-        </div>
+        {isLoading ? (
+          <EmptyState
+            title="Загружаем материалы"
+            description="Подключаем публикации из Notion."
+          />
+        ) : featured ? (
+          <>
+            <MaterialCard material={featured} featured />
+            <div className="space-y-3.5">
+              {restRecommended.map((material) => (
+                <MaterialCard key={material.id} material={material} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyState
+            title="Пока нет публикаций"
+            description="В рекомендованном блоке пока нет опубликованных материалов."
+          />
+        )}
       </div>
     </section>
   );

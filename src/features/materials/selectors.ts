@@ -1,6 +1,6 @@
 import { categories } from "@/data/categories";
-import { materials } from "@/data/materials";
 import { topics } from "@/data/topics";
+import type { Material } from "@/shared/types/content";
 
 export type CalendarDayCell = {
   date: string;
@@ -17,10 +17,6 @@ const visibleTopics = [...topics]
   .sort((a, b) => a.order - b.order)
   .filter((item) => item.isVisible);
 
-const recommendedMaterials = materials
-  .filter((material) => material.status === "published" && material.tags.includes("recommended"))
-  .sort((a, b) => b.orderWeight - a.orderWeight);
-
 export function getVisibleCategories() {
   return visibleCategories;
 }
@@ -29,40 +25,44 @@ export function getVisibleTopics() {
   return visibleTopics;
 }
 
-export function getRecommendedMaterials() {
-  return recommendedMaterials;
+function sortMaterials(materials: Material[]) {
+  return [...materials].sort((a, b) => b.orderWeight - a.orderWeight);
 }
 
-export function getMaterialsByCategorySlug(slug: string) {
+export function getRecommendedMaterials(materials: Material[]) {
+  return sortMaterials(
+    materials.filter(
+      (material) => material.status === "published" && material.tags.includes("recommended")
+    )
+  );
+}
+
+export function getMaterialsByCategorySlug(materials: Material[], slug: string) {
   const category = categories.find((item) => item.slug === slug);
   if (!category) {
     return [];
   }
 
-  return materials
-    .filter((material) => material.categoryId === category.id)
-    .sort((a, b) => b.orderWeight - a.orderWeight);
+  return sortMaterials(materials.filter((material) => material.categoryId === category.id));
 }
 
-export function getMaterialsByTopicSlug(slug: string) {
+export function getMaterialsByTopicSlug(materials: Material[], slug: string) {
   const topic = topics.find((item) => item.slug === slug);
   if (!topic) {
     return [];
   }
 
-  return materials
-    .filter((material) => material.topicIds.includes(topic.id))
-    .sort((a, b) => b.orderWeight - a.orderWeight);
+  return sortMaterials(materials.filter((material) => material.topicIds.includes(topic.id)));
 }
 
-export function getMaterialById(id: string) {
+export function getMaterialById(materials: Material[], id: string) {
   return materials.find((material) => material.id === id) ?? null;
 }
 
-export function getMaterialsByDate(date: string) {
-  return materials
-    .filter((material) => material.scheduledAt === date || material.publishedAt === date)
-    .sort((a, b) => b.orderWeight - a.orderWeight);
+export function getMaterialsByDate(materials: Material[], date: string) {
+  return sortMaterials(
+    materials.filter((material) => material.scheduledAt === date || material.publishedAt === date)
+  );
 }
 
 function formatDateKey(date: Date) {
@@ -81,7 +81,7 @@ export function shiftCalendarMonth(baseDate: Date, diff: number) {
   return new Date(baseDate.getFullYear(), baseDate.getMonth() + diff, 1);
 }
 
-export function buildCalendarMonth(monthDate: Date): CalendarDayCell[] {
+export function buildCalendarMonth(materials: Material[], monthDate: Date): CalendarDayCell[] {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
@@ -93,7 +93,7 @@ export function buildCalendarMonth(monthDate: Date): CalendarDayCell[] {
     const dayOffset = index - firstWeekday;
     const cellDate = new Date(year, month, dayOffset + 1);
     const date = formatDateKey(cellDate);
-    const eventTypes = getMaterialsByDate(date).map((material) => material.calendarColorKey);
+    const eventTypes = getMaterialsByDate(materials, date).map((material) => material.calendarColorKey);
 
     return {
       date,

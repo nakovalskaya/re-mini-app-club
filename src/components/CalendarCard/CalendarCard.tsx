@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { CalendarDateCell } from "@/components/CalendarDateCell/CalendarDateCell";
 import {
   buildCalendarMonth,
@@ -20,17 +21,33 @@ const monthFormatter = new Intl.DateTimeFormat("ru-RU", {
 });
 
 export function CalendarCard() {
+  const { materials, isLoading } = useMaterials();
   const currentMonth = useMemo(() => getCalendarMonthStart(), []);
   const [monthOffset, setMonthOffset] = useState(0);
   const monthDate = useMemo(
     () => shiftCalendarMonth(currentMonth, monthOffset),
     [currentMonth, monthOffset]
   );
-  const days = useMemo(() => buildCalendarMonth(monthDate), [monthDate]);
+  const days = useMemo(() => buildCalendarMonth(materials, monthDate), [materials, monthDate]);
   const monthLabel = useMemo(() => {
     const formatted = monthFormatter.format(monthDate);
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }, [monthDate]);
+
+  if (isLoading) {
+    return (
+      <div className="surface-card space-y-3 p-[15px]">
+        <div className="space-y-1">
+          <p className="text-[10px] uppercase tracking-[0.12em] text-text-secondary">
+            Календарь
+          </p>
+          <p className="text-sm leading-6 text-text-secondary">
+            Загружаем даты опубликованных материалов из Notion.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="surface-card space-y-3 p-[15px]">
