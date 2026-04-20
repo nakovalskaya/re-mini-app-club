@@ -7,7 +7,14 @@ function notionMaterialsDevApi(): Plugin {
   return {
     name: "notion-materials-dev-api",
     configureServer(server) {
-      server.middlewares.use("/api/notion-materials", async (request, response) => {
+      const handler = async (request: any, response: any, next?: () => void) => {
+        const requestUrl = request.url?.split("?")[0] ?? "";
+
+        if (requestUrl !== "/__api/notion-materials") {
+          next?.();
+          return;
+        }
+
         if (request.method !== "GET") {
           response.statusCode = 405;
           response.setHeader("Content-Type", "application/json");
@@ -39,7 +46,12 @@ function notionMaterialsDevApi(): Plugin {
           response.setHeader("Content-Type", "application/json");
           response.end(JSON.stringify({ error: message }));
         }
-      });
+      };
+
+      server.middlewares.stack.unshift({
+        route: "",
+        handle: handler
+      } as never);
     }
   };
 }

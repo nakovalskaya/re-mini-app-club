@@ -17,10 +17,25 @@ type MaterialsContextValue = {
   source: MaterialsSource;
 };
 
+declare global {
+  interface Window {
+    __MATERIALS_DEBUG__?: {
+      source: MaterialsSource;
+      count: number;
+      items: Array<{ id: string; title: string }>;
+      hasNotionLesson: boolean;
+    };
+  }
+}
+
 const MaterialsContext = createContext<MaterialsContextValue | null>(null);
 
 let cachedMaterialsState: Omit<MaterialsContextValue, "isLoading"> | null = null;
 let materialsLoadPromise: Promise<Omit<MaterialsContextValue, "isLoading">> | null = null;
+const materialsEndpoint =
+  typeof import.meta !== "undefined" && import.meta.env?.DEV
+    ? "/__api/notion-materials"
+    : "/api/notion-materials";
 
 async function loadMaterialsOnce() {
   if (cachedMaterialsState) {
@@ -30,7 +45,7 @@ async function loadMaterialsOnce() {
   if (!materialsLoadPromise) {
     materialsLoadPromise = (async () => {
       try {
-        const response = await fetch("/api/notion-materials", {
+        const response = await fetch(materialsEndpoint, {
           method: "GET",
           headers: {
             Accept: "application/json"
@@ -97,6 +112,25 @@ export function MaterialsProvider({ children }: { children: ReactNode }) {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !import.meta.env.DEV || state.isLoading) {
+      return;
+    }
+
+    const debugPayload = {
+      source: state.source,
+      count: state.materials.length,
+      items: state.materials.map((material) => ({
+        id: material.id,
+        title: material.title
+      })),
+      hasNotionLesson: state.materials.some((material) => material.title === "Название урока")
+    };
+
+    window.__MATERIALS_DEBUG__ = debugPayload;
+    console.info("[materials-debug]", debugPayload);
+  }, [state]);
 
   const value = useMemo(() => state, [state]);
 

@@ -1,6 +1,6 @@
-import { categories } from "../src/data/categories";
-import { topics } from "../src/data/topics";
-import type { Material, MaterialType } from "../src/shared/types/content";
+import { categories } from "../src/data/categories.js";
+import { topics } from "../src/data/topics.js";
+import type { Material, MaterialType } from "../src/shared/types/content.js";
 
 type FetchPublishedNotionMaterialsOptions = {
   notionToken?: string;

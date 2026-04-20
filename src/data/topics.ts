@@ -1,4 +1,4 @@
-import type { Topic } from "@/shared/types/content";
+import type { Topic } from "../shared/types/content";
 
 export const topics: Topic[] = [
   { id: "topic-ai", slug: "ai", title: "Нейросети", order: 1, isVisible: true },
