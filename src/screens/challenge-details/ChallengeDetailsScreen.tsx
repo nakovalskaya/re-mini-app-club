@@ -113,21 +113,21 @@ export function ChallengeDetailsScreen() {
       />
 
       <div className="surface-card-elevated space-y-4 p-[1.05rem]">
-        <div className="flex items-end justify-between gap-3">
-          <div className="flex-1 space-y-2.5">
+        <div className="space-y-2.5">
+          <div className="flex items-start justify-between gap-3">
             <p className="text-sm text-text-secondary">
               {challenge.durationDays} дней · сложность {challenge.difficulty}/5
             </p>
+            <span className="rounded-full border border-border-soft bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+              {completedCount} / {challenge.durationDays}
+            </span>
+          </div>
+          <div className="max-w-[13rem]">
+            <p className="text-sm text-text-secondary">
+              Прогресс
+            </p>
             <ProgressBar value={completedCount} max={challenge.durationDays} />
           </div>
-          {!isTaken ? (
-            <Button
-              className="min-h-10 w-auto rounded-[16px] px-4 py-2 text-[12px] shadow-none"
-              onClick={() => takeChallenge(challenge.id)}
-            >
-              Начать
-            </Button>
-          ) : null}
         </div>
 
         {isReadOnly ? (
@@ -157,7 +157,7 @@ export function ChallengeDetailsScreen() {
                   status === "completed"
                     ? "status-chip-completed"
                     : status === "current"
-                      ? "border-accent-deep bg-bg-surface text-accent-deep shadow-soft"
+                      ? "border-accent-deep bg-accent-deep text-bg-base"
                       : status === "skipped"
                         ? "status-chip-skipped"
                         : status === "preview"
@@ -176,6 +176,17 @@ export function ChallengeDetailsScreen() {
           })}
           </div>
         </div>
+
+        {!isTaken ? (
+          <div className="flex justify-start pt-0.5">
+            <Button
+              className="min-h-10 w-full rounded-[16px] px-4 py-2 text-[12px] sm:w-auto sm:min-w-[10rem]"
+              onClick={() => takeChallenge(challenge.id)}
+            >
+              Начать
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {selectedDay ? (

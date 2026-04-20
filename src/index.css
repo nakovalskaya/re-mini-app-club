@@ -32,7 +32,7 @@
   --color-favorite-surface-active: #fff5df;
   --color-favorite-shadow-active: rgba(194, 122, 0, 0.16);
   --color-status-completed-bg: #dcefd2;
-  --color-status-completed-surface: #f3f9ef;
+  --color-status-completed-surface: #fcfffb;
   --color-status-completed-border: #d6eacb;
   --color-status-completed-text: #3f5a37;
   --color-status-skipped-bg: #ffc0b3;
@@ -93,7 +93,7 @@
   --color-favorite-surface-active: rgba(92, 41, 33, 0.96);
   --color-favorite-shadow-active: rgba(255, 208, 148, 0.18);
   --color-status-completed-bg: rgba(138, 179, 126, 0.36);
-  --color-status-completed-surface: rgba(41, 62, 34, 0.68);
+  --color-status-completed-surface: rgba(36, 58, 31, 0.62);
   --color-status-completed-border: rgba(220, 239, 210, 0.24);
   --color-status-completed-text: #dff4d5;
   --color-status-skipped-bg: rgba(255, 173, 158, 0.7);
