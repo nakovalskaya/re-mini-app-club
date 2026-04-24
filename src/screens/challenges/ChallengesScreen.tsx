@@ -75,13 +75,13 @@ export function ChallengesScreen() {
           {activeChallenge ? (
             <div className="surface-card-elevated space-y-4 bg-accent-deep p-card text-bg-base">
               <div className="space-y-1.5">
-                <p className="text-xs uppercase tracking-[0.24em] text-accent-gold">
-                  Текущий активный
+                <p className="text-xs uppercase tracking-[0.24em] text-[#ffe7bb]">
+                  Активный
                 </p>
-                <h2 className="font-serif text-[1.88rem] leading-[0.95]">
+                <h2 className="font-serif text-[1.88rem] leading-[0.95] text-[#fff6f7]">
                   {activeChallenge.title}
                 </h2>
-                <p className="text-sm leading-6 text-[#f7e8e3]">
+                <p className="text-sm leading-6 text-[rgba(255,246,247,0.82)]">
                   {activeChallenge.description}
                 </p>
               </div>

@@ -62,7 +62,7 @@ export function ChallengeCard({
           {Array.from({ length: 5 }, (_, index) => (
             <span
               key={`${challenge.id}-difficulty-${index + 1}`}
-              className={`h-2.5 w-2.5 rounded-full ${index < challenge.difficulty ? "bg-accent-gold" : "bg-bg-soft border border-border-soft"}`}
+              className={`h-2.5 w-2.5 rounded-full ${index < challenge.difficulty ? "difficulty-dot-filled" : "bg-bg-soft border border-border-soft"}`}
             />
           ))}
         </div>

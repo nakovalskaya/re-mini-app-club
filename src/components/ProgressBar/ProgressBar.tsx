@@ -21,7 +21,7 @@ export function ProgressBar({ value, max, showLabel = true }: ProgressBarProps) 
       ) : null}
       <div className="h-2 w-full overflow-hidden rounded-full bg-bg-soft">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent-deep to-accent-gold transition-[width] duration-300"
+          className="progress-fill h-full rounded-full bg-gradient-to-r from-accent-deep to-accent-gold transition-[width] duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>

@@ -67,7 +67,7 @@ export function ChallengeDayCard({
           </span>
         ) : isCurrent ? (
           <span className="status-chip-active rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap">
-            текущий
+            активный
           </span>
         ) : null}
       </div>
