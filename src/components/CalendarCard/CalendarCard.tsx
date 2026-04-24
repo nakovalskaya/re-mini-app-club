@@ -55,7 +55,7 @@ export function CalendarCard() {
         <button
           type="button"
           aria-label="Предыдущий месяц"
-          className="pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] border border-border-medium bg-bg-surface text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
+          className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] disabled:cursor-not-allowed disabled:opacity-35"
           disabled={monthOffset <= -1}
           onClick={() => setMonthOffset(-1)}
         >
@@ -71,7 +71,7 @@ export function CalendarCard() {
         <button
           type="button"
           aria-label="Вернуться к текущему месяцу"
-          className="pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] border border-border-medium bg-bg-surface text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
+          className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] disabled:cursor-not-allowed disabled:opacity-35"
           disabled={monthOffset === 0}
           onClick={() => setMonthOffset(0)}
         >

@@ -17,8 +17,8 @@ export function IconButton({
       className={cn(
         "pressable inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-icon-button)] border text-text-primary transition",
         isActive
-          ? "border-border-medium bg-bg-soft shadow-soft"
-          : "border-border-soft bg-bg-surface",
+          ? "button-secondary-icon shadow-soft"
+          : "button-secondary-icon",
         className
       )}
       {...props}

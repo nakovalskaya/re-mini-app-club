@@ -69,7 +69,7 @@
 :root[data-theme="dark"] {
   --color-bg-base: #23080a;
   --color-bg-surface: #300f13;
-  --color-bg-soft: #38151a;
+  --color-bg-soft: #321016;
   --color-text-primary: #f8eae4;
   --color-text-secondary: rgba(248, 234, 228, 0.72);
   --color-accent-deep: #d9a48c;
@@ -89,6 +89,8 @@
   --color-button-primary-active: #c99578;
   --color-button-secondary-hover: #452022;
   --color-button-secondary-active: #532628;
+  --color-button-dark-text: #f2d8cf;
+  --color-lock-muted: #d9b8b0;
   --color-favorite-surface: rgba(63, 24, 26, 0.92);
   --color-favorite-surface-active: rgba(92, 41, 33, 0.96);
   --color-favorite-shadow-active: rgba(255, 208, 148, 0.18);
@@ -255,7 +257,41 @@ a {
 
   :root[data-theme="dark"] .surface-card,
   :root[data-theme="dark"] .surface-card-elevated {
-    background: linear-gradient(180deg, #2a0d10 0%, #300f13 100%);
+    background: linear-gradient(90deg, #23080a 0%, #321016 100%);
+  }
+
+  .button-secondary-surface {
+    @apply border border-border-medium bg-bg-surface text-text-primary;
+  }
+
+  .button-secondary-compact {
+    @apply border border-border-medium bg-bg-surface text-text-primary;
+  }
+
+  .button-secondary-icon {
+    @apply border border-border-soft bg-bg-surface text-text-primary;
+  }
+
+  .button-pill-surface {
+    @apply border border-border-soft bg-bg-surface text-text-primary;
+  }
+
+  .calendar-day-cell {
+    @apply border-border-soft bg-[var(--color-surface-muted)];
+  }
+
+  .calendar-day-cell-filled {
+    @apply border-border-medium bg-bg-surface shadow-soft;
+  }
+
+  .material-tag-featured,
+  .material-tag-scheduled {
+    background: rgba(255, 242, 220, 0.92);
+    color: var(--color-accent-deep);
+  }
+
+  .surface-inset {
+    @apply border border-border-soft bg-bg-soft;
   }
 
   .pressable {
@@ -505,7 +541,7 @@ a {
   :root[data-theme="dark"] .status-accent-completed {
     border-color: rgba(241, 200, 150, 0.18);
     background: linear-gradient(135deg, #f7ddb8 0%, #f1c896 48%, #d8aa67 100%);
-    color: #4a2015;
+    color: #800f26;
   }
 
   :root[data-theme="dark"] .status-chip-skipped,
@@ -518,7 +554,7 @@ a {
   :root[data-theme="dark"] .status-chip-active {
     border-color: rgba(241, 200, 150, 0.18);
     background: linear-gradient(180deg, #ffe7bb 0%, #efc77f 100%);
-    color: #4f2712;
+    color: #800f26;
     box-shadow:
       inset 0 1px 0 rgba(255, 244, 221, 0.34),
       0 8px 22px rgba(216, 170, 103, 0.16);
@@ -527,7 +563,7 @@ a {
   :root[data-theme="dark"] .status-accent-current {
     border-color: rgba(255, 246, 247, 0.22);
     background: #fff6f7;
-    color: #4a2015;
+    color: #800f26;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
       0 8px 18px rgba(255, 246, 247, 0.1);
@@ -535,7 +571,7 @@ a {
 
   :root[data-theme="dark"] .status-surface-completed,
   :root[data-theme="dark"] .status-surface-skipped {
-    background: linear-gradient(180deg, #2a0d10 0%, #300f13 100%);
+    background: linear-gradient(90deg, #23080a 0%, #321016 100%);
   }
 
   :root[data-theme="dark"] .calendar-dot-lesson {
@@ -564,10 +600,58 @@ a {
   }
 
   :root[data-theme="dark"] .progress-fill {
-    background: linear-gradient(135deg, #5f1721 0%, #8b2d3a 38%, #d4a35f 100%);
+    background: linear-gradient(90deg, #321016 0%, #321016 68%, #ffe7af 100%);
     box-shadow:
       inset 0 1px 0 rgba(255, 236, 215, 0.16),
       0 6px 14px rgba(95, 23, 33, 0.18);
+  }
+
+  :root[data-theme="dark"] .button-secondary-surface,
+  :root[data-theme="dark"] .button-secondary-compact,
+  :root[data-theme="dark"] .button-secondary-icon,
+  :root[data-theme="dark"] .button-pill-surface {
+    border-color: rgba(255, 224, 215, 0.12);
+    background: linear-gradient(90deg, #23080a 0%, #321016 100%);
+    color: var(--color-button-dark-text);
+  }
+
+  :root[data-theme="dark"] .button-secondary-surface:hover,
+  :root[data-theme="dark"] .button-secondary-compact:hover,
+  :root[data-theme="dark"] .button-secondary-icon:hover,
+  :root[data-theme="dark"] .button-pill-surface:hover {
+    background: linear-gradient(90deg, #261012 0%, #37141b 100%);
+  }
+
+  :root[data-theme="dark"] .button-secondary-surface:active,
+  :root[data-theme="dark"] .button-secondary-compact:active,
+  :root[data-theme="dark"] .button-secondary-icon:active,
+  :root[data-theme="dark"] .button-pill-surface:active {
+    background: linear-gradient(90deg, #22090b 0%, #2d1015 100%);
+  }
+
+  :root[data-theme="dark"] .calendar-day-cell {
+    border-color: rgba(255, 224, 215, 0.08);
+    background: #23080a;
+  }
+
+  :root[data-theme="dark"] .calendar-day-cell-filled {
+    border-color: rgba(255, 224, 215, 0.12);
+    background: #321016;
+  }
+
+  :root[data-theme="dark"] .material-tag-featured {
+    background: rgba(50, 16, 22, 0.92);
+    color: #ffdeb7;
+  }
+
+  :root[data-theme="dark"] .material-tag-scheduled {
+    background: rgba(50, 16, 22, 0.92);
+    color: var(--color-button-dark-text);
+  }
+
+  :root[data-theme="dark"] .surface-inset {
+    border-color: rgba(255, 224, 215, 0.1);
+    background: #321016;
   }
 
   @media (min-width: 390px) {

@@ -33,8 +33,8 @@ export function CalendarDateCell({
       className={cn(
         "pressable flex h-[50px] flex-col items-start justify-between rounded-[9px] border px-[7px] py-[7px] text-left text-text-primary",
         eventTypes.length > 0
-          ? "border-border-medium bg-bg-surface shadow-soft"
-          : "border-border-soft bg-[var(--color-surface-muted)]",
+          ? "calendar-day-cell-filled"
+          : "calendar-day-cell",
         isToday && "calendar-date-today ring-1 ring-accent-gold"
       )}
     >

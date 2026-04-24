@@ -2,6 +2,16 @@ import type { TelegramWebApp } from "@/shared/types/telegram";
 
 export type AppTheme = "light" | "dark";
 
+function applyThemeToDocument(theme: AppTheme) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.style.colorScheme = theme;
+}
+
 function getTelegramObject(): TelegramWebApp | null {
   if (typeof window === "undefined") {
     return null;
@@ -79,8 +89,7 @@ export function applyTelegramThemeToDocument() {
   const theme = getThemeFromTelegram(webApp);
   const root = document.documentElement;
 
-  root.dataset.theme = theme;
-  root.style.colorScheme = theme;
+  applyThemeToDocument(theme);
 
   if (webApp?.themeParams) {
     const params = webApp.themeParams;
@@ -108,6 +117,10 @@ export function subscribeToTelegramThemeChanges(onChange: () => void) {
     webApp.offEvent?.("themeChanged", handler);
     webApp.offEvent?.("theme_changed", handler);
   };
+}
+
+export function applyThemeOverrideToDocument(theme: AppTheme) {
+  applyThemeToDocument(theme);
 }
 
 export function openTelegramLink(url: string) {

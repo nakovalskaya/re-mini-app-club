@@ -136,7 +136,7 @@ export function ChallengeDetailsScreen() {
           </div>
         ) : null}
 
-        <div className="rounded-[22px] border border-border-soft bg-[var(--color-surface-muted)] p-3">
+        <div className="surface-inset rounded-[22px] p-3">
           <div className="grid grid-cols-5 gap-2.5 sm:grid-cols-6">
           {challenge.days.map((day) => {
             const status = getDayStatus(day.dayNumber, day.id);
@@ -159,13 +159,13 @@ export function ChallengeDetailsScreen() {
                       : status === "skipped"
                         ? "status-accent-skipped"
                         : status === "preview"
-                          ? "border-border-medium bg-bg-soft text-text-primary"
-                          : "border-border-soft bg-bg-surface text-text-secondary"
+                          ? "button-secondary-compact"
+                          : "button-secondary-compact text-text-secondary"
                 } ${isSelected ? "ring-1 ring-accent-gold/60" : ""}`}
                 disabled={status === "locked" && !isReadOnly}
               >
                 {status === "locked" ? (
-                  <LockSimple size={15} weight="regular" color="#5d0806" />
+                  <LockSimple size={15} weight="regular" color="var(--color-lock-muted)" />
                 ) : (
                   day.dayNumber
                 )}

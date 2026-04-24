@@ -78,7 +78,7 @@ export function ChallengeCard({
         <div className="grid grid-cols-2 gap-3">
           <Link
             to={`/challenges/${challenge.id}`}
-            className="pressable inline-flex min-h-11 items-center justify-center rounded-button border border-border-medium bg-bg-surface px-4 py-2.5 text-[13px] font-semibold leading-none text-text-primary"
+            className="button-secondary-compact pressable inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2.5 text-[13px] font-semibold leading-none"
           >
             Посмотреть
           </Link>

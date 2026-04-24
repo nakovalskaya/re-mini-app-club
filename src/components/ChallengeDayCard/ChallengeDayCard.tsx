@@ -96,7 +96,7 @@ export function ChallengeDayCard({
                 "flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300",
                 isSkipped
                   ? "status-accent-skipped"
-                  : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
+                  : "button-secondary-icon text-text-secondary opacity-60 hover:opacity-100",
                 (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
               )}
             >
@@ -110,7 +110,7 @@ export function ChallengeDayCard({
                 "flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300",
               isCompleted 
                 ? "status-accent-completed"
-                : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
+                : "button-secondary-icon text-text-secondary opacity-60 hover:opacity-100",
               (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
             )}
           >
