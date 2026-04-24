@@ -8,10 +8,10 @@ import {
 } from "@/features/materials/selectors";
 
 const legend = [
-  { label: "уроки", color: "bg-accent-deep" },
-  { label: "эфиры", color: "bg-[#8e443b]" },
-  { label: "подкасты", color: "bg-[#a05d8f]" },
-  { label: "марафон", color: "bg-[#e2b24f]" }
+  { label: "уроки", color: "calendar-dot-lesson" },
+  { label: "эфиры", color: "calendar-dot-live" },
+  { label: "подкасты", color: "calendar-dot-podcast" },
+  { label: "марафон", color: "calendar-dot-challenge" }
 ];
 
 const weekdayLabels = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];

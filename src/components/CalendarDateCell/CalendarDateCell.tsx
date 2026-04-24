@@ -10,10 +10,10 @@ type CalendarDateCellProps = {
 };
 
 const eventTypeClasses: Record<string, string> = {
-  lesson: "bg-accent-deep",
-  live: "bg-[#8a342e]",
-  podcast: "bg-[#a05d8f]",
-  challenge: "bg-accent-gold"
+  lesson: "calendar-dot-lesson",
+  live: "calendar-dot-live",
+  podcast: "calendar-dot-podcast",
+  challenge: "calendar-dot-challenge"
 };
 
 export function CalendarDateCell({
@@ -35,7 +35,7 @@ export function CalendarDateCell({
         eventTypes.length > 0
           ? "border-border-medium bg-bg-surface shadow-soft"
           : "border-border-soft bg-[var(--color-surface-muted)]",
-        isToday && "ring-1 ring-accent-gold"
+        isToday && "calendar-date-today ring-1 ring-accent-gold"
       )}
     >
       <span className="text-[12px] font-semibold leading-none">{label}</span>
@@ -43,7 +43,7 @@ export function CalendarDateCell({
         {eventTypes.slice(0, 3).map((type, index) => (
           <span
             key={`${date}-${type}-${index}`}
-            className={cn("h-2 w-2 rounded-full", eventTypeClasses[type] ?? "bg-accent-gold")}
+            className={cn("h-2 w-2 rounded-full", eventTypeClasses[type] ?? "calendar-dot-challenge")}
           />
         ))}
       </div>

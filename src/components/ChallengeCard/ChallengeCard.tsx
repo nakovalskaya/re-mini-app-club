@@ -26,7 +26,7 @@ export function ChallengeCard({
     status === "completed"
       ? "status-chip-completed"
       : status === "taken"
-        ? "border-transparent"
+        ? "status-chip-completed"
         : status === "active"
           ? "status-chip-active"
           : "";
@@ -45,15 +45,7 @@ export function ChallengeCard({
           </div>
           {badgeLabel ? (
             <span
-              className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${badgeClassName}`}
-              style={
-                status === "taken"
-                  ? {
-                      backgroundColor: "var(--color-status-finished-bg)",
-                      color: "var(--color-status-finished-text)"
-                    }
-                  : undefined
-              }
+              className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${badgeClassName}`}
             >
               {badgeLabel}
             </span>

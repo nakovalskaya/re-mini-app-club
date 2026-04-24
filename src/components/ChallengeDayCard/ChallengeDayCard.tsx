@@ -66,10 +66,7 @@ export function ChallengeDayCard({
             пропущен
           </span>
         ) : isCurrent ? (
-          <span
-            className="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-deep whitespace-nowrap"
-            style={{ backgroundColor: "#FFE4B2" }}
-          >
+          <span className="status-chip-active rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap">
             текущий
           </span>
         ) : null}
@@ -97,8 +94,8 @@ export function ChallengeDayCard({
               disabled={isLocked || isPreview || readOnly}
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300",
-                isSkipped 
-                  ? "status-chip-skipped" 
+                isSkipped
+                  ? "status-accent-skipped"
                   : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
                 (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
               )}
@@ -112,19 +109,10 @@ export function ChallengeDayCard({
             className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300",
               isCompleted 
-                ? "border-transparent"
+                ? "status-accent-completed"
                 : "bg-bg-surface border-border-soft text-text-secondary opacity-60 hover:opacity-100",
               (isLocked || isPreview || readOnly) && "opacity-40 cursor-not-allowed"
             )}
-            style={
-              isCompleted
-                ? {
-                    backgroundColor: "var(--color-status-done-fill)",
-                    borderColor: "var(--color-status-done-fill)",
-                    color: "var(--color-status-done-fill-text)"
-                  }
-                : undefined
-            }
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>

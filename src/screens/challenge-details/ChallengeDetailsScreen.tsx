@@ -153,11 +153,11 @@ export function ChallengeDetailsScreen() {
                 }}
                 className={`pressable flex h-[3.2rem] w-full max-w-[3.2rem] items-center justify-center justify-self-center rounded-full border text-[13px] font-semibold ${
                   status === "completed"
-                    ? "status-chip-completed"
+                    ? "status-accent-completed"
                     : status === "current"
-                      ? "border-accent-deep bg-accent-deep text-bg-base"
+                      ? "status-accent-current"
                       : status === "skipped"
-                        ? "status-chip-skipped"
+                        ? "status-accent-skipped"
                         : status === "preview"
                           ? "border-border-medium bg-bg-soft text-text-primary"
                           : "border-border-soft bg-bg-surface text-text-secondary"

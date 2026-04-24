@@ -68,8 +68,8 @@
 
 :root[data-theme="dark"] {
   --color-bg-base: #23080a;
-  --color-bg-surface: #23080a;
-  --color-bg-soft: #300f13;
+  --color-bg-surface: #300f13;
+  --color-bg-soft: #38151a;
   --color-text-primary: #f8eae4;
   --color-text-secondary: rgba(248, 234, 228, 0.72);
   --color-accent-deep: #d9a48c;
@@ -92,20 +92,20 @@
   --color-favorite-surface: rgba(63, 24, 26, 0.92);
   --color-favorite-surface-active: rgba(92, 41, 33, 0.96);
   --color-favorite-shadow-active: rgba(255, 208, 148, 0.18);
-  --color-status-completed-bg: rgba(116, 145, 108, 0.26);
-  --color-status-completed-surface: rgba(42, 48, 36, 0.88);
-  --color-status-completed-border: rgba(201, 223, 191, 0.16);
-  --color-status-completed-text: #d7e7cf;
-  --color-status-skipped-bg: rgba(194, 124, 111, 0.3);
-  --color-status-skipped-surface: rgba(72, 34, 31, 0.86);
-  --color-status-skipped-border: rgba(223, 154, 141, 0.16);
-  --color-status-skipped-text: #efd5ce;
+  --color-status-completed-bg: #f1c896;
+  --color-status-completed-surface: #300f13;
+  --color-status-completed-border: rgba(241, 200, 150, 0.24);
+  --color-status-completed-text: #4a2015;
+  --color-status-skipped-bg: #7b212e;
+  --color-status-skipped-surface: #300f13;
+  --color-status-skipped-border: rgba(123, 33, 46, 0.34);
+  --color-status-skipped-text: #f8e0e2;
   --color-status-active-bg: rgba(214, 180, 122, 0.22);
-  --color-status-active-text: #f0dbb2;
-  --color-status-done-fill: rgba(116, 145, 108, 0.52);
-  --color-status-done-fill-text: #f6fff8;
-  --color-status-finished-bg: rgba(91, 53, 50, 0.7);
-  --color-status-finished-text: #e7c0b4;
+  --color-status-active-text: #4f2712;
+  --color-status-done-fill: #f1c896;
+  --color-status-done-fill-text: #4a2015;
+  --color-status-finished-bg: #f1c896;
+  --color-status-finished-text: #4a2015;
   --shadow-card-soft: 0 14px 34px rgba(0, 0, 0, 0.26);
   --shadow-card-elevated:
     0 20px 44px rgba(0, 0, 0, 0.28),
@@ -255,7 +255,7 @@ a {
 
   :root[data-theme="dark"] .surface-card,
   :root[data-theme="dark"] .surface-card-elevated {
-    background: linear-gradient(180deg, #23080a 0%, #300f13 100%);
+    background: linear-gradient(180deg, #2a0d10 0%, #300f13 100%);
   }
 
   .pressable {
@@ -383,6 +383,23 @@ a {
     color: var(--color-status-active-text);
   }
 
+  .status-accent-completed {
+    border-color: var(--color-status-completed-border);
+    background: var(--color-status-completed-bg);
+    color: var(--color-status-completed-text);
+  }
+
+  .status-accent-skipped {
+    border-color: var(--color-status-skipped-border);
+    background: var(--color-status-skipped-bg);
+    color: var(--color-status-skipped-text);
+  }
+
+  .status-accent-current {
+    background: var(--color-status-active-bg);
+    color: var(--color-status-active-text);
+  }
+
   .status-surface-completed {
     background: var(--color-status-completed-surface);
   }
@@ -420,12 +437,12 @@ a {
   }
 
   :root[data-theme="dark"] .tabbar-glass {
-    border-color: rgba(255, 232, 221, 0.1);
+    border-color: rgba(255, 232, 221, 0.08);
     background:
-      linear-gradient(180deg, rgba(88, 23, 27, 0.58), rgba(53, 16, 18, 0.74)),
-      rgba(53, 16, 18, 0.82);
+      linear-gradient(180deg, rgba(44, 14, 17, 0.96), rgba(35, 8, 10, 0.98)),
+      rgba(35, 8, 10, 0.96);
     box-shadow:
-      0 18px 38px rgba(0, 0, 0, 0.28),
+      0 18px 38px rgba(0, 0, 0, 0.32),
       inset 0 1px 0 rgba(255, 238, 231, 0.08),
       inset 0 -1px 0 rgba(255, 238, 231, 0.04);
   }
@@ -436,8 +453,8 @@ a {
 
   :root[data-theme="dark"] .tabbar-glass::after {
     background:
-      radial-gradient(circle at 18% 22%, rgba(255, 238, 231, 0.08), transparent 24%),
-      radial-gradient(circle at 76% 30%, rgba(255, 208, 148, 0.09), transparent 22%),
+      radial-gradient(circle at 18% 22%, rgba(255, 238, 231, 0.06), transparent 24%),
+      radial-gradient(circle at 76% 30%, rgba(255, 208, 148, 0.07), transparent 22%),
       linear-gradient(180deg, rgba(255, 240, 232, 0.05), rgba(255, 240, 232, 0.01));
   }
 
@@ -462,9 +479,9 @@ a {
       rgba(24, 2, 3, 0.18) 0%,
       rgba(24, 2, 3, 0.1) 24%,
       rgba(24, 2, 3, 0.16) 52%,
-      rgba(39, 0, 0, 0.34) 72%,
-      rgba(39, 0, 0, 0.82) 88%,
-      #270000 100%
+      rgba(35, 8, 10, 0.34) 72%,
+      rgba(35, 8, 10, 0.82) 88%,
+      #23080a 100%
     );
   }
 
@@ -477,11 +494,60 @@ a {
   :root[data-theme="dark"] .hero-panel-fade {
     background: linear-gradient(
       180deg,
-      rgba(39, 0, 0, 0) 0%,
-      rgba(39, 0, 0, 0.24) 26%,
-      rgba(39, 0, 0, 0.72) 64%,
-      #270000 100%
+      rgba(35, 8, 10, 0) 0%,
+      rgba(35, 8, 10, 0.24) 26%,
+      rgba(35, 8, 10, 0.72) 64%,
+      #23080a 100%
     );
+  }
+
+  :root[data-theme="dark"] .status-chip-completed,
+  :root[data-theme="dark"] .status-accent-completed {
+    border-color: rgba(241, 200, 150, 0.18);
+    background: #f1c896;
+    color: #4a2015;
+  }
+
+  :root[data-theme="dark"] .status-chip-skipped,
+  :root[data-theme="dark"] .status-accent-skipped {
+    border-color: rgba(123, 33, 46, 0.42);
+    background: #7b212e;
+    color: #f8e0e2;
+  }
+
+  :root[data-theme="dark"] .status-chip-active,
+  :root[data-theme="dark"] .status-accent-current {
+    border-color: rgba(241, 200, 150, 0.18);
+    background: linear-gradient(180deg, #f5d8ab 0%, #d8aa67 100%);
+    color: #4f2712;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 244, 221, 0.34),
+      0 8px 22px rgba(216, 170, 103, 0.16);
+  }
+
+  :root[data-theme="dark"] .status-surface-completed,
+  :root[data-theme="dark"] .status-surface-skipped {
+    background: linear-gradient(180deg, #2a0d10 0%, #300f13 100%);
+  }
+
+  :root[data-theme="dark"] .calendar-dot-lesson {
+    background: #c48878;
+  }
+
+  :root[data-theme="dark"] .calendar-dot-live {
+    background: #d29b8a;
+  }
+
+  :root[data-theme="dark"] .calendar-dot-podcast {
+    background: #b9838d;
+  }
+
+  :root[data-theme="dark"] .calendar-dot-challenge {
+    background: #f1c896;
+  }
+
+  :root[data-theme="dark"] .calendar-date-today {
+    box-shadow: 0 0 0 1px rgba(241, 200, 150, 0.58);
   }
 
   @media (min-width: 390px) {
