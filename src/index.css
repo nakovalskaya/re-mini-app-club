@@ -67,9 +67,9 @@
 }
 
 :root[data-theme="dark"] {
-  --color-bg-base: #270000;
-  --color-bg-surface: #341012;
-  --color-bg-soft: #40181b;
+  --color-bg-base: #23080a;
+  --color-bg-surface: #23080a;
+  --color-bg-soft: #300f13;
   --color-text-primary: #f8eae4;
   --color-text-secondary: rgba(248, 234, 228, 0.72);
   --color-accent-deep: #d9a48c;
@@ -79,8 +79,8 @@
   --color-state-success-soft: #2e251f;
   --color-state-disabled-bg: #4b2828;
   --color-state-disabled-text: rgba(248, 234, 228, 0.42);
-  --color-bg-gradient-start: #320204;
-  --color-bg-gradient-end: #270000;
+  --color-bg-gradient-start: #23080a;
+  --color-bg-gradient-end: #23080a;
   --color-surface-muted: rgba(80, 30, 33, 0.72);
   --color-surface-overlay: rgba(58, 19, 21, 0.92);
   --color-surface-overlay-strong: rgba(64, 20, 23, 0.96);
@@ -111,6 +111,10 @@
     0 20px 44px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 236, 228, 0.06);
   --shadow-floating: 0 20px 52px rgba(0, 0, 0, 0.34);
+}
+
+:root[data-theme="dark"] body {
+  background: #23080a;
 }
 
 html,
@@ -247,6 +251,11 @@ a {
 
   .surface-card-elevated {
     @apply rounded-card border border-border-soft bg-bg-surface shadow-elevated;
+  }
+
+  :root[data-theme="dark"] .surface-card,
+  :root[data-theme="dark"] .surface-card-elevated {
+    background: linear-gradient(180deg, #23080a 0%, #300f13 100%);
   }
 
   .pressable {

@@ -24,7 +24,7 @@ function CategoryCardComponent({ category }: CategoryCardProps) {
   return (
     <Link
       to={`/category/${category.slug}`}
-      className="category-card surface-card pressable relative flex flex-col justify-between overflow-hidden rounded-[15px] border-0 p-0"
+      className="category-card surface-card relative flex flex-col justify-between overflow-hidden rounded-[15px] border-0 p-0"
     >
       {coverImage ? (
         <img

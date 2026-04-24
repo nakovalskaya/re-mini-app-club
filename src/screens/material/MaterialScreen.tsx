@@ -74,7 +74,26 @@ export function MaterialScreen() {
         <div className="w-11" />
       </div>
 
-      <div className="surface-card overflow-hidden">
+      <article
+        role={hasTelegramUrl ? "button" : undefined}
+        tabIndex={hasTelegramUrl ? 0 : undefined}
+        onClick={() => {
+          if (hasTelegramUrl) {
+            openTelegramLink(material.telegramUrl);
+          }
+        }}
+        onKeyDown={(event) => {
+          if (!hasTelegramUrl) {
+            return;
+          }
+
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openTelegramLink(material.telegramUrl);
+          }
+        }}
+        className={cn("surface-card overflow-hidden", hasTelegramUrl && "cursor-pointer")}
+      >
         <div className="material-image-frame relative h-44">
           <img
             src={detailImageSrc}
@@ -119,7 +138,7 @@ export function MaterialScreen() {
             ))}
           </div>
         </div>
-      </div>
+      </article>
 
       {material.extraDescription ? (
         <div className="surface-card space-y-2 p-card">
