@@ -1,12 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { TabBar } from "@/components/TabBar/TabBar";
 import {
-  applyThemeOverrideToDocument,
   applyTelegramThemeToDocument,
-  type AppTheme,
   initTelegramWebApp,
   subscribeToTelegramThemeChanges
 } from "@/features/telegram/telegram";
@@ -20,8 +18,6 @@ applyTelegramThemeToDocument();
 const isDebug =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true") ||
   (typeof window !== "undefined" && window.location.search.includes("debug=true"));
-const isDev = typeof import.meta !== "undefined" && import.meta.env?.DEV;
-const devThemeStorageKey = "mini-app:dev-theme-override";
 
 declare global {
   interface Window {
@@ -73,42 +69,14 @@ function ShellContent() {
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
   const shouldApplyTopInset = location.pathname !== "/";
   const routeScrollKey = `${location.pathname}${location.search}`;
-  const [themeOverride, setThemeOverride] = useState<AppTheme | null>(() => {
-    if (!isDev || typeof window === "undefined") {
-      return null;
-    }
-
-    const stored = window.localStorage.getItem(devThemeStorageKey);
-    return stored === "dark" || stored === "light" ? stored : null;
-  });
 
   useEffect(() => {
-    if (themeOverride) {
-      applyThemeOverrideToDocument(themeOverride);
-      return () => undefined;
-    }
-
     const unsubscribe = subscribeToTelegramThemeChanges(() => undefined);
 
     return () => {
       unsubscribe();
     };
-  }, [themeOverride]);
-
-  useEffect(() => {
-    if (!isDev || typeof window === "undefined") {
-      return;
-    }
-
-    if (themeOverride) {
-      window.localStorage.setItem(devThemeStorageKey, themeOverride);
-      applyThemeOverrideToDocument(themeOverride);
-      return;
-    }
-
-    window.localStorage.removeItem(devThemeStorageKey);
-    applyTelegramThemeToDocument();
-  }, [themeOverride]);
+  }, []);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -195,25 +163,6 @@ function ShellContent() {
       >
         <Outlet />
       </main>
-      {isDev ? (
-        <div className="fixed right-4 top-4 z-50">
-          <Button
-            variant="secondary"
-            className="w-auto min-h-9 rounded-full px-3 text-[11px] uppercase tracking-[0.14em]"
-            onClick={() =>
-              setThemeOverride((current) => {
-                if (current === "dark") {
-                  return "light";
-                }
-
-                return "dark";
-              })
-            }
-          >
-            Тема: {themeOverride === "dark" ? "dark" : "light"}
-          </Button>
-        </div>
-      ) : null}
       {isDebug ? <DevDebugPanel /> : null}
       {shouldShowTabBar ? <TabBar items={tabBarItems} /> : null}
 

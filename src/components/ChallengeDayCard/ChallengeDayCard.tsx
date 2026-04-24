@@ -50,24 +50,24 @@ export function ChallengeDayCard({
 
       <div className="mb-3 min-h-[1.75rem]">
         {isLocked ? (
-          <span className="rounded-full border border-border-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+          <span className="chip-label rounded-full border border-border-soft px-3 py-1 text-text-secondary">
             закрыт
           </span>
         ) : readOnly && readOnlyLabel ? (
-          <span className="rounded-full border border-border-medium bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary whitespace-nowrap">
+          <span className="chip-label rounded-full border border-border-medium bg-bg-soft px-3 py-1 text-text-secondary whitespace-nowrap">
             {readOnlyLabel}
           </span>
         ) : isCompleted ? (
-          <span className="status-chip-completed rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.14em] whitespace-nowrap">
+          <span className="chip-label status-chip-completed rounded-full px-3 py-1 whitespace-nowrap">
             пройден
           </span>
         ) : isSkipped ? (
-          <span className="status-chip-skipped rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.14em] whitespace-nowrap">
+          <span className="chip-label status-chip-skipped rounded-full border px-3 py-1 whitespace-nowrap">
             пропущен
           </span>
         ) : isCurrent ? (
-          <span className="status-chip-active rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap">
-            активный
+          <span className="chip-label status-chip-active rounded-full border px-3 py-1 whitespace-nowrap">
+            текущий день
           </span>
         ) : null}
       </div>

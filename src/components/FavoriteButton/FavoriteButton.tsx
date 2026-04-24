@@ -33,7 +33,7 @@ export function FavoriteButton({ materialId, className }: FavoriteButtonProps) {
         <span
           className={cn(
             "text-base transition-all duration-200",
-            active && "text-[#c27a00] drop-shadow-[0_0_10px_rgba(255,208,148,0.55)]",
+            active && "favorite-star-active",
             (active || isAnimating) && "scale-[1.12]"
           )}
         >

@@ -138,10 +138,6 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-html[data-theme="light"] {
-  color-scheme: light;
-}
-
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 #root::-webkit-scrollbar {
@@ -290,6 +286,10 @@ a {
     color: var(--color-accent-deep);
   }
 
+  .chip-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.14em];
+  }
+
   .surface-inset {
     @apply border border-border-soft bg-bg-soft;
   }
@@ -384,6 +384,14 @@ a {
   .favorite-button-active {
     background: var(--color-favorite-surface-active);
     box-shadow: 0 10px 24px var(--color-favorite-shadow-active);
+  }
+
+  .favorite-star-active {
+    background: linear-gradient(135deg, #f7ddb8 0%, #f1c896 52%, #d4a35f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 208, 148, 0.42));
   }
 
   .frost-panel {
@@ -575,19 +583,19 @@ a {
   }
 
   :root[data-theme="dark"] .calendar-dot-lesson {
-    background: #c48878;
+    background: #ffd36f;
   }
 
   :root[data-theme="dark"] .calendar-dot-live {
-    background: #d29b8a;
+    background: #ffe7c7;
   }
 
   :root[data-theme="dark"] .calendar-dot-podcast {
-    background: #b9838d;
+    background: #e0a4c4;
   }
 
   :root[data-theme="dark"] .calendar-dot-challenge {
-    background: #f1c896;
+    background: #b995ff;
   }
 
   :root[data-theme="dark"] .calendar-date-today {
@@ -600,7 +608,7 @@ a {
   }
 
   :root[data-theme="dark"] .progress-fill {
-    background: linear-gradient(90deg, #321016 0%, #321016 68%, #ffe7af 100%);
+    background: linear-gradient(90deg, #321016 0%, #321016 48%, #9a5648 72%, #dca56e 88%, #ffe7af 100%);
     box-shadow:
       inset 0 1px 0 rgba(255, 236, 215, 0.16),
       0 6px 14px rgba(95, 23, 33, 0.18);
@@ -640,8 +648,8 @@ a {
   }
 
   :root[data-theme="dark"] .material-tag-featured {
-    background: rgba(50, 16, 22, 0.92);
-    color: #ffdeb7;
+    background: #ffdeb7;
+    color: #800f26;
   }
 
   :root[data-theme="dark"] .material-tag-scheduled {

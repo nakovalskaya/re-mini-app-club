@@ -67,12 +67,12 @@ export function MaterialCard({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
         <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
         {featured ? (
-          <div className="material-tag-featured absolute bottom-4 left-4 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
+          <div className="material-tag-featured chip-label absolute bottom-4 left-4 rounded-full px-3 py-1">
             Рекомендуем
           </div>
         ) : null}
         {isScheduled ? (
-          <div className="material-tag-scheduled absolute bottom-4 left-4 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
+          <div className="material-tag-scheduled chip-label absolute bottom-4 left-4 rounded-full px-3 py-1">
             Скоро
           </div>
         ) : null}

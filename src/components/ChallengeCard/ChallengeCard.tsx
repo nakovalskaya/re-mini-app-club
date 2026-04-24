@@ -45,7 +45,7 @@ export function ChallengeCard({
           </div>
           {badgeLabel ? (
             <span
-              className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${badgeClassName}`}
+              className={`chip-label rounded-full border px-3 py-1 ${badgeClassName}`}
             >
               {badgeLabel}
             </span>

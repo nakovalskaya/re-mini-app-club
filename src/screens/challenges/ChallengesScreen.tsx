@@ -89,12 +89,14 @@ export function ChallengesScreen() {
                 value={getCompletedCount(activeChallenge.id)}
                 max={activeChallenge.durationDays}
               />
-              <Link
-                to={`/challenges/${activeChallenge.id}`}
-                className="frost-button pressable inline-flex min-h-12 items-center justify-center rounded-button px-5 py-3 text-sm font-semibold text-accent-deep"
-              >
-                Открыть
-              </Link>
+              <div className="flex justify-end">
+                <Link
+                  to={`/challenges/${activeChallenge.id}`}
+                  className="button-secondary-compact pressable inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2.5 text-[13px] font-semibold leading-none"
+                >
+                  Открыть
+                </Link>
+              </div>
             </div>
           ) : null}
 

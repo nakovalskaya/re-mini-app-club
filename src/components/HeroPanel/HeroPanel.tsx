@@ -8,7 +8,7 @@ export function HeroPanel({ eyebrow, title, subtitle }: HeroPanelProps) {
   return (
     <section className="relative -mx-screen min-h-[20.5rem] overflow-hidden text-bg-base">
       <img
-        src="/hero/reaction-hero.jpg"
+        src="/hero/reaction-hero.png"
         alt={title}
         width={1280}
         height={720}
@@ -31,7 +31,7 @@ export function HeroPanel({ eyebrow, title, subtitle }: HeroPanelProps) {
           <h1 className="max-w-[8ch] text-balance font-serif text-[3.05rem] leading-[0.88] text-[#fff8f2]">
             {title}
           </h1>
-          <p className="mt-3 max-w-[16ch] text-[15px] leading-[1.4] text-[rgba(255,244,238,0.86)]">
+          <p className="mt-3 whitespace-nowrap text-[15px] leading-[1.4] text-[rgba(255,244,238,0.86)]">
             {subtitle}
           </p>
         </div>

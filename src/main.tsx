@@ -1,9 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
-import { AppStateProvider } from "@/app/providers/AppStateProvider";
-import { MaterialsProvider } from "@/app/providers/MaterialsProvider";
-import { router } from "@/app/router";
+import { App } from "@/app/App";
 import "@/index.css";
 
 let zoomGuardsInstalled = false;
@@ -37,10 +34,6 @@ installZoomGuards();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AppStateProvider>
-      <MaterialsProvider>
-        <RouterProvider router={router} />
-      </MaterialsProvider>
-    </AppStateProvider>
+    <App />
   </React.StrictMode>
 );

@@ -1,6 +1,6 @@
 import type { TelegramWebApp } from "@/shared/types/telegram";
 
-export type AppTheme = "light" | "dark";
+export type AppTheme = "dark";
 
 function applyThemeToDocument(theme: AppTheme) {
   if (typeof document === "undefined") {
@@ -53,31 +53,8 @@ export function getTelegramRuntimeInfo() {
   };
 }
 
-function getThemeFromTelegram(webApp: TelegramWebApp | null): AppTheme {
-  if (!webApp) {
-    return "light";
-  }
-
-  if (webApp.colorScheme === "dark" || webApp.colorScheme === "light") {
-    return webApp.colorScheme;
-  }
-
-  const bgColor = webApp.themeParams?.bg_color;
-  if (!bgColor) {
-    return "light";
-  }
-
-  const normalized = bgColor.replace("#", "");
-  if (normalized.length !== 6) {
-    return "light";
-  }
-
-  const red = Number.parseInt(normalized.slice(0, 2), 16);
-  const green = Number.parseInt(normalized.slice(2, 4), 16);
-  const blue = Number.parseInt(normalized.slice(4, 6), 16);
-  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
-
-  return luminance < 0.45 ? "dark" : "light";
+function getThemeFromTelegram(_webApp: TelegramWebApp | null): AppTheme {
+  return "dark";
 }
 
 export function applyTelegramThemeToDocument() {

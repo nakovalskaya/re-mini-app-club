@@ -7,10 +7,10 @@ type CategoryCardProps = {
 };
 
 const categoryCoverBySlug: Record<string, string> = {
-  lives: "/category-covers/head.jpg",
-  lessons: "/category-covers/hand.jpg",
-  podcasts: "/category-covers/microphone.jpg",
-  library: "/category-covers/books.jpg"
+  lives: "/category-covers/head.png",
+  lessons: "/category-covers/hand.png",
+  podcasts: "/category-covers/microphone.png",
+  library: "/category-covers/books.png"
 };
 
 for (const coverImage of Object.values(categoryCoverBySlug)) {
@@ -42,7 +42,7 @@ function CategoryCardComponent({ category }: CategoryCardProps) {
       <div className="category-card-overlay absolute inset-0" />
 
       <div className="relative flex h-full flex-col justify-between px-[15px] pt-3 pb-4">
-        <span className="self-start text-[14px] uppercase leading-none tracking-[0.2em] text-accent-gold">
+        <span className="self-start text-[14px] uppercase leading-none tracking-[0.2em] text-[#ffdeb7]">
           {String(category.order).padStart(2, "0")}
         </span>
 
