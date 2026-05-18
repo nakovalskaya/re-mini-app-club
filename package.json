@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.app.json && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:capture": "npm run build && node scripts/capture-preview.mjs",
+    "preview:capture:current": "node scripts/capture-preview.mjs"
   },
   "dependencies": {
     "@fontsource/manrope": "^5.2.8",
+    "@fontsource/montserrat": "^5.2.8",
     "@phosphor-icons/react": "^2.1.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

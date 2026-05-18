@@ -217,7 +217,7 @@ export function ChallengeDetailsScreen() {
         ) : null}
         <Button
           variant="secondary"
-          className="border-[rgba(93,9,6,0.22)] text-accent-deep hover:bg-[rgba(93,9,6,0.05)] active:bg-[rgba(93,9,6,0.08)]"
+          className="border-[rgba(255,239,220,0.18)] text-text-primary hover:bg-[rgba(93,20,36,0.4)] active:bg-[rgba(93,20,36,0.5)]"
           onClick={() => requestResetChallengeProgress(challenge.id)}
         >
           Сбросить прогресс

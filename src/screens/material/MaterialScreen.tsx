@@ -41,7 +41,6 @@ export function MaterialScreen() {
 
   const materialTopics = topics.filter((topic) => material.topicIds.includes(topic.id));
   const hasTelegramUrl = Boolean(material.telegramUrl);
-  const openLabel = "Открыть материал";
   const isScheduled = material.status === "scheduled";
   const isTextMaterial = material.type === "guide" || material.type === "article";
   const typeLabel = useMemo(() => {
@@ -55,6 +54,7 @@ export function MaterialScreen() {
 
     return labels[material.type] ?? material.type;
   }, [material.type]);
+  const openLabel = "Открыть";
   const metaItems = [typeLabel, isScheduled ? "Скоро" : "", !isTextMaterial ? material.duration : ""].filter(
     Boolean
   );
@@ -68,8 +68,8 @@ export function MaterialScreen() {
     <section className="screen-stack pb-10">
       <div className="flex items-center justify-between">
         <BackButton />
-        <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
-          Материал
+        <p className="type-page-eyebrow tracking-[0.22em]">
+          {typeLabel}
         </p>
         <div className="w-11" />
       </div>
@@ -110,14 +110,14 @@ export function MaterialScreen() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
           <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
           {isScheduled ? (
-            <div className="absolute bottom-4 left-4 rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
+            <div className="absolute bottom-4 left-4 rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
               Скоро
             </div>
           ) : null}
         </div>
         <div className="space-y-3 p-card">
           <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-text-secondary">
+            <div className="type-meta flex flex-wrap items-center gap-2">
               {metaItems.map((item, index) => (
                 <div key={`${material.id}-detail-meta-${item}-${index}`} className="inline-flex items-center gap-2">
                   {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
@@ -125,10 +125,10 @@ export function MaterialScreen() {
                 </div>
               ))}
             </div>
-            <h1 className="font-serif text-[1.42rem] leading-[0.95] text-text-primary">
+            <h1 className="font-serif text-[1.24rem] leading-[1] text-text-primary">
               {material.title}
             </h1>
-            <p className="text-[13px] leading-5 text-text-secondary">
+            <p className="type-page-description">
               {material.longDescription ?? material.shortDescription}
             </p>
           </div>
@@ -142,7 +142,7 @@ export function MaterialScreen() {
 
       {material.extraDescription ? (
         <div className="surface-card space-y-2 p-card">
-          <p className="text-[13px] leading-6 text-text-secondary whitespace-pre-line">
+          <p className="type-body whitespace-pre-line">
             {material.extraDescription}
           </p>
         </div>

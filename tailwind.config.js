@@ -27,8 +27,8 @@ var config = {
                 }
             },
             fontFamily: {
-                sans: ["Manrope", "Inter", "system-ui", "sans-serif"],
-                serif: ["Cormorant Garamond", "Georgia", "serif"]
+                sans: ["Montserrat", "Inter", "system-ui", "sans-serif"],
+                serif: ["Bounded", "Georgia", "serif"]
             },
             borderRadius: {
                 xl2: "var(--radius-surface-xl)",

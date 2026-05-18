@@ -79,7 +79,7 @@ export function MaterialCard({
       </div>
       <div className="space-y-1.5 p-card">
         <div className="space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-text-secondary">
+          <div className="type-meta flex flex-wrap items-center gap-2">
             {meta.map((item, index) => (
               <div key={`${material.id}-meta-${item}-${index}`} className="inline-flex items-center gap-2">
                 {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
@@ -88,11 +88,11 @@ export function MaterialCard({
             ))}
           </div>
           <h3
-            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.64rem] leading-[0.95]" : "font-serif text-[1.42rem] leading-[0.95]"}`}
+            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.42rem] leading-[1]" : "font-serif text-[1.22rem] leading-[1]"}`}
           >
             {material.title}
           </h3>
-          <p className="text-[13px] leading-5 text-text-secondary">
+          <p className="type-body">
             {material.shortDescription}
           </p>
         </div>

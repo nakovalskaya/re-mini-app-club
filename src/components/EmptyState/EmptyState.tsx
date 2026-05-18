@@ -22,8 +22,8 @@ export function EmptyState({
         {icon ?? <span className="text-lg">✦</span>}
       </div>
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-        <p className="text-sm leading-6 text-text-secondary">{description}</p>
+        <h3 className="text-[1.28rem] font-medium leading-[1.15] text-text-primary">{title}</h3>
+        <p className="type-body">{description}</p>
       </div>
       {actionLabel && onAction ? (
         <Button variant="secondary" onClick={onAction}>

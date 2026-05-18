@@ -45,14 +45,14 @@ export function ChallengesScreen() {
         to={ROUTE_CHALLENGE_CATALOG}
         className="surface-card pressable block space-y-3 p-card"
       >
-        <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
+        <p className="type-page-eyebrow">
           Каталог
         </p>
         <div className="space-y-2">
-          <h2 className="font-serif text-[1.72rem] leading-[0.98] text-text-primary">
+          <h2 className="type-page-title font-serif text-text-primary">
             Все движухи
           </h2>
-          <p className="max-w-[30ch] text-[13px] leading-5 text-text-secondary">
+          <p className="type-page-description max-w-[30ch]">
             Открой каталог и выбери маршрут под себя
           </p>
         </div>
@@ -73,15 +73,15 @@ export function ChallengesScreen() {
       ) : (
         <>
           {activeChallenge ? (
-            <div className="surface-card-elevated space-y-4 bg-accent-deep p-card text-bg-base">
+            <div className="surface-card-elevated space-y-4 p-card text-bg-base">
               <div className="space-y-1.5">
-                <p className="text-xs uppercase tracking-[0.24em] text-[#ffe7bb]">
+                <p className="type-page-eyebrow text-[#ffe7bb]">
                   Активный
                 </p>
-                <h2 className="font-serif text-[1.88rem] leading-[0.95] text-[#fff6f7]">
+                <h2 className="type-page-title font-serif">
                   {activeChallenge.title}
                 </h2>
-                <p className="text-sm leading-6 text-[rgba(255,246,247,0.82)]">
+                <p className="type-body text-[rgba(255,246,247,0.82)]">
                   {activeChallenge.description}
                 </p>
               </div>

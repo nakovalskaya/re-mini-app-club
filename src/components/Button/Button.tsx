@@ -11,7 +11,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent-deep text-bg-base shadow-soft hover:bg-[var(--color-button-primary-hover)] active:bg-[var(--color-button-primary-active)]",
+    "button-primary-accent shadow-soft hover:brightness-[1.03] active:brightness-[0.98]",
   secondary:
     "button-secondary-surface hover:bg-[var(--color-button-secondary-hover)] active:bg-[var(--color-button-secondary-active)]",
   ghost:

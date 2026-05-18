@@ -11,7 +11,7 @@ const legend = [
   { label: "уроки", color: "calendar-dot-lesson" },
   { label: "эфиры", color: "calendar-dot-live" },
   { label: "подкасты", color: "calendar-dot-podcast" },
-  { label: "марафон", color: "calendar-dot-challenge" }
+  { label: "движуха", color: "calendar-dot-challenge" }
 ];
 
 const weekdayLabels = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -38,10 +38,10 @@ export function CalendarCard() {
     return (
       <div className="surface-card space-y-3 p-[15px]">
         <div className="space-y-1">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-text-secondary">
+          <p className="type-page-eyebrow tracking-[0.12em]">
             Календарь
           </p>
-          <p className="text-sm leading-6 text-text-secondary">
+          <p className="type-body">
             Загружаем даты опубликованных материалов из Notion.
           </p>
         </div>
@@ -63,7 +63,7 @@ export function CalendarCard() {
         </button>
 
         <div className="min-w-0 flex-1 text-center">
-          <h3 className="font-serif text-[1.48rem] leading-[0.95] text-text-primary">
+          <h3 className="font-serif text-[1.28rem] leading-[1] text-text-primary">
             {monthLabel}
           </h3>
         </div>

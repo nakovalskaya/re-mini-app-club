@@ -1,7 +1,7 @@
 export const typography = {
   font: {
-    ui: "Manrope, Inter, system-ui, sans-serif",
-    display: "Cormorant Garamond, Georgia, serif"
+    ui: "Montserrat, Inter, system-ui, sans-serif",
+    display: "Bounded, Georgia, serif"
   },
   size: {
     hero: "42px",

@@ -42,7 +42,7 @@ export function ChallengeDayCard({
           <p className="pt-0.5 text-[10px] leading-none text-text-secondary uppercase tracking-[0.18em]">
             день {day.dayNumber}
           </p>
-          <h3 className="font-serif text-[1.9rem] leading-[0.92] text-text-primary line-clamp-2 sm:text-[1.72rem]">
+          <h3 className="font-serif text-[1.62rem] leading-[0.98] text-text-primary line-clamp-2 sm:text-[1.48rem]">
             {day.title}
           </h3>
         </div>

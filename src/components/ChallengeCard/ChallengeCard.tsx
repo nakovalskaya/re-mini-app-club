@@ -36,10 +36,10 @@ export function ChallengeCard({
       <div className="space-y-2.5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-text-secondary">
+            <p className="type-card-eyebrow">
               челлендж
             </p>
-            <h3 className="mt-1.5 font-serif text-[1.64rem] leading-[0.95] text-text-primary">
+            <h3 className="type-card-title mt-1.5 font-serif text-text-primary">
               {challenge.title}
             </h3>
           </div>
@@ -51,12 +51,12 @@ export function ChallengeCard({
             </span>
           ) : null}
         </div>
-        <p className="text-sm leading-6 text-text-secondary">
+        <p className="type-body">
           {challenge.description}
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-4 text-sm text-text-secondary">
+      <div className="flex items-center justify-between gap-4 text-[0.92rem] leading-6 text-text-secondary">
         <span>{challenge.durationDays} дней</span>
         <div className="flex items-center gap-1.5">
           {Array.from({ length: 5 }, (_, index) => (
@@ -89,7 +89,7 @@ export function ChallengeCard({
       ) : (
         <Link
           to={`/challenges/${challenge.id}`}
-          className="pressable inline-flex min-h-11 items-center justify-center rounded-button bg-accent-deep px-4 py-2.5 text-[13px] font-semibold leading-none text-bg-base"
+          className="button-primary-accent pressable inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2.5 text-[13px] font-semibold leading-none"
         >
           Открыть
         </Link>
