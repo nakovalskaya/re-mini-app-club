@@ -1,7 +1,9 @@
 import { useMemo } from "react";
+import { useChallenges } from "@/app/providers/ChallengesProvider";
 import { Button } from "@/components/Button/Button";
 import { ChallengeCard } from "@/components/ChallengeCard/ChallengeCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
@@ -20,24 +22,24 @@ export function ChallengesScreen() {
     takeChallenge,
     takenChallengeIds
   } = useAppState();
+  const { challenges, isLoading } = useChallenges();
   const navigate = useNavigate();
   const personalChallenges = useMemo(
     () =>
       takenChallengeIds
-        .map((challengeId) => getChallengeById(challengeId))
+        .map((challengeId) => getChallengeById(challenges, challengeId))
         .filter(Boolean),
-    [takenChallengeIds]
+    [challenges, takenChallengeIds]
   );
   const activeChallenge = useMemo(
-    () => (activeChallengeId ? getChallengeById(activeChallengeId) : null),
-    [activeChallengeId]
+    () => (activeChallengeId ? getChallengeById(challenges, activeChallengeId) : null),
+    [activeChallengeId, challenges]
   );
 
   return (
-    <section className="screen-stack">
+    <section className="screen-stack pt-2">
       <SectionTitle
         title="Челленджи"
-        eyebrow="Личное"
         description="Здесь живут только твои маршруты: активные, взятые и уже завершённые."
       />
 
@@ -58,11 +60,8 @@ export function ChallengesScreen() {
         </div>
       </Link>
 
-      {!challengesHydrated ? (
-        <EmptyState
-          title="Загружаем челленджи"
-          description="Подтягиваем твой активный маршрут и прогресс."
-        />
+      {!challengesHydrated || isLoading ? (
+        <LoadingScreen caption="Загружаем челленджи" />
       ) : personalChallenges.length === 0 ? (
         <EmptyState
           title="Пока нет взятых челленджей"

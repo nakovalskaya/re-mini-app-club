@@ -28,7 +28,7 @@ export const categories: Category[] = [
   {
     id: "cat-library",
     slug: "library",
-    title: "Библиотека",
+    title: "Гиды",
     description: "Гайды, статьи и методички",
     order: 4,
     isVisible: true

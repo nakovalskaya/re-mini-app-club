@@ -2,6 +2,7 @@ import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { useParams } from "react-router-dom";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { getMaterialsByDate } from "@/features/materials/selectors";
@@ -20,10 +21,7 @@ export function CalendarDayScreen() {
           eyebrow="Материалы дня"
           description="Подтягиваем материалы из Notion для этой даты."
         />
-        <EmptyState
-          title="Загружаем материалы"
-          description="Календарь обновится сразу после загрузки публикаций."
-        />
+        <LoadingScreen caption="Загружаем материалы" />
       </section>
     );
   }

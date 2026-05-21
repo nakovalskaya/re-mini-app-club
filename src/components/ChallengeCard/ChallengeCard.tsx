@@ -26,7 +26,7 @@ export function ChallengeCard({
     status === "completed"
       ? "status-chip-completed"
       : status === "taken"
-        ? "status-chip-completed"
+        ? "status-chip-finished"
         : status === "active"
           ? "status-chip-active"
           : "";

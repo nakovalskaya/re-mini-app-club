@@ -2,6 +2,7 @@ import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { useParams } from "react-router-dom";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { getMaterialsByTopicSlug, getTopicBySlug } from "@/features/materials/selectors";
@@ -32,10 +33,7 @@ export function TopicScreen() {
           eyebrow="Тема"
           description="Собранные материалы из разных категорий по одному смысловому направлению."
         />
-        <EmptyState
-          title="Загружаем материалы"
-          description="Подтягиваем опубликованные записи из Notion."
-        />
+        <LoadingScreen caption="Загружаем материалы" />
       </section>
     );
   }

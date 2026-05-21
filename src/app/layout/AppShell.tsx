@@ -1,8 +1,10 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { TabBar } from "@/components/TabBar/TabBar";
+import { useMaterials } from "@/app/providers/MaterialsProvider";
 import {
   applyTelegramThemeToDocument,
   initTelegramWebApp,
@@ -16,8 +18,7 @@ initTelegramWebApp();
 applyTelegramThemeToDocument();
 
 const isDebug =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true") ||
-  (typeof window !== "undefined" && window.location.search.includes("debug=true"));
+  typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true";
 
 declare global {
   interface Window {
@@ -66,6 +67,14 @@ function ShellContent() {
     confirmChallengeDialog,
     dismissChallengeDialog
   } = useAppState();
+  const { isLoading: materialsLoading } = useMaterials();
+  const [booting, setBooting] = useState(materialsLoading);
+
+  useEffect(() => {
+    if (!materialsLoading) {
+      setBooting(false);
+    }
+  }, [materialsLoading]);
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
   const shouldApplyTopInset = location.pathname !== "/";
   const routeScrollKey = `${location.pathname}${location.search}`;
@@ -153,6 +162,7 @@ function ShellContent() {
 
   return (
     <div className="screen-shell">
+      {booting ? <LoadingScreen variant="boot" /> : null}
       <main
         ref={contentRef}
         className={cn(

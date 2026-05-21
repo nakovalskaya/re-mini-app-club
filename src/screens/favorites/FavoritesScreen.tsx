@@ -1,5 +1,6 @@
 import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
@@ -12,17 +13,13 @@ export function FavoritesScreen() {
     .filter((material): material is (typeof materials)[number] => Boolean(material));
 
   return (
-    <section className="screen-stack">
+    <section className="screen-stack pt-2">
       <SectionTitle
         title="Избранное"
-        eyebrow="Личное"
         description="Сохраняй важные материалы звездой и возвращайся к ним в один тап."
       />
       {!favoritesHydrated || isLoading ? (
-        <EmptyState
-          title="Загружаем избранное"
-          description="Подтягиваем сохранённые материалы и публикации из Notion."
-        />
+        <LoadingScreen caption="Загружаем избранное" />
       ) : favoriteMaterials.length === 0 ? (
         <EmptyState
           title="Пока ничего не сохранено"

@@ -154,8 +154,9 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
   const extraDescription = readRichText(properties["Extra Description"]);
   const categoryId = resolveCategoryId(type, readSelect(properties.Category));
   const topicIds = resolveTopicIds(readMultiSelect(properties.Topics));
+  const scheduledDate = readDate(properties.Date);
   const publishedAt =
-    readDate(properties.Date) ||
+    scheduledDate ||
     page.last_edited_time?.slice(0, 10) ||
     page.created_time?.slice(0, 10) ||
     new Date().toISOString().slice(0, 10);
@@ -163,7 +164,11 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
   const coverImage = readUrl(properties.Cover) || coverFallbackByCategory[categoryId];
   const duration = readRichText(properties.Duration) || defaultDurationByType(type);
   const tags = readCheckbox(properties.Recommended) ? ["recommended"] : [];
-  const status: Material["status"] = isPublished ? "published" : publishedAt ? "scheduled" : "hidden";
+  const status: Material["status"] = isPublished
+    ? "published"
+    : scheduledDate
+      ? "scheduled"
+      : "hidden";
 
   if (status === "hidden") {
     return null;

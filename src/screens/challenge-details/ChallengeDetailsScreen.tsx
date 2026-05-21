@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { LockSimple } from "@phosphor-icons/react";
+import { useChallenges } from "@/app/providers/ChallengesProvider";
 import { Button } from "@/components/Button/Button";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { ChallengeDayCard } from "@/components/ChallengeDayCard/ChallengeDayCard";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
@@ -27,7 +29,8 @@ export function ChallengeDetailsScreen() {
     requestResetChallengeProgress,
     skippedDayIdsByChallenge
   } = useAppState();
-  const challenge = id ? getChallengeById(id) : null;
+  const { challenges, isLoading } = useChallenges();
+  const challenge = id ? getChallengeById(challenges, id) : null;
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
   const [showFinishOverlay, setShowFinishOverlay] = useState(false);
@@ -55,9 +58,19 @@ export function ChallengeDetailsScreen() {
     [challenge, selectedDayId]
   );
 
+  if (isLoading) {
+    return (
+      <section className="screen-stack">
+        <BackButton />
+        <LoadingScreen caption="Загружаем челлендж" />
+      </section>
+    );
+  }
+
   if (!challenge) {
     return (
       <section className="screen-stack">
+        <BackButton />
         <EmptyState
           title="Челлендж не найден"
           description="Похоже, такой маршрут пока не добавлен."

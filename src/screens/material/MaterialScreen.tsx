@@ -4,6 +4,7 @@ import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { Button } from "@/components/Button/Button";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
 import { openTelegramLink } from "@/features/telegram/telegram";
 import { getMaterialById } from "@/features/materials/selectors";
@@ -20,10 +21,7 @@ export function MaterialScreen() {
   if (isLoading) {
     return (
       <section className="screen-stack">
-        <EmptyState
-          title="Загружаем материал"
-          description="Подключаем публикации из Notion."
-        />
+        <LoadingScreen caption="Загружаем материал" />
       </section>
     );
   }
@@ -40,8 +38,8 @@ export function MaterialScreen() {
   }
 
   const materialTopics = topics.filter((topic) => material.topicIds.includes(topic.id));
-  const hasTelegramUrl = Boolean(material.telegramUrl);
   const isScheduled = material.status === "scheduled";
+  const canOpen = Boolean(material.telegramUrl) && !isScheduled;
   const isTextMaterial = material.type === "guide" || material.type === "article";
   const typeLabel = useMemo(() => {
     const labels: Record<string, string> = {
@@ -75,15 +73,15 @@ export function MaterialScreen() {
       </div>
 
       <article
-        role={hasTelegramUrl ? "button" : undefined}
-        tabIndex={hasTelegramUrl ? 0 : undefined}
+        role={canOpen ? "button" : undefined}
+        tabIndex={canOpen ? 0 : undefined}
         onClick={() => {
-          if (hasTelegramUrl) {
+          if (canOpen) {
             openTelegramLink(material.telegramUrl);
           }
         }}
         onKeyDown={(event) => {
-          if (!hasTelegramUrl) {
+          if (!canOpen) {
             return;
           }
 
@@ -92,7 +90,7 @@ export function MaterialScreen() {
             openTelegramLink(material.telegramUrl);
           }
         }}
-        className={cn("surface-card overflow-hidden", hasTelegramUrl && "cursor-pointer")}
+        className={cn("surface-card overflow-hidden", canOpen && "cursor-pointer")}
       >
         <div className="material-image-frame relative h-44">
           <img
@@ -148,11 +146,10 @@ export function MaterialScreen() {
         </div>
       ) : null}
 
-      {hasTelegramUrl ? (
+      {canOpen ? (
         <div className="mt-1 pb-2">
           <div className="surface-card p-3">
             <Button
-              className={cn(!hasTelegramUrl && "opacity-100")}
               onClick={() => {
                 openTelegramLink(material.telegramUrl);
               }}

@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { CalendarCard } from "@/components/CalendarCard/CalendarCard";
 import { CategoryCard } from "@/components/CategoryCard/CategoryCard";
 import { HeroPanel } from "@/components/HeroPanel/HeroPanel";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
@@ -56,10 +57,7 @@ export function HomeScreen() {
           description="Автоматическая витрина материалов, отмеченных как recommended."
         />
         {isLoading ? (
-          <EmptyState
-            title="Загружаем материалы"
-            description="Подключаем публикации из Notion."
-          />
+          <LoadingScreen caption="Загружаем материалы" />
         ) : featured ? (
           <>
             <MaterialCard material={featured} featured />

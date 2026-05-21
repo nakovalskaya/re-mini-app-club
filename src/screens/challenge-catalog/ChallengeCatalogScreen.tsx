@@ -1,5 +1,7 @@
+import { useChallenges } from "@/app/providers/ChallengesProvider";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { ChallengeCard } from "@/components/ChallengeCard/ChallengeCard";
+import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
 import { getChallenges } from "@/features/challenges/selectors";
@@ -13,7 +15,22 @@ export function ChallengeCatalogScreen() {
     isChallengeTaken,
     takeChallenge
   } = useAppState();
-  const challenges = getChallenges();
+  const { challenges, isLoading } = useChallenges();
+  const visibleChallenges = getChallenges(challenges);
+
+  if (isLoading) {
+    return (
+      <section className="screen-stack">
+        <BackButton />
+        <SectionTitle
+          title="Все челленджи"
+          eyebrow="Каталог"
+          description="Подтягиваем каталог из Notion."
+        />
+        <LoadingScreen />
+      </section>
+    );
+  }
 
   return (
     <section className="screen-stack">
@@ -25,7 +42,7 @@ export function ChallengeCatalogScreen() {
       />
 
       <div className="space-y-4">
-        {challenges.map((challenge) => (
+        {visibleChallenges.map((challenge) => (
           <ChallengeCard
             key={challenge.id}
             challenge={challenge}

@@ -41,17 +41,17 @@ function CategoryCardComponent({ category }: CategoryCardProps) {
 
       <div className="category-card-overlay absolute inset-0" />
 
-      <div className="relative flex h-full flex-col justify-between px-[15px] pt-3 pb-3.5">
+      <div className="relative flex h-full flex-col justify-between px-[15px] pt-3 pb-[0.95rem]">
         <span className="self-start text-[14px] uppercase leading-none tracking-[0.2em] text-[#ffdeb7]">
           {String(category.order).padStart(2, "0")}
         </span>
 
-        <div className="relative flex min-h-0 items-end">
+        <div className="relative flex min-h-0 items-end overflow-visible">
           <span
             aria-hidden="true"
-            className="category-card-title-glow pointer-events-none absolute -left-2 -right-2 bottom-0 h-9 rounded-full"
+            className="category-card-title-glow pointer-events-none absolute -left-2 -right-3 bottom-[-0.15rem] h-10 rounded-full"
           />
-          <h3 className="relative z-[1] max-w-[7ch] font-serif text-[1.08rem] leading-[1]">
+          <h3 className="relative z-[1] whitespace-nowrap pr-10 font-serif text-[1.02rem] leading-[1.02]">
             {category.title}
           </h3>
         </div>
