@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { Button } from "@/components/Button/Button";
+import { CoverImage } from "@/components/CoverImage/CoverImage";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
 import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { TopicPill } from "@/components/TopicPill/TopicPill";
@@ -10,7 +11,7 @@ import { openTelegramLink } from "@/features/telegram/telegram";
 import { getMaterialById } from "@/features/materials/selectors";
 import { topics } from "@/data/topics";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
-import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
+import { getCoverImageUrl } from "@/shared/utils/images";
 import { cn } from "@/shared/utils/cn";
 
 export function MaterialScreen() {
@@ -56,11 +57,7 @@ export function MaterialScreen() {
   const metaItems = [typeLabel, isScheduled ? "Скоро" : "", !isTextMaterial ? material.duration : ""].filter(
     Boolean
   );
-  const detailImageSrc = getOptimizedImageUrl(material.coverImage, {
-    width: 720,
-    quality: 66
-  });
-  const detailImageSrcSet = getImageSrcSet(material.coverImage, [320, 480, 720], 66);
+  const detailImageSrc = getCoverImageUrl(material.coverImage);
 
   return (
     <section className="screen-stack pb-10">
@@ -93,16 +90,14 @@ export function MaterialScreen() {
         className={cn("surface-card overflow-hidden", canOpen && "cursor-pointer")}
       >
         <div className="material-image-frame relative h-44">
-          <img
+          <CoverImage
             src={detailImageSrc}
-            srcSet={detailImageSrcSet}
-            sizes="(max-width: 768px) 100vw, 360px"
             alt={material.title}
             width={1200}
             height={528}
             loading="eager"
             fetchPriority="high"
-            decoding="sync"
+            decoding="async"
             className="h-full w-full object-cover material-image-eager"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />

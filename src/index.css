@@ -472,6 +472,38 @@ a {
       linear-gradient(135deg, #4a1320 0%, #360915 100%);
   }
 
+  .image-skeleton {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(135deg, #4a1320 0%, #360915 100%);
+  }
+
+  .image-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 25%,
+      rgba(255, 239, 220, 0.08) 50%,
+      transparent 75%
+    );
+    transform: translateX(-100%);
+    animation: image-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .image-skeleton-hidden {
+    opacity: 0;
+    transition: opacity 450ms ease;
+  }
+
+  .image-skeleton-hidden::after {
+    animation: none;
+  }
+
   .material-image-frame::after {
     content: "";
     position: absolute;
@@ -883,6 +915,13 @@ a {
     inset: 0;
     z-index: 60;
     background: #360915;
+    opacity: 1;
+    transition: opacity 400ms ease;
+  }
+
+  .loading-boot-screen-out {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .atom-core {
@@ -939,6 +978,18 @@ a {
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
+  }
+}
+
+@keyframes image-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-skeleton::after {
+    animation: none;
   }
 }
 

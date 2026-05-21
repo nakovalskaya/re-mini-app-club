@@ -1,6 +1,9 @@
+import { cn } from "@/shared/utils/cn";
+
 type LoadingScreenProps = {
   caption?: string;
   variant?: "inline" | "boot";
+  fadingOut?: boolean;
 };
 
 const ORBIT_ROTATIONS = [0, 60, 120];
@@ -32,10 +35,15 @@ function AtomLoader({ variant, caption }: { variant: "inline" | "boot"; caption?
   );
 }
 
-export function LoadingScreen({ caption, variant = "inline" }: LoadingScreenProps) {
+export function LoadingScreen({ caption, variant = "inline", fadingOut = false }: LoadingScreenProps) {
   if (variant === "boot") {
     return (
-      <div className="loading-boot-screen flex flex-col items-center justify-center gap-5">
+      <div
+        className={cn(
+          "loading-boot-screen flex flex-col items-center justify-center gap-5",
+          fadingOut && "loading-boot-screen-out"
+        )}
+      >
         <AtomLoader variant="boot" caption={caption} />
         {caption ? <p className="type-body text-center">{caption}</p> : null}
       </div>

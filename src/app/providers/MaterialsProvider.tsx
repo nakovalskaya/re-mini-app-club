@@ -7,6 +7,8 @@ import {
   type ReactNode
 } from "react";
 import { materials as mockMaterials } from "@/data/materials";
+import { isImageLoaded, markImageLoaded } from "@/components/CoverImage/CoverImage";
+import { getCoverImageUrl } from "@/shared/utils/images";
 import type { Material } from "@/shared/types/content";
 
 type MaterialsSource = "notion" | "mock";
@@ -208,6 +210,30 @@ export function MaterialsProvider({ children }: { children: ReactNode }) {
     window.__MATERIALS_DEBUG__ = debugPayload;
     console.info("[materials-debug]", debugPayload);
   }, [state]);
+
+  // Warm the browser cache for material cover images right after the list loads,
+  // so opening a material shows its photo instantly (no flash), like categories.
+  useEffect(() => {
+    if (typeof window === "undefined" || state.isLoading) {
+      return;
+    }
+
+    state.materials.forEach((material) => {
+      if (!material.coverImage) {
+        return;
+      }
+
+      const url = getCoverImageUrl(material.coverImage);
+      if (isImageLoaded(url)) {
+        return;
+      }
+
+      const image = new Image();
+      image.decoding = "async";
+      image.onload = () => markImageLoaded(url);
+      image.src = url;
+    });
+  }, [state.isLoading, state.materials]);
 
   const value = useMemo(() => state, [state]);
 

@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { CoverImage } from "@/components/CoverImage/CoverImage";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
 import type { Material } from "@/shared/types/content";
-import { getImageSrcSet, getOptimizedImageUrl } from "@/shared/utils/images";
+import { getCoverImageUrl } from "@/shared/utils/images";
 
 type MaterialCardProps = {
   material: Material;
@@ -28,15 +29,7 @@ export function MaterialCard({
     !isTextMaterial ? material.duration : ""
   ].filter(Boolean);
   const imageHeights = featured ? "h-52" : "h-44";
-  const imageSrc = getOptimizedImageUrl(material.coverImage, {
-    width: featured ? 960 : 720,
-    quality: featured ? 72 : 66
-  });
-  const imageSrcSet = getImageSrcSet(
-    material.coverImage,
-    featured ? [480, 720, 960] : [320, 480, 720],
-    featured ? 72 : 66
-  );
+  const imageSrc = getCoverImageUrl(material.coverImage);
 
   return (
     <article
@@ -52,16 +45,14 @@ export function MaterialCard({
       className="surface-card block overflow-hidden"
     >
       <div className={`material-image-frame relative ${imageHeights}`}>
-        <img
+        <CoverImage
           src={imageSrc}
-          srcSet={imageSrcSet}
-          sizes={featured ? "(max-width: 768px) 100vw, 420px" : "(max-width: 768px) 100vw, 360px"}
           alt={material.title}
           width={1200}
           height={featured ? 624 : 528}
           loading={featured ? "eager" : "lazy"}
           fetchPriority={featured ? "high" : "auto"}
-          decoding="sync"
+          decoding="async"
           className={`h-full w-full object-cover ${featured ? "material-image-eager" : ""}`}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />

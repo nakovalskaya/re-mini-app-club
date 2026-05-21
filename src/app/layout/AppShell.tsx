@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/Button/Button";
+import { markImageLoaded } from "@/components/CoverImage/CoverImage";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { TabBar } from "@/components/TabBar/TabBar";
@@ -13,9 +14,17 @@ import {
 import { useAppState } from "@/app/providers/AppStateProvider";
 import { tabBarItems } from "@/shared/constants/routes";
 import { cn } from "@/shared/utils/cn";
+import { getCoverImageUrl } from "@/shared/utils/images";
 
 initTelegramWebApp();
 applyTelegramThemeToDocument();
+
+const CATEGORY_COVER_URLS = [
+  "/category-covers/head.png",
+  "/category-covers/hand.png",
+  "/category-covers/microphone.png",
+  "/category-covers/books.png"
+];
 
 const isDebug =
   typeof import.meta !== "undefined" && import.meta.env?.VITE_ENABLE_DEBUG === "true";
@@ -67,14 +76,86 @@ function ShellContent() {
     confirmChallengeDialog,
     dismissChallengeDialog
   } = useAppState();
-  const { isLoading: materialsLoading } = useMaterials();
-  const [booting, setBooting] = useState(materialsLoading);
+  const { isLoading: materialsLoading, materials } = useMaterials();
+  const [booting, setBooting] = useState(true);
+  const [bootFadingOut, setBootFadingOut] = useState(false);
+  const bootStartRef = useRef(Date.now());
 
   useEffect(() => {
-    if (!materialsLoading) {
-      setBooting(false);
+    if (!booting || materialsLoading) {
+      return;
     }
-  }, [materialsLoading]);
+
+    let cancelled = false;
+    const MIN_VISIBLE_MS = 900;
+    const FADE_MS = 400;
+    const MAX_PRELOAD_MS = 2200;
+
+    const imageUrls = [
+      ...CATEGORY_COVER_URLS,
+      ...materials
+        .map((material) => (material.coverImage ? getCoverImageUrl(material.coverImage) : null))
+        .filter((url): url is string => Boolean(url))
+    ];
+
+    const preloadImages = new Promise<void>((resolve) => {
+      let remaining = imageUrls.length;
+      if (remaining === 0) {
+        resolve();
+        return;
+      }
+
+      const settle = (url: string) => {
+        markImageLoaded(url);
+        remaining -= 1;
+        if (remaining <= 0) {
+          resolve();
+        }
+      };
+
+      imageUrls.forEach((url) => {
+        const image = new Image();
+        image.onload = () => settle(url);
+        image.onerror = () => settle(url);
+        image.src = url;
+      });
+    });
+
+    const safetyTimeout = new Promise<void>((resolve) => {
+      window.setTimeout(resolve, MAX_PRELOAD_MS);
+    });
+
+    let hideTimer = 0;
+    let fadeTimer = 0;
+
+    void Promise.race([preloadImages, safetyTimeout]).then(() => {
+      if (cancelled) {
+        return;
+      }
+
+      const elapsed = Date.now() - bootStartRef.current;
+      const waitBeforeFade = Math.max(0, MIN_VISIBLE_MS - elapsed);
+
+      hideTimer = window.setTimeout(() => {
+        if (cancelled) {
+          return;
+        }
+        setBootFadingOut(true);
+        fadeTimer = window.setTimeout(() => {
+          if (!cancelled) {
+            setBooting(false);
+          }
+        }, FADE_MS);
+      }, waitBeforeFade);
+    });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(hideTimer);
+      window.clearTimeout(fadeTimer);
+    };
+  }, [booting, materialsLoading, materials]);
+
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
   const shouldApplyTopInset = location.pathname !== "/";
   const routeScrollKey = `${location.pathname}${location.search}`;
@@ -162,7 +243,7 @@ function ShellContent() {
 
   return (
     <div className="screen-shell">
-      {booting ? <LoadingScreen variant="boot" /> : null}
+      {booting ? <LoadingScreen variant="boot" fadingOut={bootFadingOut} /> : null}
       <main
         ref={contentRef}
         className={cn(

@@ -27,6 +27,20 @@ export function getOptimizedImageUrl(
   }
 }
 
+export const COVER_IMAGE_WIDTH = 900;
+export const COVER_IMAGE_QUALITY = 70;
+
+/**
+ * Single canonical URL for a material cover, used by cards, the detail screen
+ * and the preloader alike — so the browser cache reliably hits.
+ */
+export function getCoverImageUrl(src: string) {
+  return getOptimizedImageUrl(src, {
+    width: COVER_IMAGE_WIDTH,
+    quality: COVER_IMAGE_QUALITY
+  });
+}
+
 export function getImageSrcSet(
   src: string,
   widths: readonly number[],
