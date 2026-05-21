@@ -13,19 +13,9 @@ const categoryCoverBySlug: Record<string, string> = {
   library: "/category-covers/books.png"
 };
 
-// Keep a permanent reference to each preloaded cover so the browser never
-// garbage-collects the decoded image. Without retaining these, the cards
-// re-decode on every return to Home and flash the empty background.
-const preloadedCovers = Object.values(categoryCoverBySlug).map((coverImage) => {
+for (const coverImage of Object.values(categoryCoverBySlug)) {
   const image = new Image();
-  image.decoding = "sync";
   image.src = coverImage;
-  return image;
-});
-
-if (typeof window !== "undefined") {
-  (window as unknown as { __categoryCoverPreloads__?: HTMLImageElement[] }).__categoryCoverPreloads__ =
-    preloadedCovers;
 }
 
 function CategoryCardComponent({ category }: CategoryCardProps) {
