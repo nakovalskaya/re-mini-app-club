@@ -2,6 +2,8 @@ import type { TelegramWebApp } from "@/shared/types/telegram";
 
 export type AppTheme = "dark";
 
+const APP_BACKGROUND_COLOR = "#360915";
+
 function applyThemeToDocument(theme: AppTheme) {
   if (typeof document === "undefined") {
     return;
@@ -34,6 +36,23 @@ export function initTelegramWebApp() {
 
   webApp?.ready();
   webApp?.expand?.();
+
+  try {
+    // Prevent Telegram's pull-down-to-close gesture so the in-app scroll
+    // container handles vertical swipes consistently on every screen.
+    webApp?.disableVerticalSwipes?.();
+  } catch {
+    // Older Telegram clients may not support this; ignore.
+  }
+
+  try {
+    webApp?.setBackgroundColor?.(APP_BACKGROUND_COLOR);
+    webApp?.setHeaderColor?.(APP_BACKGROUND_COLOR);
+    webApp?.setBottomBarColor?.(APP_BACKGROUND_COLOR);
+  } catch {
+    // Older Telegram clients may not support custom colors; ignore.
+  }
+
   isInitialized = true;
 }
 

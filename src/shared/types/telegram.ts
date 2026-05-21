@@ -23,6 +23,11 @@ export interface TelegramWebAppCloudStorage {
 export interface TelegramWebApp {
   ready(): void;
   expand?: () => void;
+  disableVerticalSwipes?: () => void;
+  enableVerticalSwipes?: () => void;
+  setHeaderColor?: (color: string) => void;
+  setBackgroundColor?: (color: string) => void;
+  setBottomBarColor?: (color: string) => void;
   openTelegramLink?: (url: string) => void;
   onEvent?: (eventType: string, callback: () => void) => void;
   offEvent?: (eventType: string, callback: () => void) => void;

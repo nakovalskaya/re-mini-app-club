@@ -21,39 +21,7 @@ const iconMap = {
 
 export function TabBar({ items }: TabBarProps) {
   return (
-    <>
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute h-0 w-0 overflow-hidden"
-      >
-        <defs>
-          <filter
-            id="tabbar-liquid-distortion"
-            x="-20%"
-            y="-40%"
-            width="140%"
-            height="180%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.012 0.03"
-              numOctaves="2"
-              seed="14"
-              result="noise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="noise"
-              scale="14"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-md justify-center px-4">
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-md justify-center px-4">
       <div className="tabbar-glass relative flex w-full items-center justify-between overflow-hidden rounded-[24px] px-2.5 py-2.5">
         {items.map((item) => (
           (() => {
@@ -80,7 +48,6 @@ export function TabBar({ items }: TabBarProps) {
           })()
         ))}
       </div>
-      </nav>
-    </>
+    </nav>
   );
 }
