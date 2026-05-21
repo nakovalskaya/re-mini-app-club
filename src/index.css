@@ -571,7 +571,7 @@ a {
   }
 
   .hero-panel-shell {
-    background: radial-gradient(circle at top right, rgba(213, 173, 112, 0.05), transparent 30%);
+    background: transparent;
   }
 
   :root[data-theme="dark"] .tabbar-glass {
@@ -609,7 +609,7 @@ a {
   }
 
   :root[data-theme="dark"] .hero-panel-shell {
-    background: radial-gradient(circle at top right, rgba(213, 173, 112, 0.05), transparent 30%);
+    background: transparent;
   }
 
   :root[data-theme="dark"] .status-chip-completed,
