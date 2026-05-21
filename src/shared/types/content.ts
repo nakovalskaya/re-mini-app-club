@@ -1,4 +1,4 @@
-export type MaterialType = "lesson" | "live" | "podcast" | "guide" | "article";
+export type MaterialType = "lesson" | "course" | "live" | "podcast" | "guide" | "article";
 export type MaterialStatus = "published" | "scheduled" | "hidden";
 
 export type Category = {

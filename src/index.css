@@ -884,8 +884,8 @@ a {
 
   /* Inline variant: minimalist, orbits draw strictly one after another */
   .atom-loader--inline {
-    width: 92px;
-    height: 92px;
+    width: 80px;
+    height: 80px;
   }
 
   .atom-loader--inline .atom-orbit-trace {

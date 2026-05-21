@@ -44,7 +44,8 @@ export function MaterialScreen() {
   const isTextMaterial = material.type === "guide" || material.type === "article";
   const typeLabel = useMemo(() => {
     const labels: Record<string, string> = {
-      lesson: "Урок",
+      lesson: "Лекция",
+      course: "Курс",
       live: "Эфир",
       podcast: "Подкаст",
       guide: "Гайд",

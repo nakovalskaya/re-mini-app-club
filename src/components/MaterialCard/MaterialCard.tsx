@@ -16,7 +16,8 @@ export function MaterialCard({
   const navigate = useNavigate();
   const isScheduled = material.status === "scheduled";
   const typeLabelByType: Record<Material["type"], string> = {
-    lesson: "Урок",
+    lesson: "Лекция",
+    course: "Курс",
     live: "Эфир",
     podcast: "Подкаст",
     guide: "Гайд",

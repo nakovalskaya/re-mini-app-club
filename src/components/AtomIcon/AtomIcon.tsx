@@ -16,11 +16,11 @@ export function AtomIcon({ className }: AtomIconProps) {
           rx="20"
           ry="8"
           fill="none"
-          stroke="rgba(213, 173, 112, 0.85)"
-          strokeWidth="1.2"
+          stroke="#feeac6"
+          strokeWidth="0.9"
         />
       ))}
-      <circle cx="24" cy="24" r="4.2" fill="#f0d2a2" />
+      <circle cx="24" cy="24" r="3.4" fill="#feeac6" />
     </svg>
   );
 }

@@ -35,6 +35,8 @@ type NotionProperty = {
 const notionVersion = "2022-06-28";
 
 const typeMap: Record<string, MaterialType> = {
+  лекция: "lesson",
+  курс: "course",
   урок: "lesson",
   эфир: "live",
   подкаст: "podcast",
@@ -49,6 +51,7 @@ const topicIdByTitle = new Map(topics.map((topic) => [normalize(topic.title), to
 
 const categoryFallbackByType: Record<MaterialType, Material["categoryId"]> = {
   lesson: "cat-lessons",
+  course: "cat-lessons",
   live: "cat-lives",
   podcast: "cat-podcasts",
   guide: "cat-library",

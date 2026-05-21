@@ -8,7 +8,7 @@ import {
 } from "@/features/materials/selectors";
 
 const legend = [
-  { label: "уроки", color: "calendar-dot-lesson" },
+  { label: "лекции", color: "calendar-dot-lesson" },
   { label: "эфиры", color: "calendar-dot-live" },
   { label: "подкасты", color: "calendar-dot-podcast" },
   { label: "движуха", color: "calendar-dot-challenge" }

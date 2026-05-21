@@ -45,15 +45,13 @@ export function LoadingScreen({ caption, variant = "inline", fadingOut = false }
         )}
       >
         <AtomLoader variant="boot" caption={caption} />
-        {caption ? <p className="type-body text-center">{caption}</p> : null}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-10">
+    <div className="flex flex-col items-center justify-center py-10">
       <AtomLoader variant="inline" caption={caption} />
-      {caption ? <p className="type-body text-center">{caption}</p> : null}
     </div>
   );
 }

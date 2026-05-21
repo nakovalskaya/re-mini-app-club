@@ -12,7 +12,7 @@ export const categories: Category[] = [
   {
     id: "cat-lessons",
     slug: "lessons",
-    title: "Уроки",
+    title: "Лекции",
     description: "Системные обучающие блоки",
     order: 2,
     isVisible: true
