@@ -15,7 +15,7 @@
 @tailwind utilities;
 
 :root {
-  --color-bg-base: #381016;
+  --color-bg-base: #360915;
   --color-bg-surface: #42131c;
   --color-bg-soft: #4a1320;
   --color-text-primary: #ffefdc;
@@ -27,8 +27,8 @@
   --color-state-success-soft: #5a1624;
   --color-state-disabled-bg: #57303a;
   --color-state-disabled-text: rgba(255, 239, 220, 0.42);
-  --color-bg-gradient-start: #381016;
-  --color-bg-gradient-end: #381016;
+  --color-bg-gradient-start: #3a0c18;
+  --color-bg-gradient-end: #320813;
   --color-surface-muted: rgba(93, 20, 36, 0.44);
   --color-surface-overlay: rgba(86, 31, 43, 0.34);
   --color-surface-overlay-strong: rgba(86, 31, 43, 0.48);
@@ -79,7 +79,7 @@
 }
 
 :root[data-theme="dark"] {
-  --color-bg-base: #381016;
+  --color-bg-base: #360915;
   --color-bg-surface: #42131c;
   --color-bg-soft: #4a1320;
   --color-text-primary: #ffefdc;
@@ -91,8 +91,8 @@
   --color-state-success-soft: #5a1624;
   --color-state-disabled-bg: #57303a;
   --color-state-disabled-text: rgba(255, 239, 220, 0.42);
-  --color-bg-gradient-start: #381016;
-  --color-bg-gradient-end: #381016;
+  --color-bg-gradient-start: #3a0c18;
+  --color-bg-gradient-end: #320813;
   --color-surface-muted: rgba(93, 20, 36, 0.44);
   --color-surface-overlay: rgba(86, 31, 43, 0.34);
   --color-surface-overlay-strong: rgba(86, 31, 43, 0.48);
@@ -131,7 +131,14 @@
 }
 
 :root[data-theme="dark"] body {
-  background: #23080a;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(213, 173, 112, 0.05), transparent 42%),
+    linear-gradient(
+      180deg,
+      var(--color-bg-gradient-start) 0%,
+      var(--color-bg-base) 52%,
+      var(--color-bg-gradient-end) 100%
+    );
 }
 
 html,
@@ -317,7 +324,7 @@ a {
   }
 
   .screen-shell {
-    @apply mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden bg-bg-base;
+    @apply mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden;
   }
 
   .screen-content {
@@ -912,7 +919,7 @@ a {
     position: fixed;
     inset: 0;
     z-index: 60;
-    background: #23080a;
+    background: #360915;
   }
 
   .atom-core {
