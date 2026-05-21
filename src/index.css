@@ -403,12 +403,7 @@ a {
     transition:
       box-shadow 160ms ease,
       background-color 160ms ease,
-      border-color 160ms ease,
-      opacity 160ms ease;
-  }
-
-  .pressable:active {
-    opacity: 0.85;
+      border-color 160ms ease;
   }
 
   .favorite-button {
@@ -599,13 +594,6 @@ a {
 
   :root[data-theme="dark"] .tabbar-item-active {
     color: rgba(255, 239, 220, 0.98);
-    text-shadow: 0 0 14px rgba(213, 173, 112, 0.24);
-  }
-
-  :root[data-theme="dark"] .tabbar-item-active .tabbar-icon {
-    filter:
-      drop-shadow(0 0 8px rgba(255, 208, 148, 0.18))
-      drop-shadow(0 0 4px rgba(255, 240, 232, 0.12));
   }
 
   :root[data-theme="dark"] .hero-panel-shell {
@@ -804,13 +792,9 @@ a {
   .tabbar-item-active {
     color: rgba(255, 239, 220, 0.98);
     opacity: 1;
-    text-shadow: 0 0 12px rgba(213, 173, 112, 0.24);
   }
 
   .tabbar-item-active .tabbar-icon {
-    filter:
-      drop-shadow(0 0 8px rgba(255, 208, 148, 0.22))
-      drop-shadow(0 0 3px rgba(255, 255, 255, 0.12));
     opacity: 1;
   }
 

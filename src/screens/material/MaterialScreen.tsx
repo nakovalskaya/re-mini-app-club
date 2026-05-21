@@ -102,7 +102,7 @@ export function MaterialScreen() {
             height={528}
             loading="eager"
             fetchPriority="high"
-            decoding="async"
+            decoding="sync"
             className="h-full w-full object-cover material-image-eager"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />

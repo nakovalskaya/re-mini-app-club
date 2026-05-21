@@ -34,7 +34,7 @@ function CategoryCardComponent({ category }: CategoryCardProps) {
           height={1080}
           loading="eager"
           fetchPriority="high"
-          decoding="async"
+          decoding="sync"
           className="category-card-image absolute inset-0 h-full w-full object-cover"
         />
       ) : null}
