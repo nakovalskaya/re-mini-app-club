@@ -775,18 +775,10 @@ a {
     z-index: 2;
     color: rgba(255, 239, 220, 0.68);
     opacity: 0.82;
-    transition:
-      color 180ms ease,
-      text-shadow 180ms ease,
-      filter 180ms ease,
-      opacity 180ms ease;
   }
 
   .tabbar-icon {
-    transition:
-      color 180ms ease,
-      filter 180ms ease,
-      opacity 180ms ease;
+    transform: translateZ(0);
   }
 
   .tabbar-item-active {
