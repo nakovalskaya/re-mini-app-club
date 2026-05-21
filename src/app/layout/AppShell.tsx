@@ -5,6 +5,7 @@ import { markImageLoaded } from "@/components/CoverImage/CoverImage";
 import { DevDebugPanel } from "@/components/DevDebugPanel/DevDebugPanel";
 import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { TabBar } from "@/components/TabBar/TabBar";
+import { HomeScreen } from "@/screens/home/HomeScreen";
 import { useMaterials } from "@/app/providers/MaterialsProvider";
 import {
   applyTelegramThemeToDocument,
@@ -156,6 +157,7 @@ function ShellContent() {
     };
   }, [booting, materialsLoading, materials]);
 
+  const isHome = location.pathname === "/";
   const shouldShowTabBar = tabBarItems.some((item) => item.to === location.pathname);
   const shouldApplyTopInset = location.pathname !== "/";
   const routeScrollKey = `${location.pathname}${location.search}`;
@@ -252,6 +254,12 @@ function ShellContent() {
           !shouldShowTabBar && "pb-8"
         )}
       >
+        {/* HomeScreen stays mounted across navigation so its category cards
+            are never rebuilt/re-decoded. It is only hidden (display:none)
+            while another screen is active, then revealed already-rendered. */}
+        <div style={isHome ? undefined : { display: "none" }}>
+          <HomeScreen />
+        </div>
         <Outlet />
       </main>
       {isDebug ? <DevDebugPanel /> : null}

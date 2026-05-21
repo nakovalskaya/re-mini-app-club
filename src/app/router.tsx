@@ -7,7 +7,6 @@ import { ChallengeDetailsScreen } from "@/screens/challenge-details/ChallengeDet
 import { ChallengesScreen } from "@/screens/challenges/ChallengesScreen";
 import { ClubScreen } from "@/screens/club/ClubScreen";
 import { FavoritesScreen } from "@/screens/favorites/FavoritesScreen";
-import { HomeScreen } from "@/screens/home/HomeScreen";
 import { MaterialScreen } from "@/screens/material/MaterialScreen";
 import { TopicScreen } from "@/screens/topic/TopicScreen";
 import {
@@ -28,7 +27,9 @@ export const router = createBrowserRouter([
     path: ROUTE_HOME,
     element: <AppShell />,
     children: [
-      { index: true, element: <HomeScreen /> },
+      // HomeScreen is rendered persistently inside AppShell (never unmounted),
+      // so the index route itself renders nothing.
+      { index: true },
       { path: ROUTE_CATEGORY, element: <CategoryScreen /> },
       { path: ROUTE_TOPIC, element: <TopicScreen /> },
       { path: ROUTE_MATERIAL, element: <MaterialScreen /> },
