@@ -13,15 +13,6 @@ function AtomLoader({ variant, caption }: { variant: "inline" | "boot"; caption?
       aria-label={caption ?? "Загрузка"}
     >
       <svg viewBox="0 0 140 140" aria-hidden="true">
-        <defs>
-          <filter id="atom-orbit-glow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="1.4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
         {ORBIT_ROTATIONS.map((rotation, index) => (
           <g key={rotation} transform={`rotate(${rotation} 70 70)`}>
             <ellipse className="atom-orbit-track" cx="70" cy="70" rx="58" ry="24" />
@@ -32,7 +23,6 @@ function AtomLoader({ variant, caption }: { variant: "inline" | "boot"; caption?
               rx="58"
               ry="24"
               pathLength={100}
-              filter="url(#atom-orbit-glow)"
             />
           </g>
         ))}
