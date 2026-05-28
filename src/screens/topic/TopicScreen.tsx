@@ -1,17 +1,27 @@
+import { useLinks } from "@/app/providers/LinksProvider";
 import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { useParams } from "react-router-dom";
 import { BackButton } from "@/components/BackButton/BackButton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
+import { LinkCard } from "@/components/LinkCard/LinkCard";
 import { LoadingScreen } from "@/components/LoadingScreen/LoadingScreen";
 import { MaterialCard } from "@/components/MaterialCard/MaterialCard";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { getMaterialsByTopicSlug, getTopicBySlug } from "@/features/materials/selectors";
 
+const usefulLinksTopicId = "topic-useful-links";
+
 export function TopicScreen() {
-  const { materials, isLoading } = useMaterials();
+  const { links, isLoading: linksLoading } = useLinks();
+  const { materials, isLoading: materialsLoading } = useMaterials();
   const { slug } = useParams();
   const topic = slug ? getTopicBySlug(slug) : null;
   const topicMaterials = slug ? getMaterialsByTopicSlug(materials, slug) : [];
+  const isUsefulLinksTopic = topic?.id === usefulLinksTopicId;
+  const isLoading = isUsefulLinksTopic ? linksLoading : materialsLoading;
+  const description = isUsefulLinksTopic
+    ? "Собрала быстрые входы в важные сервисы, документы и дополнительные материалы."
+    : "Собранные материалы из разных категорий по одному смысловому направлению.";
 
   if (!topic) {
     return (
@@ -31,9 +41,9 @@ export function TopicScreen() {
         <SectionTitle
           title={topic.title}
           eyebrow="Тема"
-          description="Собранные материалы из разных категорий по одному смысловому направлению."
+          description={description}
         />
-        <LoadingScreen caption="Загружаем материалы" />
+        <LoadingScreen caption={isUsefulLinksTopic ? "Загружаем ссылки" : "Загружаем материалы"} />
       </section>
     );
   }
@@ -44,9 +54,22 @@ export function TopicScreen() {
       <SectionTitle
         title={topic.title}
         eyebrow="Тема"
-        description="Собранные материалы из разных категорий по одному смысловому направлению."
+        description={description}
       />
-      {topicMaterials.length === 0 ? (
+      {isUsefulLinksTopic ? (
+        links.length === 0 ? (
+          <EmptyState
+            title="Пока пусто"
+            description="Добавь опубликованные ссылки в базу Notion, и они появятся здесь."
+          />
+        ) : (
+          <div className="space-y-4">
+            {links.map((link) => (
+              <LinkCard key={link.id} link={link} />
+            ))}
+          </div>
+        )
+      ) : topicMaterials.length === 0 ? (
         <EmptyState
           title="Пока пусто"
           description="По этой теме материалы еще не собраны."

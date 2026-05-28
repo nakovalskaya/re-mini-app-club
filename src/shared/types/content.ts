@@ -1,5 +1,6 @@
-export type MaterialType = "lesson" | "course" | "live" | "podcast" | "guide" | "article";
+export type MaterialType = "lesson" | "course" | "live" | "podcast" | "guide" | "article" | "manual";
 export type MaterialStatus = "published" | "scheduled" | "hidden";
+export type LinkStatus = "published" | "hidden";
 
 export type Category = {
   id: string;
@@ -34,8 +35,30 @@ export type Material = {
   publishedAt: string;
   scheduledAt: string;
   tags: string[];
+  isFeatured?: boolean;
   orderWeight: number;
   calendarColorKey: string;
+};
+
+export type RichTextSpan = {
+  text: string;
+  href?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  code?: boolean;
+};
+
+export type UsefulLink = {
+  id: string;
+  title: string;
+  description: string;
+  descriptionRichText: RichTextSpan[];
+  url: string;
+  tags: string[];
+  status: LinkStatus;
+  orderWeight: number;
 };
 
 export type ChallengeDay = {

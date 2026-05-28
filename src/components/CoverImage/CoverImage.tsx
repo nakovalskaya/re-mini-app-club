@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
+import { AtomLoader } from "@/components/LoadingScreen/LoadingScreen";
 import { cn } from "@/shared/utils/cn";
 
 type CoverImageProps = ImgHTMLAttributes<HTMLImageElement>;
@@ -70,7 +71,11 @@ export function CoverImage({ className, onLoad, ...props }: CoverImageProps) {
         }}
         className={className}
       />
-      <span aria-hidden="true" className={cn("image-skeleton", loaded && "image-skeleton-hidden")} />
+      <div aria-hidden="true" className={cn("image-skeleton", loaded && "image-skeleton-hidden")}>
+        <div className="image-skeleton-loader">
+          <AtomLoader variant="mini" />
+        </div>
+      </div>
     </>
   );
 }

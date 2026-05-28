@@ -41,7 +41,8 @@ const typeMap: Record<string, MaterialType> = {
   эфир: "live",
   подкаст: "podcast",
   гайд: "guide",
-  статья: "article"
+  статья: "article",
+  методичка: "manual"
 };
 
 const categoryIdByTitle = new Map(
@@ -55,7 +56,8 @@ const categoryFallbackByType: Record<MaterialType, Material["categoryId"]> = {
   live: "cat-lives",
   podcast: "cat-podcasts",
   guide: "cat-library",
-  article: "cat-library"
+  article: "cat-library",
+  manual: "cat-library"
 };
 
 const coverFallbackByCategory: Record<Material["categoryId"], string> = {
@@ -126,7 +128,7 @@ function resolveCalendarColorKey(type: MaterialType) {
 }
 
 function defaultDurationByType(type: MaterialType) {
-  if (type === "guide" || type === "article") {
+  if (type === "guide" || type === "article" || type === "manual") {
     return "";
   }
 
@@ -167,6 +169,7 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
   const coverImage = readUrl(properties.Cover) || coverFallbackByCategory[categoryId];
   const duration = readRichText(properties.Duration) || defaultDurationByType(type);
   const tags = readCheckbox(properties.Recommended) ? ["recommended"] : [];
+  const isFeatured = readCheckbox(properties.Featured);
   const status: Material["status"] = isPublished
     ? "published"
     : scheduledDate
@@ -193,6 +196,7 @@ function mapNotionPageToMaterial(page: NotionPage, index: number): Material | nu
     publishedAt,
     scheduledAt: publishedAt,
     tags,
+    isFeatured,
     orderWeight: toOrderWeight(publishedAt, index),
     calendarColorKey: resolveCalendarColorKey(type)
   };

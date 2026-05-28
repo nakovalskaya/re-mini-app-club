@@ -8,7 +8,13 @@ type LoadingScreenProps = {
 
 const ORBIT_ROTATIONS = [0, 60, 120];
 
-function AtomLoader({ variant, caption }: { variant: "inline" | "boot"; caption?: string }) {
+export function AtomLoader({
+  variant,
+  caption
+}: {
+  variant: "inline" | "boot" | "mini";
+  caption?: string;
+}) {
   return (
     <div
       className={`atom-loader atom-loader--${variant}`}

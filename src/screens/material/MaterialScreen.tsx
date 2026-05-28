@@ -41,7 +41,8 @@ export function MaterialScreen() {
   const materialTopics = topics.filter((topic) => material.topicIds.includes(topic.id));
   const isScheduled = material.status === "scheduled";
   const canOpen = Boolean(material.telegramUrl) && !isScheduled;
-  const isTextMaterial = material.type === "guide" || material.type === "article";
+  const isTextMaterial =
+    material.type === "guide" || material.type === "article" || material.type === "manual";
   const typeLabel = useMemo(() => {
     const labels: Record<string, string> = {
       lesson: "Лекция",
@@ -49,7 +50,8 @@ export function MaterialScreen() {
       live: "Эфир",
       podcast: "Подкаст",
       guide: "Гайд",
-      article: "Статья"
+      article: "Статья",
+      manual: "Методичка"
     };
 
     return labels[material.type] ?? material.type;

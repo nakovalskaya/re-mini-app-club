@@ -54,7 +54,7 @@
   --color-status-done-fill-text: #5d1424;
   --color-status-finished-bg: #f0d7b1;
   --color-status-finished-text: #5d1424;
-  --gradient-dark-surface: linear-gradient(135deg, #381016 0%, #381016 58%, #5d1424 100%);
+  --gradient-dark-surface: linear-gradient(135deg, #360915 0%, #490e1c 100%);
   --gradient-accent-soft: linear-gradient(135deg, #ffefdc 0%, #d5ad70 100%);
   --gradient-accent-text: linear-gradient(135deg, #ffefdc 0%, #f0d2a2 46%, #d5ad70 100%);
 
@@ -120,7 +120,7 @@
   --color-status-done-fill-text: #5d1424;
   --color-status-finished-bg: #f0d7b1;
   --color-status-finished-text: #5d1424;
-  --gradient-dark-surface: linear-gradient(135deg, #381016 0%, #381016 58%, #5d1424 100%);
+  --gradient-dark-surface: linear-gradient(135deg, #360915 0%, #490e1c 100%);
   --gradient-accent-soft: linear-gradient(135deg, #ffefdc 0%, #d5ad70 100%);
   --gradient-accent-text: linear-gradient(135deg, #ffefdc 0%, #f0d2a2 46%, #d5ad70 100%);
   --shadow-card-soft: 0 14px 34px rgba(0, 0, 0, 0.26);
@@ -335,16 +335,12 @@ a {
 
   .surface-card {
     @apply rounded-card border border-border-soft shadow-soft;
-    background:
-      radial-gradient(circle at top right, rgba(255, 239, 220, 0.045), transparent 28%),
-      var(--gradient-dark-surface);
+    background: var(--gradient-dark-surface);
   }
 
   .surface-card-elevated {
     @apply rounded-card border border-border-soft shadow-elevated;
-    background:
-      radial-gradient(circle at top right, rgba(255, 239, 220, 0.05), transparent 28%),
-      var(--gradient-dark-surface);
+    background: var(--gradient-dark-surface);
   }
 
   .button-secondary-surface {
@@ -502,6 +498,16 @@ a {
 
   .image-skeleton-hidden::after {
     animation: none;
+  }
+
+  .image-skeleton-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .material-image-frame::after {
@@ -908,6 +914,34 @@ a {
   .atom-loader--inline .atom-core {
     width: 20px;
     height: 20px;
+  }
+
+  /* Mini variant: tiny loader for image placeholders */
+  .atom-loader--mini {
+    width: 44px;
+    height: 44px;
+  }
+
+  .atom-loader--mini .atom-orbit-trace {
+    stroke-width: 3;
+    animation: atom-orbit-seq 3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+
+  .atom-loader--mini .atom-orbit-trace-1 {
+    animation-delay: 0s;
+  }
+
+  .atom-loader--mini .atom-orbit-trace-2 {
+    animation-delay: 1s;
+  }
+
+  .atom-loader--mini .atom-orbit-trace-3 {
+    animation-delay: 2s;
+  }
+
+  .atom-loader--mini .atom-core {
+    width: 11px;
+    height: 11px;
   }
 
   .loading-boot-screen {

@@ -8,5 +8,6 @@ export const topics: Topic[] = [
   { id: "topic-sales", slug: "sales", title: "Продажи", order: 5, isVisible: true },
   { id: "topic-content", slug: "content", title: "Контент", order: 6, isVisible: true },
   { id: "topic-funnels", slug: "funnels", title: "Воронки", order: 7, isVisible: true },
-  { id: "topic-brand", slug: "brand", title: "Личный бренд", order: 8, isVisible: true }
+  { id: "topic-brand", slug: "brand", title: "Личный бренд", order: 8, isVisible: true },
+  { id: "topic-useful-links", slug: "useful-links", title: "Полезные ссылки", order: 9, isVisible: true }
 ];

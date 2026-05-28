@@ -21,9 +21,11 @@ export function MaterialCard({
     live: "Эфир",
     podcast: "Подкаст",
     guide: "Гайд",
-    article: "Статья"
+    article: "Статья",
+    manual: "Методичка"
   };
-  const isTextMaterial = material.type === "guide" || material.type === "article";
+  const isTextMaterial =
+    material.type === "guide" || material.type === "article" || material.type === "manual";
   const meta = [
     typeLabelByType[material.type],
     isScheduled ? "Скоро" : "",

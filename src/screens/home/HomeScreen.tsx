@@ -54,7 +54,7 @@ export function HomeScreen() {
         <SectionTitle
           title="Рекомендуемое"
           eyebrow="Подборка"
-          description="Автоматическая витрина материалов, отмеченных как recommended."
+          description="Свежие и актуальные материалы"
         />
         {isLoading ? (
           <LoadingScreen caption="Загружаем материалы" />

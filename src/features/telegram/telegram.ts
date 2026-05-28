@@ -129,3 +129,14 @@ export function openTelegramLink(url: string) {
 
   window.open(url, "_blank", "noopener,noreferrer");
 }
+
+export function openExternalLink(url: string) {
+  const webApp = getTelegramObject();
+
+  if (webApp?.openLink) {
+    webApp.openLink(url);
+    return;
+  }
+
+  window.open(url, "_blank", "noopener,noreferrer");
+}

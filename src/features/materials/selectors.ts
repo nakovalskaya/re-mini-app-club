@@ -38,11 +38,21 @@ function isCalendarMaterial(material: Material) {
 }
 
 export function getRecommendedMaterials(materials: Material[]) {
-  return sortMaterials(
-    materials.filter(
-      (material) => isPublishedMaterial(material) && material.tags.includes("recommended")
-    )
+  const recommended = materials.filter(
+    (material) =>
+      isPublishedMaterial(material) &&
+      (material.tags.includes("recommended") || material.isFeatured)
   );
+
+  return [...recommended].sort((a, b) => {
+    // Pinned ("Featured") materials always come first, then newest by date.
+    const featuredDelta = Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+    if (featuredDelta !== 0) {
+      return featuredDelta;
+    }
+
+    return b.orderWeight - a.orderWeight;
+  });
 }
 
 export function getMaterialsByCategorySlug(materials: Material[], slug: string) {
