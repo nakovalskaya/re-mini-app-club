@@ -918,13 +918,17 @@ a {
 
   /* Mini variant: tiny loader for image placeholders */
   .atom-loader--mini {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
   }
 
   .atom-loader--mini .atom-orbit-trace {
-    stroke-width: 3;
+    stroke-width: 3.5;
     animation: atom-orbit-seq 3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+
+  .atom-loader--mini .atom-orbit-track {
+    stroke-width: 2;
   }
 
   .atom-loader--mini .atom-orbit-trace-1 {
@@ -940,8 +944,8 @@ a {
   }
 
   .atom-loader--mini .atom-core {
-    width: 11px;
-    height: 11px;
+    width: 8px;
+    height: 8px;
   }
 
   .loading-boot-screen {

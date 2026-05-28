@@ -8,6 +8,18 @@ type LoadingScreenProps = {
 
 const ORBIT_ROTATIONS = [0, 60, 120];
 
+const ATOM_VARIANT_CLASS = {
+  inline: "atom-loader atom-loader--inline",
+  boot: "atom-loader atom-loader--boot",
+  mini: "atom-loader atom-loader--mini"
+} as const;
+
+const ATOM_TRACE_CLASS = [
+  "atom-orbit-trace atom-orbit-trace-1",
+  "atom-orbit-trace atom-orbit-trace-2",
+  "atom-orbit-trace atom-orbit-trace-3"
+] as const;
+
 export function AtomLoader({
   variant,
   caption
@@ -17,7 +29,7 @@ export function AtomLoader({
 }) {
   return (
     <div
-      className={`atom-loader atom-loader--${variant}`}
+      className={ATOM_VARIANT_CLASS[variant]}
       role="status"
       aria-label={caption ?? "Загрузка"}
     >
@@ -26,7 +38,7 @@ export function AtomLoader({
           <g key={rotation} transform={`rotate(${rotation} 70 70)`}>
             <ellipse className="atom-orbit-track" cx="70" cy="70" rx="58" ry="24" />
             <ellipse
-              className={`atom-orbit-trace atom-orbit-trace-${index + 1}`}
+              className={ATOM_TRACE_CLASS[index]}
               cx="70"
               cy="70"
               rx="58"
