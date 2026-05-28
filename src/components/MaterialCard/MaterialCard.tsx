@@ -44,13 +44,13 @@ export function MaterialCard({
           navigate(`/materials/${material.id}`);
         }
       }}
-      className="surface-card material-image-frame relative block overflow-hidden aspect-[16/9] w-full"
+      className="surface-card material-image-frame relative block overflow-hidden aspect-[1920/1350] w-full"
     >
       <CoverImage
         src={imageSrc}
         alt={material.title}
-        width={1600}
-        height={900}
+        width={1920}
+        height={1350}
         loading={featured ? "eager" : "lazy"}
         fetchPriority={featured ? "high" : "auto"}
         decoding="async"

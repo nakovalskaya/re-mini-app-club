@@ -90,56 +90,70 @@ export function MaterialScreen() {
             openTelegramLink(material.telegramUrl);
           }
         }}
-        className={cn("surface-card overflow-hidden", canOpen && "cursor-pointer")}
+        className={cn(
+          "surface-card material-image-frame relative block overflow-hidden aspect-[1920/1350] w-full",
+          canOpen && "cursor-pointer"
+        )}
       >
-        <div className="material-image-frame relative aspect-[16/9] w-full">
-          <CoverImage
-            src={detailImageSrc}
-            alt={material.title}
-            width={1600}
-            height={900}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover material-image-eager"
-          />
-          {/* Fade the bottom of the cover into the card's surface colour so the
-              text plaque below reads as a continuation of the banner, not a
-              separate band sitting under it. */}
-          <div className="material-detail-scrim pointer-events-none absolute inset-x-0 bottom-0" />
-          <FavoriteButton materialId={material.id} className="absolute right-4 top-4 z-[2]" />
-          {isScheduled ? (
-            <div className="absolute left-4 top-4 z-[2] rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
-              Скоро
-            </div>
-          ) : null}
-        </div>
-        <div className="space-y-3 p-card">
-          <div className="space-y-1.5">
-            <div className="type-meta flex flex-wrap items-center gap-2">
-              {metaItems.map((item, index) => (
-                <div key={`${material.id}-detail-meta-${item}-${index}`} className="inline-flex items-center gap-2">
-                  {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
-            <h1 className="font-serif text-[1.24rem] leading-[1] text-text-primary">
-              {material.title}
-            </h1>
-            <p className="type-page-description">
-              {material.longDescription ?? material.shortDescription}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+        <CoverImage
+          src={detailImageSrc}
+          alt={material.title}
+          width={1920}
+          height={1350}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover material-image-eager"
+        />
+        {/* Bottom scrim — fades the cover into the dark plaque the text sits on,
+            so the UI layer reads as overlaid on the image, not as a separate band. */}
+        <div className="material-card-scrim pointer-events-none absolute inset-x-0 bottom-0" />
+        <FavoriteButton materialId={material.id} className="absolute right-4 top-4 z-[2]" />
+        {/* Topic chips overlaid on the top-left of the cover. */}
+        {materialTopics.length > 0 ? (
+          <div className="absolute left-4 top-4 z-[2] flex flex-wrap items-center gap-1.5 pr-16">
             {materialTopics.map((topic) => (
               <TopicPill key={topic.id} label={topic.title} to={`/topic/${topic.slug}`} />
             ))}
           </div>
+        ) : null}
+        {isScheduled ? (
+          <div
+            className={`absolute ${materialTopics.length > 0 ? "left-4 top-16" : "left-4 top-4"} z-[2] rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep`}
+          >
+            Скоро
+          </div>
+        ) : null}
+        <div className="absolute inset-x-0 bottom-0 z-[1] space-y-1.5 p-card">
+          <div className="type-meta flex flex-wrap items-center gap-2">
+            {metaItems.map((item, index) => (
+              <div key={`${material.id}-detail-meta-${item}-${index}`} className="inline-flex items-center gap-2">
+                {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+          <h1 className="font-serif text-[1.24rem] leading-[1] text-text-primary">
+            {material.title}
+          </h1>
+          <p className="type-body line-clamp-2">
+            {material.shortDescription}
+          </p>
         </div>
       </article>
 
-      {material.extraDescription ? (
+      {material.longDescription &&
+      material.longDescription !== material.shortDescription ? (
+        <div className="surface-card space-y-2 p-card">
+          <p className="type-page-description whitespace-pre-line">
+            {material.longDescription}
+          </p>
+        </div>
+      ) : null}
+
+      {material.extraDescription &&
+      material.extraDescription !== material.shortDescription &&
+      material.extraDescription !== material.longDescription ? (
         <div className="surface-card space-y-2 p-card">
           <p className="type-body whitespace-pre-line">
             {material.extraDescription}
