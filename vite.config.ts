@@ -9,14 +9,7 @@ function notionMaterialsDevApi(): Plugin {
   return {
     name: "notion-materials-dev-api",
     configureServer(server) {
-      const handler = async (request: any, response: any, next?: () => void) => {
-        const requestUrl = request.url?.split("?")[0] ?? "";
-
-        if (requestUrl !== "/__api/notion-materials") {
-          next?.();
-          return;
-        }
-
+      const handler = async (request: any, response: any) => {
         if (request.method !== "GET") {
           response.statusCode = 405;
           response.setHeader("Content-Type", "application/json");
@@ -50,7 +43,7 @@ function notionMaterialsDevApi(): Plugin {
         }
       };
 
-      server.middlewares.use(handler);
+      server.middlewares.use("/__api/notion-materials", handler);
     }
   };
 }
@@ -59,14 +52,7 @@ function notionChallengesDevApi(): Plugin {
   return {
     name: "notion-challenges-dev-api",
     configureServer(server) {
-      const handler = async (request: any, response: any, next?: () => void) => {
-        const requestUrl = request.url?.split("?")[0] ?? "";
-
-        if (requestUrl !== "/__api/notion-challenges") {
-          next?.();
-          return;
-        }
-
+      const handler = async (request: any, response: any) => {
         if (request.method !== "GET") {
           response.statusCode = 405;
           response.setHeader("Content-Type", "application/json");
@@ -101,7 +87,7 @@ function notionChallengesDevApi(): Plugin {
         }
       };
 
-      server.middlewares.use(handler);
+      server.middlewares.use("/__api/notion-challenges", handler);
     }
   };
 }
@@ -110,14 +96,7 @@ function notionLinksDevApi(): Plugin {
   return {
     name: "notion-links-dev-api",
     configureServer(server) {
-      const handler = async (request: any, response: any, next?: () => void) => {
-        const requestUrl = request.url?.split("?")[0] ?? "";
-
-        if (requestUrl !== "/__api/notion-links") {
-          next?.();
-          return;
-        }
-
+      const handler = async (request: any, response: any) => {
         if (request.method !== "GET") {
           response.statusCode = 405;
           response.setHeader("Content-Type", "application/json");
@@ -151,7 +130,7 @@ function notionLinksDevApi(): Plugin {
         }
       };
 
-      server.middlewares.use(handler);
+      server.middlewares.use("/__api/notion-links", handler);
     }
   };
 }

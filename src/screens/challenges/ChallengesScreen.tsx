@@ -40,7 +40,7 @@ export function ChallengesScreen() {
     <section className="screen-stack pt-2">
       <SectionTitle
         title="Челленджи"
-        description="Здесь живут только твои маршруты: активные, взятые и уже завершённые."
+        description="Каталог челленджей и твой личный прогресс"
       />
 
       <Link
@@ -54,8 +54,8 @@ export function ChallengesScreen() {
           <h2 className="type-page-title font-serif text-text-primary">
             Все движухи
           </h2>
-          <p className="type-page-description max-w-[30ch]">
-            Открой каталог и выбери маршрут под себя
+          <p className="type-page-description">
+            Открой каталог и выбери маршрут
           </p>
         </div>
       </Link>
@@ -64,8 +64,8 @@ export function ChallengesScreen() {
         <LoadingScreen caption="Загружаем челленджи" />
       ) : personalChallenges.length === 0 ? (
         <EmptyState
-          title="Пока нет взятых челленджей"
-          description="Открой каталог движух и возьми первый маршрут — после этого он появится здесь."
+          title="Ты пока не проходил челленджи"
+          description="Открой каталог движух и возьми первый маршрут, после этого он появится здесь"
           actionLabel="Открыть каталог"
           onAction={() => navigate(ROUTE_CHALLENGE_CATALOG)}
         />

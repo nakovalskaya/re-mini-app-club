@@ -5,7 +5,7 @@ export const materials: Material[] = [
     id: "mat-001",
     type: "lesson",
     categoryId: "cat-lessons",
-    topicIds: ["topic-funnels", "topic-sales"],
+    topicIds: ["topic-sales"],
     title: "Урок о системе, которая продает без хаоса",
     shortDescription: "Разбираем простую структуру микроворонки без бесконечных прогревов.",
     longDescription:
@@ -81,7 +81,7 @@ export const materials: Material[] = [
     id: "mat-005",
     type: "live",
     categoryId: "cat-lives",
-    topicIds: ["topic-reels", "topic-trends"],
+    topicIds: ["topic-reels"],
     title: "Эфир по Reels и визуальным трендам",
     shortDescription: "Смотрим, как адаптировать тренды под премиальную подачу без суеты.",
     longDescription:
@@ -138,7 +138,7 @@ export const materials: Material[] = [
     id: "mat-008",
     type: "live",
     categoryId: "cat-lives",
-    topicIds: ["topic-ai", "topic-trends"],
+    topicIds: ["topic-ai"],
     title: "Эфир: как AI меняет рынок экспертных продуктов",
     shortDescription: "Смотрим, что уже работает, а что пока только шум.",
     longDescription:
@@ -195,7 +195,7 @@ export const materials: Material[] = [
     id: "mat-011",
     type: "live",
     categoryId: "cat-lives",
-    topicIds: ["topic-funnels", "topic-brand"],
+    topicIds: ["topic-brand"],
     title: "Эфир о сильной структуре личного кабинета",
     shortDescription: "Как не потерять ученика в большом количестве материалов.",
     longDescription:
@@ -252,7 +252,7 @@ export const materials: Material[] = [
     id: "mat-014",
     type: "live",
     categoryId: "cat-lives",
-    topicIds: ["topic-content", "topic-trends"],
+    topicIds: ["topic-content"],
     title: "Эфир: контент-сезоны и спокойный ритм клуба",
     shortDescription: "Как выстроить публикации по месяцам без хаоса и перегруза.",
     longDescription:
@@ -290,7 +290,7 @@ export const materials: Material[] = [
     id: "mat-016",
     type: "lesson",
     categoryId: "cat-lessons",
-    topicIds: ["topic-sales", "topic-funnels"],
+    topicIds: ["topic-sales"],
     title: "Продажная логика личного кабинета без перегруза",
     shortDescription: "Как связать материалы, навигацию и оффер в одну понятную систему.",
     longDescription:
@@ -348,7 +348,7 @@ export const materials: Material[] = [
     id: "mat-019",
     type: "guide",
     categoryId: "cat-library",
-    topicIds: ["topic-funnels", "topic-sales"],
+    topicIds: ["topic-sales"],
     title: "Автоворонка без прогревов",
     shortDescription: "Как получать заявки без сторис и ежедневного давления.",
     longDescription:

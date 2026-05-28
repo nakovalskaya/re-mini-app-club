@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/shared/utils/cn";
+import { applyRussianTypography } from "@/shared/utils/typography";
 
 type SectionTitleProps = {
   title: string;
@@ -34,11 +35,11 @@ export function SectionTitle({
               : "text-[1.06rem] font-semibold leading-tight"
           )}
         >
-          {title}
+          {applyRussianTypography(title)}
         </h2>
         {description ? (
-          <p className="type-page-description">
-            {description}
+          <p className="type-page-description line-clamp-2">
+            {applyRussianTypography(description)}
           </p>
         ) : null}
       </div>

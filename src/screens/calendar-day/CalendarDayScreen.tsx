@@ -39,10 +39,7 @@ export function CalendarDayScreen() {
         }
       />
       {dayMaterials.length === 0 ? (
-        <EmptyState
-          title="Пустой день"
-          description="Для этой даты пока нет материалов в календаре."
-        />
+        <EmptyState description="Для этой даты пока нет материалов в календаре." />
       ) : (
         <div className="space-y-4">
           {dayMaterials.map((material) => (

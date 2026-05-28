@@ -19,9 +19,9 @@ export function TopicScreen() {
   const topicMaterials = slug ? getMaterialsByTopicSlug(materials, slug) : [];
   const isUsefulLinksTopic = topic?.id === usefulLinksTopicId;
   const isLoading = isUsefulLinksTopic ? linksLoading : materialsLoading;
-  const description = isUsefulLinksTopic
-    ? "Собрала быстрые входы в важные сервисы, документы и дополнительные материалы."
-    : "Собранные материалы из разных категорий по одному смысловому направлению.";
+  const description =
+    topic?.description ??
+    "Собранные материалы из разных категорий по одному смысловому направлению.";
 
   if (!topic) {
     return (

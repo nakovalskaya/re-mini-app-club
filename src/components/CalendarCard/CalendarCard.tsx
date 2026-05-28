@@ -53,15 +53,19 @@ export function CalendarCard() {
   return (
     <div className="surface-card space-y-3 p-[15px]">
       <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          aria-label="Предыдущий месяц"
-          className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] disabled:cursor-not-allowed disabled:opacity-35"
-          disabled={monthOffset <= -1}
-          onClick={() => setMonthOffset(-1)}
-        >
-          ←
-        </button>
+        {monthOffset > 0 ? (
+          <button
+            type="button"
+            aria-label="Предыдущий месяц"
+            className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px]"
+            onClick={() => setMonthOffset(monthOffset - 1)}
+          >
+            ←
+          </button>
+        ) : (
+          // Spacer keeps the title centred when there's no back button.
+          <div className="h-[2.15rem] w-[2.15rem]" aria-hidden="true" />
+        )}
 
         <div className="min-w-0 flex-1 text-center">
           <h3 className="font-serif text-[1.28rem] leading-[1] text-text-primary">
@@ -71,10 +75,9 @@ export function CalendarCard() {
 
         <button
           type="button"
-          aria-label="Вернуться к текущему месяцу"
-          className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px] disabled:cursor-not-allowed disabled:opacity-35"
-          disabled={monthOffset === 0}
-          onClick={() => setMonthOffset(0)}
+          aria-label="Следующий месяц"
+          className="button-secondary-compact pressable inline-flex h-[2.15rem] w-[2.15rem] items-center justify-center rounded-[13px]"
+          onClick={() => setMonthOffset(monthOffset + 1)}
         >
           →
         </button>

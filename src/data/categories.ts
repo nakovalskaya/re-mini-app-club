@@ -5,7 +5,7 @@ export const categories: Category[] = [
     id: "cat-lives",
     slug: "lives",
     title: "Эфиры",
-    description: "Живые разборы\nи лекции",
+    description: "Живые разборы, практические зумы и лекции с контентом",
     order: 1,
     isVisible: true
   },
@@ -13,7 +13,7 @@ export const categories: Category[] = [
     id: "cat-lessons",
     slug: "lessons",
     title: "Лекции",
-    description: "Системные обучающие блоки",
+    description: "Разборы, инструкции и уроки",
     order: 2,
     isVisible: true
   },
@@ -21,7 +21,7 @@ export const categories: Category[] = [
     id: "cat-podcasts",
     slug: "podcasts",
     title: "Подкасты",
-    description: "Аудио-лекции\nна разные темы",
+    description: "Короткие и длинные подкасты на разные темы",
     order: 3,
     isVisible: true
   },

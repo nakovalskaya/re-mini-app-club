@@ -276,7 +276,7 @@ a {
   }
 
   .type-page-description {
-    max-width: 34ch;
+    max-width: 62ch;
     font-size: 0.82rem;
     line-height: 1.4rem;
     color: var(--color-text-secondary);

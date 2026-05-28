@@ -3,7 +3,7 @@ import { AtomIcon } from "@/components/AtomIcon/AtomIcon";
 import { Button } from "@/components/Button/Button";
 
 type EmptyStateProps = {
-  title: string;
+  title?: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
@@ -23,8 +23,10 @@ export function EmptyState({
         {icon ?? <AtomIcon className="h-11 w-11" />}
       </div>
       <div className="space-y-2">
-        <h3 className="text-[1.28rem] font-medium leading-[1.15] text-text-primary">{title}</h3>
-        <p className="type-body">{description}</p>
+        {title ? (
+          <h3 className="text-[1.28rem] font-medium leading-[1.15] text-text-primary">{title}</h3>
+        ) : null}
+        <p className="type-body whitespace-pre-line">{description}</p>
       </div>
       {actionLabel && onAction ? (
         <Button variant="secondary" onClick={onAction}>

@@ -16,14 +16,14 @@ export function FavoritesScreen() {
     <section className="screen-stack pt-2">
       <SectionTitle
         title="Избранное"
-        description="Сохраняй важные материалы звездой и возвращайся к ним в один тап."
+        description="Сохранённые материалы"
       />
       {!favoritesHydrated || isLoading ? (
         <LoadingScreen caption="Загружаем избранное" />
       ) : favoriteMaterials.length === 0 ? (
         <EmptyState
           title="Пока ничего не сохранено"
-          description="Нажми на звезду в карточке материала, и он появится здесь."
+          description={"Нажми на звезду в карточке материала,\nи он появится здесь."}
         />
       ) : (
         <div className="space-y-4">

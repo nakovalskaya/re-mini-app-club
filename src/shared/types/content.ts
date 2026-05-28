@@ -15,6 +15,7 @@ export type Topic = {
   id: string;
   slug: string;
   title: string;
+  description?: string;
   order: number;
   isVisible: boolean;
 };

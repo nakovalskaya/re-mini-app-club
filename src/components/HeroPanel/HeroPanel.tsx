@@ -17,7 +17,7 @@ export function HeroPanel({ eyebrow, title, subtitle }: HeroPanelProps) {
           <h1 className="max-w-[8ch] text-balance font-serif text-[2.72rem] leading-[0.9]">
             {title}
           </h1>
-          <p className="mt-1.5 whitespace-nowrap text-[15px] leading-[1.4] text-[rgba(255,244,238,0.86)]">
+          <p className="mt-1.5 whitespace-nowrap text-[15px] font-light leading-[1.4] text-[rgba(255,244,238,0.86)]">
             {subtitle}
           </p>
         </div>
