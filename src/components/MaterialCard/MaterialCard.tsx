@@ -31,7 +31,6 @@ export function MaterialCard({
     isScheduled ? "Скоро" : "",
     !isTextMaterial ? material.duration : ""
   ].filter(Boolean);
-  const imageHeights = featured ? "h-52" : "h-44";
   const imageSrc = getCoverImageUrl(material.coverImage);
 
   return (
@@ -45,51 +44,53 @@ export function MaterialCard({
           navigate(`/materials/${material.id}`);
         }
       }}
-      className="surface-card block overflow-hidden"
+      className="surface-card material-image-frame relative block overflow-hidden aspect-[16/9] w-full"
     >
-      <div className={`material-image-frame relative ${imageHeights}`}>
-        <CoverImage
-          src={imageSrc}
-          alt={material.title}
-          width={1200}
-          height={featured ? 624 : 528}
-          loading={featured ? "eager" : "lazy"}
-          fetchPriority={featured ? "high" : "auto"}
-          decoding="async"
-          className={`h-full w-full object-cover ${featured ? "material-image-eager" : ""}`}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
-        <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
-        {featured ? (
-          <div className="material-tag-featured chip-label absolute bottom-4 left-4 rounded-full px-3 py-1">
-            Рекомендуем
-          </div>
-        ) : null}
-        {isScheduled ? (
-          <div className="material-tag-scheduled chip-label absolute bottom-4 left-4 rounded-full px-3 py-1">
-            Скоро
-          </div>
-        ) : null}
-      </div>
-      <div className="space-y-1.5 p-card">
-        <div className="space-y-1.5">
-          <div className="type-meta flex flex-wrap items-center gap-2">
-            {meta.map((item, index) => (
-              <div key={`${material.id}-meta-${item}-${index}`} className="inline-flex items-center gap-2">
-                {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-          <h3
-            className={`text-balance text-text-primary ${featured ? "font-serif text-[1.42rem] leading-[1]" : "font-serif text-[1.22rem] leading-[1]"}`}
-          >
-            {material.title}
-          </h3>
-          <p className="type-body">
-            {material.shortDescription}
-          </p>
+      <CoverImage
+        src={imageSrc}
+        alt={material.title}
+        width={1600}
+        height={900}
+        loading={featured ? "eager" : "lazy"}
+        fetchPriority={featured ? "high" : "auto"}
+        decoding="async"
+        className={`absolute inset-0 h-full w-full object-cover ${featured ? "material-image-eager" : ""}`}
+      />
+
+      {/* Bottom scrim — fades into the card's surface color so the text sits on a
+          shaded "plaque" that visually belongs to the card, not a hard cut. */}
+      <div className="material-card-scrim pointer-events-none absolute inset-x-0 bottom-0" />
+
+      <FavoriteButton materialId={material.id} className="absolute right-4 top-4 z-[2]" />
+
+      {featured ? (
+        <div className="material-tag-featured chip-label absolute left-4 top-4 z-[2] rounded-full px-3 py-1">
+          Рекомендуем
         </div>
+      ) : null}
+      {isScheduled ? (
+        <div className={`material-tag-scheduled chip-label absolute ${featured ? "left-4 top-14" : "left-4 top-4"} z-[2] rounded-full px-3 py-1`}>
+          Скоро
+        </div>
+      ) : null}
+
+      <div className="absolute inset-x-0 bottom-0 z-[1] space-y-1.5 p-card">
+        <div className="type-meta flex flex-wrap items-center gap-2">
+          {meta.map((item, index) => (
+            <div key={`${material.id}-meta-${item}-${index}`} className="inline-flex items-center gap-2">
+              {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+        <h3
+          className={`text-balance text-text-primary ${featured ? "font-serif text-[1.42rem] leading-[1]" : "font-serif text-[1.22rem] leading-[1]"}`}
+        >
+          {material.title}
+        </h3>
+        <p className="type-body line-clamp-2">
+          {material.shortDescription}
+        </p>
       </div>
     </article>
   );

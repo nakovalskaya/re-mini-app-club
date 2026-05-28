@@ -92,21 +92,24 @@ export function MaterialScreen() {
         }}
         className={cn("surface-card overflow-hidden", canOpen && "cursor-pointer")}
       >
-        <div className="material-image-frame relative h-44">
+        <div className="material-image-frame relative aspect-[16/9] w-full">
           <CoverImage
             src={detailImageSrc}
             alt={material.title}
-            width={1200}
-            height={528}
+            width={1600}
+            height={900}
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className="h-full w-full object-cover material-image-eager"
+            className="absolute inset-0 h-full w-full object-cover material-image-eager"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(38,4,4,0.16)] to-transparent" />
-          <FavoriteButton materialId={material.id} className="absolute right-4 top-4" />
+          {/* Fade the bottom of the cover into the card's surface colour so the
+              text plaque below reads as a continuation of the banner, not a
+              separate band sitting under it. */}
+          <div className="material-detail-scrim pointer-events-none absolute inset-x-0 bottom-0" />
+          <FavoriteButton materialId={material.id} className="absolute right-4 top-4 z-[2]" />
           {isScheduled ? (
-            <div className="absolute bottom-4 left-4 rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
+            <div className="absolute left-4 top-4 z-[2] rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
               Скоро
             </div>
           ) : null}

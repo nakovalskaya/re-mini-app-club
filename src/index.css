@@ -531,6 +531,34 @@ a {
     transform: translateZ(0);
   }
 
+  /* Gradient scrim that fades the bottom of the cover image into the
+     surface-card colour, so the text sits on a "plaque" that visually belongs
+     to the card rather than as a separate band underneath the image. */
+  .material-card-scrim {
+    height: 72%;
+    background: linear-gradient(
+      180deg,
+      rgba(54, 9, 21, 0) 0%,
+      rgba(54, 9, 21, 0.5) 32%,
+      rgba(54, 9, 21, 0.85) 62%,
+      rgba(54, 9, 21, 0.97) 100%
+    );
+  }
+
+  /* Detail screen: image is at the top in 16:9, full description sits below in
+     its own padded section. The scrim only fades the BOTTOM of the image into
+     the surface-card colour, so there's no hard horizontal line between the
+     banner and the text plaque underneath. */
+  .material-detail-scrim {
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(54, 9, 21, 0) 0%,
+      rgba(54, 9, 21, 0.55) 55%,
+      rgba(54, 9, 21, 0.97) 100%
+    );
+  }
+
   .favorite-button-shell {
     background: var(--color-favorite-surface);
   }
