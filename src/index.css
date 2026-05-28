@@ -353,6 +353,15 @@ a {
     background: var(--gradient-dark-surface);
   }
 
+  .challenge-day-pip {
+    @apply border border-border-medium text-text-primary;
+    background: var(--gradient-dark-surface);
+  }
+
+  .challenge-day-fade-in {
+    animation: challenge-day-fade-in 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
   .button-secondary-icon {
     @apply border border-border-soft text-text-primary;
     background: var(--gradient-dark-surface);
@@ -693,6 +702,10 @@ a {
     background: #e0a4c4;
   }
 
+  :root[data-theme="dark"] .calendar-dot-guide {
+    background: #8be0c2;
+  }
+
   :root[data-theme="dark"] .calendar-dot-challenge {
     background: #b995ff;
   }
@@ -716,7 +729,8 @@ a {
   :root[data-theme="dark"] .button-secondary-surface,
   :root[data-theme="dark"] .button-secondary-compact,
   :root[data-theme="dark"] .button-secondary-icon,
-  :root[data-theme="dark"] .button-pill-surface {
+  :root[data-theme="dark"] .button-pill-surface,
+  :root[data-theme="dark"] .challenge-day-pip {
     border-color: rgba(255, 239, 220, 0.14);
     background: var(--gradient-dark-surface);
     color: var(--color-button-dark-text);
@@ -830,6 +844,24 @@ a {
 
 }
 
+@keyframes challenge-day-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-day-fade-in {
+    animation: none;
+  }
+}
+
 @keyframes calendar-month-enter {
   from {
     opacity: 0;
@@ -871,24 +903,12 @@ a {
     opacity: 0;
   }
 
-  /* Boot variant: all three orbits draw in a lush, overlapping rhythm */
+  /* Boot variant: all three orbits draw together in a lush, overlapping rhythm */
   .atom-loader--boot .atom-orbit-trace {
     animation: atom-orbit-trace 2.4s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   }
 
-  .atom-loader--boot .atom-orbit-trace-1 {
-    animation-delay: 0s;
-  }
-
-  .atom-loader--boot .atom-orbit-trace-2 {
-    animation-delay: 0.8s;
-  }
-
-  .atom-loader--boot .atom-orbit-trace-3 {
-    animation-delay: 1.6s;
-  }
-
-  /* Inline variant: minimalist, orbits draw strictly one after another */
+  /* Inline variant: minimalist, all three orbits draw simultaneously */
   .atom-loader--inline {
     width: 80px;
     height: 80px;
@@ -899,53 +919,45 @@ a {
     animation: atom-orbit-seq 3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   }
 
-  .atom-loader--inline .atom-orbit-trace-1 {
-    animation-delay: 0s;
-  }
-
-  .atom-loader--inline .atom-orbit-trace-2 {
-    animation-delay: 1s;
-  }
-
-  .atom-loader--inline .atom-orbit-trace-3 {
-    animation-delay: 2s;
-  }
-
   .atom-loader--inline .atom-core {
     width: 20px;
     height: 20px;
   }
 
-  /* Mini variant: tiny loader for image placeholders */
+  /* Mini variant: tiny loader for image placeholders.
+     Orbits accumulate: each draws in, stays visible, then on the final beat
+     all three fade and the cycle restarts. */
   .atom-loader--mini {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .atom-loader--mini .atom-orbit-trace {
-    stroke-width: 3.5;
-    animation: atom-orbit-seq 3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+    stroke-width: 3;
+    animation-duration: 3s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+    animation-iteration-count: infinite;
   }
 
   .atom-loader--mini .atom-orbit-track {
-    stroke-width: 2;
+    stroke-width: 1.6;
   }
 
   .atom-loader--mini .atom-orbit-trace-1 {
-    animation-delay: 0s;
+    animation-name: atom-orbit-stay-1;
   }
 
   .atom-loader--mini .atom-orbit-trace-2 {
-    animation-delay: 1s;
+    animation-name: atom-orbit-stay-2;
   }
 
   .atom-loader--mini .atom-orbit-trace-3 {
-    animation-delay: 2s;
+    animation-name: atom-orbit-stay-3;
   }
 
   .atom-loader--mini .atom-core {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
 
   .loading-boot-screen {
@@ -1031,6 +1043,89 @@ a {
   }
 }
 
+@keyframes atom-orbit-stay-1 {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  3% {
+    opacity: 1;
+  }
+
+  28% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  92% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes atom-orbit-stay-2 {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  33% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  36% {
+    opacity: 1;
+  }
+
+  61% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  92% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes atom-orbit-stay-3 {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  66% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  69% {
+    opacity: 1;
+  }
+
+  94% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
 @keyframes atom-orbit-seq {
   0% {
     stroke-dashoffset: 100;
@@ -1072,7 +1167,8 @@ a {
 
 @media (prefers-reduced-motion: reduce) {
   .atom-loader--boot .atom-orbit-trace,
-  .atom-loader--inline .atom-orbit-trace {
+  .atom-loader--inline .atom-orbit-trace,
+  .atom-loader--mini .atom-orbit-trace {
     animation: none;
     stroke-dashoffset: 0;
     opacity: 0.7;

@@ -158,7 +158,8 @@ function mapChallenge(page: NotionPage): ChallengeDraft | null {
     durationDays: Math.max(1, Math.round(readNumber(properties["Duration Days"]) ?? 1)),
     difficulty: clampDifficulty(readNumber(properties.Difficulty)),
     status: readSelect(properties.Status) === "archived" ? "archived" : "active",
-    topicIds: resolveTopicIds(readMultiSelect(properties.Topics))
+    topicIds: resolveTopicIds(readMultiSelect(properties.Topics)),
+    rulesUrl: readUrl(properties["Rules URL"])
   };
 }
 

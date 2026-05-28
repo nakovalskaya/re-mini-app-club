@@ -13,6 +13,7 @@ const eventTypeClasses: Record<string, string> = {
   lesson: "calendar-dot-lesson",
   live: "calendar-dot-live",
   podcast: "calendar-dot-podcast",
+  guide: "calendar-dot-guide",
   challenge: "calendar-dot-challenge"
 };
 

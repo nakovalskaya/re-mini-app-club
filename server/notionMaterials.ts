@@ -124,6 +124,10 @@ function resolveCalendarColorKey(type: MaterialType) {
     return "podcast";
   }
 
+  if (type === "guide" || type === "article" || type === "manual") {
+    return "guide";
+  }
+
   return "lesson";
 }
 

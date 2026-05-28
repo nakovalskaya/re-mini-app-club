@@ -67,6 +67,7 @@ export const challenges: Challenge[] = [
     difficulty: 3,
     status: "active",
     topicIds: ["topic-reels", "topic-content", "topic-brand"],
+    rulesUrl: "",
     days: buildChallengeDays(
       "challenge-reels-15",
       reelsTitles,
@@ -83,6 +84,7 @@ export const challenges: Challenge[] = [
     difficulty: 4,
     status: "active",
     topicIds: ["topic-content", "topic-brand", "topic-sales"],
+    rulesUrl: "",
     days: buildChallengeDays(
       "challenge-threads-20",
       threadsTitles,

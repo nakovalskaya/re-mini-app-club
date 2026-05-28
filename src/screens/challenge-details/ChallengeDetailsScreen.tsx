@@ -11,6 +11,7 @@ import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { SectionTitle } from "@/components/SectionTitle/SectionTitle";
 import { useAppState } from "@/app/providers/AppStateProvider";
 import { getChallengeById } from "@/features/challenges/selectors";
+import { openExternalLink } from "@/features/telegram/telegram";
 
 export function ChallengeDetailsScreen() {
   const { id } = useParams();
@@ -79,6 +80,16 @@ export function ChallengeDetailsScreen() {
     );
   }
 
+  // The "open window" — first 3 not-yet-closed days. The very first is the
+  // current day the user can actually mark; the next two are previewable so
+  // the user can read ahead and prepare, but their mark buttons stay disabled.
+  const openDayIds = useMemo(() => {
+    return challenge?.days
+      .filter((day) => !closedDayIds.has(day.id))
+      .slice(0, 3)
+      .map((day) => day.id) ?? [];
+  }, [challenge, closedDayIds]);
+
   const getDayStatus = (dayNumber: number, dayId: string) => {
     if (completedDayIds.includes(dayId)) {
       return "completed" as const;
@@ -94,9 +105,12 @@ export function ChallengeDetailsScreen() {
       return "available" as const;
     }
 
-    const firstOpenDay = challenge.days.find((day) => !closedDayIds.has(day.id));
-    if (firstOpenDay?.id === dayId) {
+    const openIndex = openDayIds.indexOf(dayId);
+    if (openIndex === 0) {
       return "current" as const;
+    }
+    if (openIndex > 0) {
+      return "preview" as const;
     }
 
     return "locked" as const;
@@ -117,6 +131,26 @@ export function ChallengeDetailsScreen() {
     }, 50);
   };
 
+  // Advance the highlighted day to the next not-yet-closed day after the one
+  // the user just marked. closedDayIds reflects state BEFORE the mutation, so
+  // if the day was already closed we skip — that's an un-mark / re-mark
+  // correction, not a fresh "I'm done with this day, move on".
+  const advanceToNextOpenDay = (justMarkedDayId: string) => {
+    if (!challenge || closedDayIds.has(justMarkedDayId)) {
+      return;
+    }
+    const currentIndex = challenge.days.findIndex((d) => d.id === justMarkedDayId);
+    if (currentIndex === -1) {
+      return;
+    }
+    const nextOpen = challenge.days
+      .slice(currentIndex + 1)
+      .find((d) => !closedDayIds.has(d.id));
+    if (nextOpen) {
+      setSelectedDayId(nextOpen.id);
+    }
+  };
+
   return (
     <section className="screen-stack">
       <BackButton />
@@ -133,11 +167,11 @@ export function ChallengeDetailsScreen() {
               {challenge.durationDays} дней · сложность {challenge.difficulty}/5
             </p>
             <span className="rounded-full border border-border-soft bg-bg-soft px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-text-secondary">
-              {completedCount} / {challenge.durationDays}
+              {closedDayIds.size} / {challenge.durationDays}
             </span>
           </div>
           <div className="max-w-[13rem]">
-            <ProgressBar value={completedCount} max={challenge.durationDays} />
+            <ProgressBar value={closedDayIds.size} max={challenge.durationDays} />
           </div>
         </div>
 
@@ -164,7 +198,7 @@ export function ChallengeDetailsScreen() {
                     setSelectedDayId(day.id);
                   }
                 }}
-                className={`pressable flex h-[3.2rem] w-full max-w-[3.2rem] items-center justify-center justify-self-center rounded-full border text-[13px] font-semibold ${
+                className={`flex h-[3.2rem] w-full max-w-[3.2rem] items-center justify-center justify-self-center rounded-full border text-[13px] font-semibold ${
                   status === "completed"
                     ? "status-accent-completed"
                     : status === "current"
@@ -172,8 +206,8 @@ export function ChallengeDetailsScreen() {
                       : status === "skipped"
                         ? "status-accent-skipped"
                         : status === "preview"
-                          ? "button-secondary-compact"
-                          : "button-secondary-compact text-text-secondary"
+                          ? "challenge-day-pip"
+                          : "challenge-day-pip text-text-secondary"
                 } ${isSelected ? "ring-1 ring-accent-gold/60" : ""}`}
                 disabled={status === "locked" && !isReadOnly}
               >
@@ -201,26 +235,39 @@ export function ChallengeDetailsScreen() {
       </div>
 
       {selectedDay ? (
-        <ChallengeDayCard
-          day={selectedDay}
-          status={getDayStatus(selectedDay.dayNumber, selectedDay.id)}
-          readOnly={isReadOnly}
-          readOnlyLabel={isChallengeDone ? "маршрут закрыт" : isChallengeFinished ? "завершен" : null}
-          onComplete={(dayId) => {
-            toggleChallengeDay(challenge.id, dayId);
-            handleCloseFinalOpenDay(dayId);
-          }}
-          onSkip={(dayId) => {
-            toggleSkipChallengeDay(challenge.id, dayId);
-            handleCloseFinalOpenDay(dayId);
-          }}
-        />
+        <div key={selectedDay.id} className="challenge-day-fade-in">
+          <ChallengeDayCard
+            day={selectedDay}
+            status={getDayStatus(selectedDay.dayNumber, selectedDay.id)}
+            readOnly={isReadOnly}
+            readOnlyLabel={isChallengeDone ? "маршрут закрыт" : isChallengeFinished ? "завершен" : null}
+            onComplete={(dayId) => {
+              toggleChallengeDay(challenge.id, dayId);
+              handleCloseFinalOpenDay(dayId);
+              advanceToNextOpenDay(dayId);
+            }}
+            onSkip={(dayId) => {
+              toggleSkipChallengeDay(challenge.id, dayId);
+              handleCloseFinalOpenDay(dayId);
+              advanceToNextOpenDay(dayId);
+            }}
+          />
+        </div>
       ) : (
         <EmptyState
           title="День пока не выбран"
           description="Выбери день из верхней сетки, чтобы посмотреть задание."
         />
       )}
+
+      {challenge.rulesUrl ? (
+        <Button
+          className="min-h-11"
+          onClick={() => openExternalLink(challenge.rulesUrl)}
+        >
+          Правила челленджа
+        </Button>
+      ) : null}
 
       <div className="mt-8 space-y-3 border-t border-border-soft pt-4">
         {activeChallengeId === challenge.id ? (

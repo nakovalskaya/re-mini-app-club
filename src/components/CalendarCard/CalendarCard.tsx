@@ -11,6 +11,7 @@ const legend = [
   { label: "лекции", color: "calendar-dot-lesson" },
   { label: "эфиры", color: "calendar-dot-live" },
   { label: "подкасты", color: "calendar-dot-podcast" },
+  { label: "гиды", color: "calendar-dot-guide" },
   { label: "движуха", color: "calendar-dot-challenge" }
 ];
 

@@ -322,7 +322,7 @@ export const materials: Material[] = [
     scheduledAt: "2026-02-09",
     tags: ["recommended"],
     orderWeight: 9.1,
-    calendarColorKey: "lesson"
+    calendarColorKey: "guide"
   },
   {
     id: "mat-018",
@@ -342,7 +342,7 @@ export const materials: Material[] = [
     scheduledAt: "2026-02-14",
     tags: [],
     orderWeight: 8.6,
-    calendarColorKey: "lesson"
+    calendarColorKey: "guide"
   },
   {
     id: "mat-019",
@@ -361,6 +361,6 @@ export const materials: Material[] = [
     scheduledAt: "2026-02-20",
     tags: ["recommended"],
     orderWeight: 8.9,
-    calendarColorKey: "lesson"
+    calendarColorKey: "guide"
   }
 ];
