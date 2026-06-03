@@ -40,7 +40,7 @@ const MaterialsContext = createContext<MaterialsContextValue | null>(null);
 
 let cachedMaterialsState: Omit<MaterialsContextValue, "isLoading"> | null = null;
 let materialsLoadPromise: Promise<Omit<MaterialsContextValue, "isLoading">> | null = null;
-const materialsCacheKey = "club_materials_cache:v1";
+const materialsCacheKey = "club_materials_cache:v2";
 const materialsCacheTtlMs = 1000 * 60 * 10;
 const materialsEndpoint =
   typeof import.meta !== "undefined" && import.meta.env?.DEV

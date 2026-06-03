@@ -56,5 +56,13 @@ export const topics: Topic[] = [
     description: "Позиционирование, упаковка и стратегия",
     order: 7,
     isVisible: true
+  },
+  {
+    id: "topic-other",
+    slug: "other",
+    title: "Другое",
+    description: "Хранилище инструкций и доп материалов на разные темы",
+    order: 8,
+    isVisible: true
   }
 ];

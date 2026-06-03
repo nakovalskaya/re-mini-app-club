@@ -131,12 +131,9 @@ function resolveCalendarColorKey(type: MaterialType) {
   return "lesson";
 }
 
-function defaultDurationByType(type: MaterialType) {
-  if (type === "guide" || type === "article" || type === "manual") {
-    return "";
-  }
-
-  return "Без длительности";
+function defaultDurationByType(_type: MaterialType) {
+  // If duration is not set in Notion — show nothing rather than a placeholder.
+  return "";
 }
 
 function toOrderWeight(date: string, index: number) {

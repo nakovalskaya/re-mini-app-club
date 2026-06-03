@@ -57,9 +57,10 @@ export function MaterialScreen() {
     return labels[material.type] ?? material.type;
   }, [material.type]);
   const openLabel = "Открыть";
-  const metaItems = [typeLabel, isScheduled ? "Скоро" : "", !isTextMaterial ? material.duration : ""].filter(
-    Boolean
-  );
+  // On the detail page the type already lives in the page eyebrow at the top
+  // ("ЭФИР") and the "Скоро" state lives in the badge over the cover, so the
+  // meta row only shows duration — and only when it is actually set.
+  const metaItems = !isTextMaterial && material.duration ? [material.duration] : [];
   const detailImageSrc = getCoverImageUrl(material.coverImage);
 
   return (
@@ -109,30 +110,22 @@ export function MaterialScreen() {
             so the UI layer reads as overlaid on the image, not as a separate band. */}
         <div className="material-card-scrim pointer-events-none absolute inset-x-0 bottom-0" />
         <FavoriteButton materialId={material.id} className="absolute right-4 top-4 z-[2]" />
-        {/* Topic chips overlaid on the top-left of the cover. */}
-        {materialTopics.length > 0 ? (
-          <div className="absolute left-4 top-4 z-[2] flex flex-wrap items-center gap-1.5 pr-16">
-            {materialTopics.map((topic) => (
-              <TopicPill key={topic.id} label={topic.title} to={`/topic/${topic.slug}`} />
-            ))}
-          </div>
-        ) : null}
         {isScheduled ? (
-          <div
-            className={`absolute ${materialTopics.length > 0 ? "left-4 top-16" : "left-4 top-4"} z-[2] rounded-full bg-[rgba(255,242,220,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-deep`}
-          >
+          <div className="material-tag-scheduled chip-label absolute left-4 top-4 z-[2] rounded-full px-3 py-1">
             Скоро
           </div>
         ) : null}
         <div className="absolute inset-x-0 bottom-0 z-[1] space-y-1.5 p-card">
-          <div className="type-meta flex flex-wrap items-center gap-2">
-            {metaItems.map((item, index) => (
-              <div key={`${material.id}-detail-meta-${item}-${index}`} className="inline-flex items-center gap-2">
-                {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
+          {metaItems.length > 0 ? (
+            <div className="type-meta flex flex-wrap items-center gap-2">
+              {metaItems.map((item, index) => (
+                <div key={`${material.id}-detail-meta-${item}-${index}`} className="inline-flex items-center gap-2">
+                  {index > 0 ? <span className="h-1 w-1 rounded-full bg-border-medium" /> : null}
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <h1 className="font-serif text-[1.24rem] leading-[1] text-text-primary">
             {material.title}
           </h1>
@@ -141,6 +134,14 @@ export function MaterialScreen() {
           </p>
         </div>
       </article>
+
+      {materialTopics.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {materialTopics.map((topic) => (
+            <TopicPill key={topic.id} label={topic.title} to={`/topic/${topic.slug}`} />
+          ))}
+        </div>
+      ) : null}
 
       {material.longDescription &&
       material.longDescription !== material.shortDescription ? (

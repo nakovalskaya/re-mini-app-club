@@ -789,8 +789,8 @@ a {
   }
 
   :root[data-theme="dark"] .material-tag-scheduled {
-    background: rgba(50, 16, 22, 0.92);
-    color: var(--color-button-dark-text);
+    background: #ffdeb7;
+    color: #800f26;
   }
 
   :root[data-theme="dark"] .surface-inset {

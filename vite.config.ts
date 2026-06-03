@@ -141,5 +141,13 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src")
     }
+  },
+  server: {
+    // Bind to all addresses so both ::1 (browsers' default for `localhost`)
+    // and 127.0.0.1 reach the same Vite instance. Without this the dev
+    // server can end up IPv6-only when another process briefly held the port.
+    host: true,
+    port: 5173,
+    strictPort: true
   }
 });

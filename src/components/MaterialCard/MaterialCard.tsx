@@ -26,9 +26,10 @@ export function MaterialCard({
   };
   const isTextMaterial =
     material.type === "guide" || material.type === "article" || material.type === "manual";
+  // Meta on the card: type label + duration (if set). "Скоро" lives in the
+  // top-left badge; we don't duplicate it in the meta row.
   const meta = [
     typeLabelByType[material.type],
-    isScheduled ? "Скоро" : "",
     !isTextMaterial ? material.duration : ""
   ].filter(Boolean);
   const imageSrc = getCoverImageUrl(material.coverImage);
