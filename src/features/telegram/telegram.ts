@@ -127,24 +127,20 @@ export function openTelegramLink(url: string) {
   const webApp = getTelegramObject();
 
   // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
-  // openTelegramLink with this format is flaky across Telegram client versions
-  // (especially iOS) — it sometimes opens the Telegram home screen instead of
-  // the specific post. The native tg:// scheme is resolved reliably by every
-  // client, so we convert and route through openLink (which forwards tg:// to
-  // the Telegram protocol handler).
-  const privateMatch = cleaned.match(/^https?:\/\/t\.me\/c\/(\d+)\/(\d+)/i);
-  if (privateMatch) {
-    const tgUrl = `tg://privatepost?channel=${privateMatch[1]}&post=${privateMatch[2]}`;
-    if (webApp?.openLink) {
-      webApp.openLink(tgUrl);
-      return;
-    }
-    window.location.href = tgUrl;
+  // openTelegramLink is flaky across Telegram client versions (especially iOS)
+  // for /c/ links — it can land the user on the home screen instead of the
+  // specific post. openLink with the same URL opens the in-app browser, which
+  // recognises t.me and offers "Open in Telegram" → routes to the right post.
+  // It's one extra tap for the user, but it works on every client.
+  const isPrivateChannelLink = /^https?:\/\/t\.me\/c\/\d+\/\d+/i.test(cleaned);
+  if (isPrivateChannelLink && webApp?.openLink) {
+    webApp.openLink(cleaned);
     return;
   }
 
-  // Public links — openTelegramLink handles them cleanly (closes the Mini App
-  // and navigates to the post). Available since Telegram 6.1.
+  // Public t.me/<username>/<postId> links — openTelegramLink handles them
+  // cleanly (closes the Mini App and navigates to the post). Available
+  // since Telegram 6.1.
   if (webApp?.openTelegramLink && /^https:\/\/t\.me\//i.test(cleaned)) {
     webApp.openTelegramLink(cleaned);
     return;
