@@ -1,3 +1,29 @@
+/**
+ * Tilda CDN serves images through `optim.tildacdn.com/.../-/format/webp/X.png.webp`,
+ * which 302-redirects to `static.tildacdn.com/.../X.png`. iOS Telegram WebView
+ * frequently stalls on that redirect + WebP combo when the image is loaded via
+ * lazy `<img>`, leaving the user with a broken-image icon while desktop works
+ * fine. Rewrite the URL to the static origin so the browser gets the original
+ * PNG/JPG with a single hop.
+ */
+function rewriteTildaUrl(src: string): string {
+  try {
+    const url = new URL(src);
+    if (!url.hostname.endsWith("tildacdn.com")) {
+      return src;
+    }
+
+    // Drop the `/-/format/webp/` transformation segment and the `.webp` suffix.
+    const pathname = url.pathname
+      .replace(/\/-\/format\/[^/]+\//, "/")
+      .replace(/\.webp$/i, "");
+
+    return `https://static.tildacdn.com${pathname}`;
+  } catch {
+    return src;
+  }
+}
+
 export function getOptimizedImageUrl(
   src: string,
   {
@@ -10,6 +36,10 @@ export function getOptimizedImageUrl(
 ) {
   try {
     const url = new URL(src);
+
+    if (url.hostname.endsWith("tildacdn.com")) {
+      return rewriteTildaUrl(src);
+    }
 
     if (!url.hostname.includes("images.unsplash.com")) {
       return src;
