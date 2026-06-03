@@ -120,14 +120,42 @@ export function applyThemeOverrideToDocument(theme: AppTheme) {
 }
 
 export function openTelegramLink(url: string) {
+  // Notion sometimes leaves trailing whitespace/newlines when an editor pastes
+  // a URL; Telegram's openTelegramLink silently drops you on the home screen
+  // when it can't parse the link, so trim before doing anything else.
+  const cleaned = url.trim();
   const webApp = getTelegramObject();
 
-  if (webApp?.openTelegramLink) {
-    webApp.openTelegramLink(url);
+  // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
+  // openTelegramLink with this format is flaky across Telegram client versions
+  // (especially iOS) — it sometimes opens the Telegram home screen instead of
+  // the specific post. The native tg:// scheme is resolved reliably by every
+  // client, so we convert and route through openLink (which forwards tg:// to
+  // the Telegram protocol handler).
+  const privateMatch = cleaned.match(/^https?:\/\/t\.me\/c\/(\d+)\/(\d+)/i);
+  if (privateMatch) {
+    const tgUrl = `tg://privatepost?channel=${privateMatch[1]}&post=${privateMatch[2]}`;
+    if (webApp?.openLink) {
+      webApp.openLink(tgUrl);
+      return;
+    }
+    window.location.href = tgUrl;
     return;
   }
 
-  window.open(url, "_blank", "noopener,noreferrer");
+  // Public links — openTelegramLink handles them cleanly (closes the Mini App
+  // and navigates to the post). Available since Telegram 6.1.
+  if (webApp?.openTelegramLink && /^https:\/\/t\.me\//i.test(cleaned)) {
+    webApp.openTelegramLink(cleaned);
+    return;
+  }
+
+  // Last-resort fallbacks.
+  if (webApp?.openLink) {
+    webApp.openLink(cleaned);
+    return;
+  }
+  window.open(cleaned, "_blank", "noopener,noreferrer");
 }
 
 export function openExternalLink(url: string) {
