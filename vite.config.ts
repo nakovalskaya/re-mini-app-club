@@ -161,10 +161,11 @@ export default defineConfig({
     }
   },
   server: {
-    // Bind to all addresses so both ::1 (browsers' default for `localhost`)
-    // and 127.0.0.1 reach the same Vite instance. Without this the dev
-    // server can end up IPv6-only when another process briefly held the port.
-    host: true,
+    // Bind explicitly to IPv4 — recent macOS+Node combinations default Vite
+    // to IPv6-only when given `host: true`, which breaks tooling that hits
+    // 127.0.0.1. Localhost from a browser resolves to 127.0.0.1 first on
+    // macOS, so binding here covers both.
+    host: "127.0.0.1",
     port: 5173,
     strictPort: true
   }

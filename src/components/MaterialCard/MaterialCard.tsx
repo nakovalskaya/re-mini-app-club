@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { CoverImage } from "@/components/CoverImage/CoverImage";
 import { FavoriteButton } from "@/components/FavoriteButton/FavoriteButton";
+import { PodcastCard } from "@/components/PodcastCard/PodcastCard";
 import type { Material } from "@/shared/types/content";
 import { getCoverImageUrl } from "@/shared/utils/images";
 
@@ -13,6 +14,13 @@ export function MaterialCard({
   material,
   featured = false
 }: MaterialCardProps) {
+  // Materials of the "podcast" type get a photo-less card with a waveform +
+  // microphone icon. Guides / articles / manuals will get their own dedicated
+  // layouts in follow-up changes; until then they keep the photo card.
+  if (material.type === "podcast") {
+    return <PodcastCard material={material} featured={featured} />;
+  }
+
   const navigate = useNavigate();
   const isScheduled = material.status === "scheduled";
   const typeLabelByType: Record<Material["type"], string> = {
