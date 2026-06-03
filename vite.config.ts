@@ -4,6 +4,7 @@ import path from "node:path";
 import { fetchPublishedNotionMaterials } from "./server/notionMaterials";
 import { fetchPublishedNotionChallenges } from "./server/notionChallenges";
 import { fetchPublishedNotionLinks } from "./server/notionLinks";
+import { handleImageProxy } from "./server/imageProxy";
 
 function notionMaterialsDevApi(): Plugin {
   return {
@@ -135,8 +136,25 @@ function notionLinksDevApi(): Plugin {
   };
 }
 
+function imageProxyDevApi(): Plugin {
+  return {
+    name: "image-proxy-dev-api",
+    configureServer(server) {
+      server.middlewares.use("/__api/img", async (request: any, response: any) => {
+        await handleImageProxy(request, response);
+      });
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), notionMaterialsDevApi(), notionChallengesDevApi(), notionLinksDevApi()],
+  plugins: [
+    react(),
+    notionMaterialsDevApi(),
+    notionChallengesDevApi(),
+    notionLinksDevApi(),
+    imageProxyDevApi()
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")

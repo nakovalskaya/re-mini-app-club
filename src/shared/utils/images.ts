@@ -1,27 +1,33 @@
 /**
- * Tilda CDN serves images through `optim.tildacdn.com/.../-/format/webp/X.png.webp`,
- * which 302-redirects to `static.tildacdn.com/.../X.png`. iOS Telegram WebView
- * frequently stalls on that redirect + WebP combo when the image is loaded via
- * lazy `<img>`, leaving the user with a broken-image icon while desktop works
- * fine. Rewrite the URL to the static origin so the browser gets the original
- * PNG/JPG with a single hop.
+ * Hosts whose images need to be served through our own origin to load reliably
+ * on mobile Telegram WebView. Tilda CDN is the known-broken case (silent
+ * broken-image icons on iOS while desktop works); the others are added
+ * defensively so future image hosts get the same treatment.
  */
-function rewriteTildaUrl(src: string): string {
-  try {
-    const url = new URL(src);
-    if (!url.hostname.endsWith("tildacdn.com")) {
-      return src;
-    }
+const PROXIED_IMAGE_HOSTS = ["tildacdn.com"];
 
-    // Drop the `/-/format/webp/` transformation segment and the `.webp` suffix.
-    const pathname = url.pathname
-      .replace(/\/-\/format\/[^/]+\//, "/")
-      .replace(/\.webp$/i, "");
+/**
+ * Rewrite an upstream image URL to go through `/api/img`. The serverless
+ * function fetches the bytes from the original host and pipes them back to the
+ * client as a same-origin response, which sidesteps the iOS WebView issue
+ * where Tilda's optim → static redirect + WebP combination renders as a
+ * broken-image icon on mobile while loading fine on desktop.
+ *
+ * In dev (Vite) the endpoint is exposed at `/__api/img`; in prod (Vercel) it's
+ * at `/api/img`. Both delegate to the same handler in `server/imageProxy.ts`.
+ */
+function proxiedImageUrl(src: string): string {
+  const endpoint =
+    typeof import.meta !== "undefined" && import.meta.env?.DEV
+      ? "/__api/img"
+      : "/api/img";
+  return `${endpoint}?url=${encodeURIComponent(src)}`;
+}
 
-    return `https://static.tildacdn.com${pathname}`;
-  } catch {
-    return src;
-  }
+function shouldProxyHost(hostname: string): boolean {
+  return PROXIED_IMAGE_HOSTS.some(
+    (host) => hostname === host || hostname.endsWith(`.${host}`)
+  );
 }
 
 export function getOptimizedImageUrl(
@@ -37,8 +43,8 @@ export function getOptimizedImageUrl(
   try {
     const url = new URL(src);
 
-    if (url.hostname.endsWith("tildacdn.com")) {
-      return rewriteTildaUrl(src);
+    if (shouldProxyHost(url.hostname)) {
+      return proxiedImageUrl(src);
     }
 
     if (!url.hostname.includes("images.unsplash.com")) {
