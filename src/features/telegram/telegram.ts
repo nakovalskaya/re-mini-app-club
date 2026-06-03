@@ -119,6 +119,28 @@ export function applyThemeOverrideToDocument(theme: AppTheme) {
   applyThemeToDocument(theme);
 }
 
+/**
+ * Programmatically click a hidden anchor pointing to the URL. The WebView in
+ * the Telegram client intercepts the navigation natively — same code path the
+ * client uses when a user taps a link inside a chat message — and resolves
+ * the link through its real URL parser (the one that correctly handles
+ * private channel posts) rather than the WebApp routing layer (which mangles
+ * `t.me/c/<CHAT_ID>/<MSG_ID>` on iOS).
+ *
+ * Must be invoked synchronously inside a user-gesture handler (e.g. an
+ * onClick) so the browser doesn't treat it as a programmatic popup.
+ */
+function openViaAnchorClick(url: string) {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
 export function openTelegramLink(url: string) {
   // Notion sometimes leaves trailing whitespace/newlines when an editor pastes
   // a URL; Telegram's openTelegramLink silently drops you on the home screen
@@ -140,14 +162,14 @@ export function openTelegramLink(url: string) {
   }
 
   // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
-  // openTelegramLink is flaky across Telegram client versions (especially iOS)
-  // for /c/ links — it can land the user on the home screen instead of the
-  // specific post. openLink with the same URL opens the in-app browser, which
-  // recognises t.me and offers "Open in Telegram" → routes to the right post.
-  // It's one extra tap for the user, but it works on every client.
+  // WebApp's openTelegramLink mishandles these on iOS — it closes the Mini
+  // App but Telegram lands on the channel's home rather than the specific
+  // post. Trigger a hidden anchor click instead: the WebView's native
+  // navigation handler intercepts the link the same way it would a tap inside
+  // a chat message, which uses Telegram's real URL parser and opens the post.
   const isPrivateChannelLink = /^https?:\/\/t\.me\/c\/\d+\/\d+/i.test(cleaned);
-  if (isPrivateChannelLink && webApp?.openLink) {
-    webApp.openLink(cleaned);
+  if (isPrivateChannelLink) {
+    openViaAnchorClick(cleaned);
     return;
   }
 
