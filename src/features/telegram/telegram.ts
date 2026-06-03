@@ -126,6 +126,19 @@ export function openTelegramLink(url: string) {
   const cleaned = url.trim();
   const webApp = getTelegramObject();
 
+  // Native tg:// schemes (tg://privatepost?channel=…&post=…, tg://resolve, …)
+  // bypass the t.me URL parser entirely. Many Telegram clients accept these
+  // directly in openTelegramLink and navigate without opening any browser.
+  if (cleaned.startsWith("tg://")) {
+    if (webApp?.openTelegramLink) {
+      webApp.openTelegramLink(cleaned);
+      return;
+    }
+    // No WebApp API available — try a raw scheme handoff to the OS.
+    window.location.href = cleaned;
+    return;
+  }
+
   // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
   // openTelegramLink is flaky across Telegram client versions (especially iOS)
   // for /c/ links — it can land the user on the home screen instead of the
