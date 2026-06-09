@@ -564,6 +564,30 @@ a {
     );
   }
 
+  /* Bullet for rule-list items in the Club page. A subtle gold dot sits
+     to the left of each paragraph and visually breaks the wall of text into
+     scannable items without imposing a list look. */
+  .rule-bullet {
+    flex-shrink: 0;
+    width: 5px;
+    height: 5px;
+    margin-top: 0.6rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ffe7bb 0%, #f1c896 50%, #d4a35f 100%);
+    box-shadow: 0 0 6px rgba(241, 200, 150, 0.35);
+  }
+
+  /* Strong wine-tinted overlay for podcast cards that have a cover image.
+     Keeps the image visible as texture/mood but the gold mic + waveform +
+     text on top stay perfectly readable. */
+  .podcast-card-image-tint {
+    background: linear-gradient(
+      180deg,
+      rgba(54, 9, 21, 0.82) 0%,
+      rgba(54, 9, 21, 0.92) 100%
+    );
+  }
+
   /* Gradient scrim that fades the bottom of the cover image into the
      surface-card colour, so the text sits on a "plaque" that visually belongs
      to the card rather than as a separate band underneath the image. */

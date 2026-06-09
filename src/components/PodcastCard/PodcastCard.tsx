@@ -16,6 +16,23 @@ const BARS: ReadonlyArray<number> = [
   44, 82, 24, 52, 36, 68, 22, 58, 40, 76, 18, 50
 ];
 
+// TEMPORARY — sample covers used to preview "darkened image background"
+// look. About 1 in 5 podcast cards gets one (deterministic by id hash). When
+// the design is approved we remove this and just use material.coverImage.
+const PREVIEW_COVERS = [
+  "https://images.unsplash.com/photo-1574615552620-7c12fea2f3e2?auto=format&fit=crop&w=1200&q=70",
+  "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=70",
+  "https://images.unsplash.com/photo-1504274066651-8d31a536b11a?auto=format&fit=crop&w=1200&q=70"
+];
+
+function hashCode(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
 export function PodcastCard({ material, featured = false }: PodcastCardProps) {
   const navigate = useNavigate();
   const isScheduled = material.status === "scheduled";
@@ -24,6 +41,13 @@ export function PodcastCard({ material, featured = false }: PodcastCardProps) {
   // "Скоро" lives in the top-left badge.
   const meta = [material.duration].filter(Boolean);
   const hasTopLeftBadge = featured || isScheduled;
+
+  // TEMPORARY for the visual preview the editor asked for: only ~1 in 5 cards
+  // gets a (preview) cover, the rest stay plain. Once the look is approved
+  // this becomes `material.coverImage` (whatever Notion has).
+  const hash = hashCode(material.id);
+  const coverImage =
+    hash % 5 === 0 ? PREVIEW_COVERS[hash % PREVIEW_COVERS.length] : null;
 
   return (
     <article
@@ -38,6 +62,21 @@ export function PodcastCard({ material, featured = false }: PodcastCardProps) {
       }}
       className="podcast-card surface-card relative block w-full overflow-hidden px-4 py-3.5"
     >
+      {coverImage ? (
+        <>
+          <img
+            src={coverImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div
+            className="podcast-card-image-tint pointer-events-none absolute inset-0"
+            aria-hidden="true"
+          />
+        </>
+      ) : null}
+
       <FavoriteButton materialId={material.id} className="absolute right-3 top-3 z-[3]" />
 
       {featured ? (
