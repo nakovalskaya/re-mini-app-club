@@ -119,6 +119,27 @@ export function applyThemeOverrideToDocument(theme: AppTheme) {
   applyThemeToDocument(theme);
 }
 
+/**
+ * Programmatically click a hidden anchor pointing to the URL. The WebView in
+ * the Telegram client intercepts the navigation natively — same code path the
+ * client uses when a user taps a link inside a chat message — and resolves
+ * the link through its real URL parser. Works reliably on desktop / macOS;
+ * iOS needs the tg:// scheme instead.
+ *
+ * Must be invoked synchronously inside a user-gesture handler (e.g. an
+ * onClick) so the browser doesn't treat it as a programmatic popup.
+ */
+function openViaAnchorClick(url: string) {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
 export function openTelegramLink(url: string) {
   // Notion sometimes leaves trailing whitespace/newlines when an editor pastes
   // a URL; Telegram's openTelegramLink silently drops you on the home screen
@@ -140,20 +161,28 @@ export function openTelegramLink(url: string) {
   }
 
   // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
-  // On iOS, neither openTelegramLink nor anchor clicks reliably land on the
-  // specific post — they fall through to Telegram's in-app browser, which
-  // can't render private posts (the t.me web SPA shows 404). Convert to the
-  // native `tg://privatepost` scheme, which iOS's URL scheme handler routes
-  // straight into the Telegram app on the exact message, no browser.
+  //
+  // - Desktop / macOS / Android: a native anchor click is intercepted by the
+  //   WebView's link parser (the same one used for taps inside chats) and
+  //   opens the exact post in the client.
+  // - iOS: that anchor falls through to Telegram's in-app browser, which
+  //   shows 404 because private posts have no public web page. We convert to
+  //   the `tg://privatepost` scheme — iOS's URL scheme handler routes it
+  //   straight into the Telegram app on the message, no browser.
   const privateMatch = cleaned.match(/^https?:\/\/t\.me\/c\/(\d+)\/(\d+)/i);
   if (privateMatch) {
-    const [, channel, post] = privateMatch;
-    const tgUrl = `tg://privatepost?channel=${channel}&post=${post}`;
-    if (webApp?.openTelegramLink) {
-      webApp.openTelegramLink(tgUrl);
+    const isIOS = webApp?.platform === "ios";
+    if (isIOS) {
+      const [, channel, post] = privateMatch;
+      // Skip openTelegramLink here — many iOS Telegram builds only accept
+      // t.me URLs there and silently swallow tg:// schemes. Hand the scheme
+      // straight to the OS URL handler instead; iOS routes it into Telegram
+      // and lands on the exact post.
+      const tgUrl = `tg://privatepost?channel=${channel}&post=${post}`;
+      window.location.href = tgUrl;
       return;
     }
-    window.location.href = tgUrl;
+    openViaAnchorClick(cleaned);
     return;
   }
 
