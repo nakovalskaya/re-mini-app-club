@@ -24,7 +24,7 @@ export function CalendarDayScreen() {
         <SectionTitle
           title={date ?? "Дата"}
           eyebrow="Материалы дня"
-          description="Подтягиваем материалы и движухи из Notion для этой даты."
+          description="Подтягиваем материалы и движухи для этой даты."
         />
         <LoadingScreen caption="Загружаем календарь" />
       </section>

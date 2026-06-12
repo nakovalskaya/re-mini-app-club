@@ -120,11 +120,11 @@ export function ChallengeDetailsScreen() {
             </p>
             {startLabel ? (
               <div className="rounded-[24px] border border-border-medium bg-bg-soft px-4 py-3 text-sm leading-6 text-text-primary">
-                Старт будет {startLabel}. Пока это анонс: задания появятся здесь, когда ты добавишь дни в Notion.
+                Старт будет {startLabel}. Задания откроются здесь в день старта.
               </div>
             ) : (
               <div className="rounded-[24px] border border-border-medium bg-bg-soft px-4 py-3 text-sm leading-6 text-text-secondary">
-                Челлендж опубликован как анонс, но дата старта пока не указана.
+                Челлендж скоро стартует. Дата появится здесь дополнительно.
               </div>
             )}
           </div>
@@ -134,8 +134,8 @@ export function ChallengeDetailsScreen() {
           title="Скоро старт"
           description={
             startLabel
-              ? `Старт будет ${startLabel}. Когда появятся задания, здесь откроется маршрут по дням.`
-              : "Добавь дату старта и дни челленджа в Notion, чтобы маршрут стал полноценным."
+              ? `Старт будет ${startLabel}. В день старта здесь откроется маршрут по заданиям.`
+              : "Задания откроются здесь ближе к старту."
           }
         />
 

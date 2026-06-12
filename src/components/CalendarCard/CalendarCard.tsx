@@ -48,7 +48,7 @@ export function CalendarCard() {
             Календарь
           </p>
           <p className="type-body">
-            Загружаем даты опубликованных материалов из Notion.
+            Загружаем даты опубликованных материалов.
           </p>
         </div>
       </div>

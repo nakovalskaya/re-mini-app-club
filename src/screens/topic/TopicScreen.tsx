@@ -60,7 +60,7 @@ export function TopicScreen() {
         links.length === 0 ? (
           <EmptyState
             title="Пока пусто"
-            description="Добавь опубликованные ссылки в базу Notion, и они появятся здесь."
+            description="Полезные ссылки скоро появятся здесь."
           />
         ) : (
           <div className="space-y-4">

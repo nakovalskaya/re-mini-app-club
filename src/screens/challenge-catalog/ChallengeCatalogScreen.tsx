@@ -25,7 +25,7 @@ export function ChallengeCatalogScreen() {
         <SectionTitle
           title="Все челленджи"
           eyebrow="Каталог"
-          description="Подтягиваем каталог из Notion."
+          description="Подтягиваем каталог движух."
         />
         <LoadingScreen />
       </section>
