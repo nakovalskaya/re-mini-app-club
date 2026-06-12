@@ -144,7 +144,8 @@ export function openTelegramLink(url: string) {
   // Notion sometimes leaves trailing whitespace/newlines when an editor pastes
   // a URL; Telegram's openTelegramLink silently drops you on the home screen
   // when it can't parse the link, so trim before doing anything else.
-  const cleaned = url.trim();
+  const trimmed = url.trim();
+  const cleaned = /^t\.me\//i.test(trimmed) ? `https://${trimmed}` : trimmed;
   const webApp = getTelegramObject();
 
   // Native tg:// schemes (tg://privatepost?channel=…&post=…, tg://resolve, …)
@@ -161,23 +162,18 @@ export function openTelegramLink(url: string) {
   }
 
   // Private channel post: https://t.me/c/<CHAT_ID>/<MSG_ID>
-  //
-  // - Desktop / macOS / Android: a native anchor click is intercepted by the
-  //   WebView's link parser (the same one used for taps inside chats) and
-  //   opens the exact post in the client.
-  // - iOS: that anchor falls through to Telegram's in-app browser, which
-  //   shows 404 because private posts have no public web page. We convert to
-  //   the `tg://privatepost` scheme — iOS's URL scheme handler routes it
-  //   straight into the Telegram app on the message, no browser.
+  // Let Telegram's own Mini App API parse it first. It is the closest path to
+  // how Telegram opens the same link from a regular chat message.
   const privateMatch = cleaned.match(/^https?:\/\/t\.me\/c\/(\d+)\/(\d+)/i);
   if (privateMatch) {
+    if (webApp?.openTelegramLink) {
+      webApp.openTelegramLink(cleaned);
+      return;
+    }
+
     const isIOS = webApp?.platform === "ios";
     if (isIOS) {
       const [, channel, post] = privateMatch;
-      // Skip openTelegramLink here — many iOS Telegram builds only accept
-      // t.me URLs there and silently swallow tg:// schemes. Hand the scheme
-      // straight to the OS URL handler instead; iOS routes it into Telegram
-      // and lands on the exact post.
       const tgUrl = `tg://privatepost?channel=${channel}&post=${post}`;
       window.location.href = tgUrl;
       return;
