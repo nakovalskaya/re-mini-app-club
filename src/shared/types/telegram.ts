@@ -30,6 +30,7 @@ export interface TelegramWebApp {
   setBottomBarColor?: (color: string) => void;
   openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
   openTelegramLink?: (url: string) => void;
+  close?: () => void;
   onEvent?: (eventType: string, callback: () => void) => void;
   offEvent?: (eventType: string, callback: () => void) => void;
   version?: string;
