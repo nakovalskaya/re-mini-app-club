@@ -140,6 +140,10 @@ function openViaAnchorClick(url: string) {
   document.body.removeChild(anchor);
 }
 
+function isMobileTelegramPlatform(platform?: string | null) {
+  return platform === "ios" || platform === "android" || platform === "android_x";
+}
+
 export function openTelegramLink(url: string) {
   // Notion sometimes leaves trailing whitespace/newlines when an editor pastes
   // a URL; Telegram's openTelegramLink silently drops you on the home screen
@@ -168,6 +172,11 @@ export function openTelegramLink(url: string) {
   if (privateMatch) {
     if (webApp?.openTelegramLink) {
       webApp.openTelegramLink(cleaned);
+      if (isMobileTelegramPlatform(webApp.platform)) {
+        window.setTimeout(() => {
+          webApp.close?.();
+        }, 120);
+      }
       return;
     }
 
