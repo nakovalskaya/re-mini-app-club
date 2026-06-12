@@ -11,23 +11,41 @@ type ChallengeCardProps = {
   canTakeNewChallenge?: boolean; // Can be kept for safety, but we want to allow clicking to trigger the prompt
 };
 
+function formatChallengeStartDate(value?: string) {
+  if (!value) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long"
+  }).format(new Date(`${value}T00:00:00`));
+}
+
 export function ChallengeCard({
   challenge,
   completedDays,
   status = "default",
   onTakeChallenge
 }: ChallengeCardProps) {
-  const isActive = status === "active";
+  const hasDays = challenge.days.length > 0;
+  const startLabel = formatChallengeStartDate(challenge.startDate);
+  const isAnnouncement = !hasDays && Boolean(startLabel);
+  const effectiveStatus = hasDays ? status : "default";
+  const isActive = effectiveStatus === "active";
   const badgeLabel =
-    status === "completed" ? "пройден" :
-    status === "taken" ? "завершен" :
-    status === "active" ? "активен" : null;
+    isAnnouncement ? `старт ${startLabel}` :
+    effectiveStatus === "completed" ? "пройден" :
+    effectiveStatus === "taken" ? "завершен" :
+    effectiveStatus === "active" ? "активен" : null;
   const badgeClassName =
-    status === "completed"
+    isAnnouncement
+      ? "status-chip-active"
+      : effectiveStatus === "completed"
       ? "status-chip-completed"
-      : status === "taken"
+      : effectiveStatus === "taken"
         ? "status-chip-finished"
-        : status === "active"
+        : effectiveStatus === "active"
           ? "status-chip-active"
           : "";
 
@@ -68,13 +86,20 @@ export function ChallengeCard({
         </div>
       </div>
 
-      {status !== "default" ? (
+      {hasDays && effectiveStatus !== "default" ? (
         <div className="space-y-2">
           <ProgressBar value={completedDays} max={challenge.durationDays} />
         </div>
       ) : null}
 
-      {!isActive ? (
+      {!hasDays ? (
+        <Link
+          to={`/challenges/${challenge.id}`}
+          className="button-secondary-compact pressable inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2.5 text-[13px] font-semibold leading-none"
+        >
+          Посмотреть
+        </Link>
+      ) : !isActive ? (
         <div className="grid grid-cols-2 gap-3">
           <Link
             to={`/challenges/${challenge.id}`}
@@ -83,7 +108,7 @@ export function ChallengeCard({
             Посмотреть
           </Link>
           <Button onClick={() => onTakeChallenge(challenge.id)}>
-            {status === "taken" || status === "completed" ? "Начать заново" : "Начать"}
+            {effectiveStatus === "taken" || effectiveStatus === "completed" ? "Начать заново" : "Начать"}
           </Button>
         </div>
       ) : (

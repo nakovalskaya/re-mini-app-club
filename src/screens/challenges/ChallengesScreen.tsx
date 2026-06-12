@@ -32,7 +32,10 @@ export function ChallengesScreen() {
     [challenges, takenChallengeIds]
   );
   const activeChallenge = useMemo(
-    () => (activeChallengeId ? getChallengeById(challenges, activeChallengeId) : null),
+    () => {
+      const challenge = activeChallengeId ? getChallengeById(challenges, activeChallengeId) : null;
+      return challenge?.days.length ? challenge : null;
+    },
     [activeChallengeId, challenges]
   );
 
@@ -101,7 +104,7 @@ export function ChallengesScreen() {
 
           <div className="space-y-3.5">
             {personalChallenges
-              .filter((challenge) => challenge!.id !== activeChallengeId)
+              .filter((challenge) => challenge!.id !== activeChallenge?.id)
               .map((challenge) => (
               <ChallengeCard
                 key={challenge!.id}

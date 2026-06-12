@@ -27,7 +27,7 @@ const ChallengesContext = createContext<ChallengesContextValue | null>(null);
 
 let cachedChallengesState: Omit<ChallengesContextValue, "isLoading"> | null = null;
 let challengesLoadPromise: Promise<Omit<ChallengesContextValue, "isLoading">> | null = null;
-const challengesCacheKey = "club_challenges_cache:v1";
+const challengesCacheKey = "club_challenges_cache:v3";
 const challengesCacheTtlMs = 1000 * 60 * 10;
 const challengesEndpoint =
   typeof import.meta !== "undefined" && import.meta.env?.DEV

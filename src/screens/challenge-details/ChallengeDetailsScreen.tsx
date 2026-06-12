@@ -13,6 +13,17 @@ import { useAppState } from "@/app/providers/AppStateProvider";
 import { getChallengeById } from "@/features/challenges/selectors";
 import { openExternalLink } from "@/features/telegram/telegram";
 
+function formatChallengeStartDate(value?: string) {
+  if (!value) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long"
+  }).format(new Date(`${value}T00:00:00`));
+}
+
 export function ChallengeDetailsScreen() {
   const { id } = useParams();
   const {
@@ -53,11 +64,23 @@ export function ChallengeDetailsScreen() {
   const isChallengeDone = challenge ? isChallengeCompleted(challenge.id) : false;
   const isChallengeFinished = challenge ? isChallengeFinishedEarly(challenge.id) : false;
   const isReadOnly = isChallengeDone || isChallengeFinished;
+  const hasDays = Boolean(challenge?.days.length);
+  const startLabel = formatChallengeStartDate(challenge?.startDate);
 
   const selectedDay = useMemo(
     () => challenge?.days.find((day) => day.id === selectedDayId) ?? challenge?.days[0] ?? null,
     [challenge, selectedDayId]
   );
+
+  // The "open window" — first 3 not-yet-closed days. The very first is the
+  // current day the user can actually mark; the next two are previewable so
+  // the user can read ahead and prepare, but their mark buttons stay disabled.
+  const openDayIds = useMemo(() => {
+    return challenge?.days
+      .filter((day) => !closedDayIds.has(day.id))
+      .slice(0, 3)
+      .map((day) => day.id) ?? [];
+  }, [challenge, closedDayIds]);
 
   if (isLoading) {
     return (
@@ -80,15 +103,53 @@ export function ChallengeDetailsScreen() {
     );
   }
 
-  // The "open window" — first 3 not-yet-closed days. The very first is the
-  // current day the user can actually mark; the next two are previewable so
-  // the user can read ahead and prepare, but their mark buttons stay disabled.
-  const openDayIds = useMemo(() => {
-    return challenge?.days
-      .filter((day) => !closedDayIds.has(day.id))
-      .slice(0, 3)
-      .map((day) => day.id) ?? [];
-  }, [challenge, closedDayIds]);
+  if (!hasDays) {
+    return (
+      <section className="screen-stack">
+        <BackButton />
+        <SectionTitle
+          title={challenge.title}
+          eyebrow="Челлендж"
+          description={challenge.description}
+        />
+
+        <div className="surface-card-elevated space-y-4 p-[1.05rem]">
+          <div className="space-y-2.5">
+            <p className="text-sm text-text-secondary">
+              {challenge.durationDays} дней · сложность {challenge.difficulty}/5
+            </p>
+            {startLabel ? (
+              <div className="rounded-[24px] border border-border-medium bg-bg-soft px-4 py-3 text-sm leading-6 text-text-primary">
+                Старт будет {startLabel}. Пока это анонс: задания появятся здесь, когда ты добавишь дни в Notion.
+              </div>
+            ) : (
+              <div className="rounded-[24px] border border-border-medium bg-bg-soft px-4 py-3 text-sm leading-6 text-text-secondary">
+                Челлендж опубликован как анонс, но дата старта пока не указана.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <EmptyState
+          title="Скоро старт"
+          description={
+            startLabel
+              ? `Старт будет ${startLabel}. Когда появятся задания, здесь откроется маршрут по дням.`
+              : "Добавь дату старта и дни челленджа в Notion, чтобы маршрут стал полноценным."
+          }
+        />
+
+        {challenge.rulesUrl ? (
+          <Button
+            className="min-h-11"
+            onClick={() => openExternalLink(challenge.rulesUrl)}
+          >
+            Правила челленджа
+          </Button>
+        ) : null}
+      </section>
+    );
+  }
 
   const getDayStatus = (dayNumber: number, dayId: string) => {
     if (completedDayIds.includes(dayId)) {

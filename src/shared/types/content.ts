@@ -69,6 +69,7 @@ export type ChallengeDay = {
   title: string;
   description: string;
   telegramUrl: string;
+  scheduledAt?: string;
 };
 
 export type Challenge = {
@@ -79,6 +80,8 @@ export type Challenge = {
   durationDays: number;
   difficulty: 1 | 2 | 3 | 4 | 5;
   status: "active" | "archived";
+  isPublished?: boolean;
+  startDate?: string;
   topicIds: string[];
   rulesUrl: string;
   days: ChallengeDay[];

@@ -29,7 +29,9 @@ type NotionProperty = {
   multi_select?: Array<{ name?: string | null }>;
   url?: string | null;
   number?: number | null;
+  checkbox?: boolean;
   relation?: Array<{ id?: string }>;
+  date?: { start?: string | null } | null;
 };
 
 type ChallengeDraft = Omit<Challenge, "days">;
@@ -74,6 +76,14 @@ function readNumber(property?: NotionProperty) {
   return typeof property?.number === "number" && Number.isFinite(property.number)
     ? property.number
     : null;
+}
+
+function readCheckbox(property?: NotionProperty) {
+  return property?.checkbox === true;
+}
+
+function readDate(property?: NotionProperty) {
+  return property?.date?.start?.slice(0, 10) ?? "";
 }
 
 function readRelationIds(property?: NotionProperty) {
@@ -140,8 +150,9 @@ async function queryDatabase(
 function mapChallenge(page: NotionPage): ChallengeDraft | null {
   const properties = page.properties ?? {};
   const title = readTitle(properties.Name);
+  const isPublished = readCheckbox(properties.Published);
 
-  if (!title) {
+  if (!title || !isPublished) {
     return null;
   }
 
@@ -158,6 +169,8 @@ function mapChallenge(page: NotionPage): ChallengeDraft | null {
     durationDays: Math.max(1, Math.round(readNumber(properties["Duration Days"]) ?? 1)),
     difficulty: clampDifficulty(readNumber(properties.Difficulty)),
     status: readSelect(properties.Status) === "archived" ? "archived" : "active",
+    isPublished,
+    startDate: readDate(properties["Start Date"]) || undefined,
     topicIds: resolveTopicIds(readMultiSelect(properties.Topics)),
     rulesUrl: readUrl(properties["Rules URL"])
   };
@@ -187,7 +200,8 @@ function mapChallengeDay(
     dayNumber: normalizedDayNumber,
     title,
     description: readRichText(properties.Description) || title,
-    telegramUrl: readUrl(properties["Telegram URL"])
+    telegramUrl: readUrl(properties["Telegram URL"]),
+    scheduledAt: readDate(properties.Date) || undefined
   };
 }
 

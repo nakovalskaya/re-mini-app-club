@@ -1,6 +1,6 @@
 import { categories } from "@/data/categories";
 import { topics } from "@/data/topics";
-import type { Material } from "@/shared/types/content";
+import type { Challenge, Material } from "@/shared/types/content";
 
 export type CalendarDayCell = {
   date: string;
@@ -91,6 +91,51 @@ export function getMaterialsByDate(materials: Material[], date: string) {
   );
 }
 
+function parseDateKey(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day);
+}
+
+function addDays(date: Date, days: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function isChallengeInDateRange(challenge: Challenge, date: string) {
+  if (
+    challenge.status === "archived" ||
+    challenge.isPublished === false ||
+    !challenge.startDate ||
+    challenge.durationDays < 1
+  ) {
+    return false;
+  }
+
+  const currentDate = parseDateKey(date);
+  const startDate = parseDateKey(challenge.startDate);
+  if (!currentDate || !startDate) {
+    return false;
+  }
+
+  const endDate = addDays(startDate, challenge.durationDays - 1);
+  return currentDate >= startDate && currentDate <= endDate;
+}
+
+export function getChallengesByDate(challenges: Challenge[], date: string) {
+  return challenges
+    .filter((challenge) => isChallengeInDateRange(challenge, date))
+    .sort((a, b) => {
+      const startDelta = (a.startDate ?? "").localeCompare(b.startDate ?? "");
+      return startDelta || a.title.localeCompare(b.title, "ru");
+    });
+}
+
 function formatDateKey(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -107,7 +152,11 @@ export function shiftCalendarMonth(baseDate: Date, diff: number) {
   return new Date(baseDate.getFullYear(), baseDate.getMonth() + diff, 1);
 }
 
-export function buildCalendarMonth(materials: Material[], monthDate: Date): CalendarDayCell[] {
+export function buildCalendarMonth(
+  materials: Material[],
+  monthDate: Date,
+  challenges: Challenge[] = []
+): CalendarDayCell[] {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
@@ -119,12 +168,13 @@ export function buildCalendarMonth(materials: Material[], monthDate: Date): Cale
     const dayOffset = index - firstWeekday;
     const cellDate = new Date(year, month, dayOffset + 1);
     const date = formatDateKey(cellDate);
-    const eventTypes = getMaterialsByDate(materials, date).map((material) => material.calendarColorKey);
+    const materialTypes = getMaterialsByDate(materials, date).map((material) => material.calendarColorKey);
+    const challengeTypes = getChallengesByDate(challenges, date).map(() => "challenge");
 
     return {
       date,
       label: cellDate.getDate(),
-      eventTypes,
+      eventTypes: [...materialTypes, ...challengeTypes],
       isCurrentMonth: cellDate.getMonth() === month
     };
   });

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useChallenges } from "@/app/providers/ChallengesProvider";
 import { useMaterials } from "@/app/providers/MaterialsProvider";
 import { CalendarDateCell } from "@/components/CalendarDateCell/CalendarDateCell";
 import {
@@ -23,19 +24,23 @@ const monthFormatter = new Intl.DateTimeFormat("ru-RU", {
 
 export function CalendarCard() {
   const { materials, isLoading } = useMaterials();
+  const { challenges, isLoading: challengesLoading } = useChallenges();
   const currentMonth = useMemo(() => getCalendarMonthStart(), []);
   const [monthOffset, setMonthOffset] = useState(0);
   const monthDate = useMemo(
     () => shiftCalendarMonth(currentMonth, monthOffset),
     [currentMonth, monthOffset]
   );
-  const days = useMemo(() => buildCalendarMonth(materials, monthDate), [materials, monthDate]);
+  const days = useMemo(
+    () => buildCalendarMonth(materials, monthDate, challenges),
+    [challenges, materials, monthDate]
+  );
   const monthLabel = useMemo(() => {
     const formatted = monthFormatter.format(monthDate);
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }, [monthDate]);
 
-  if (isLoading) {
+  if (isLoading || challengesLoading) {
     return (
       <div className="surface-card space-y-3 p-[15px]">
         <div className="space-y-1">
